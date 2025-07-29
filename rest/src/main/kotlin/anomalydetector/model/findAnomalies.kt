@@ -1,7 +1,7 @@
 package anomalydetector.model
 
 import anomalydetector.model.ingest.getData
-import anomalydetector.model.detection.findOutliers
+import anomalydetector.model.detection.findOutliersInSpeed
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
 import org.locationtech.jts.geom.Geometry
 import java.time.LocalDate
@@ -12,22 +12,15 @@ fun findAnomalies(
   tile: Long,
   level: String,
   geometry: Geometry
-): List<TrafficTileHour> {
-
-  val anomalies: List<TrafficTileHour> = findOutliers(
-    getData(
-      startDay = startDay,
-      days = days,
-      tile = tile,
-      level = levelFromString(level),
-      geometry = geometry
-    )
+): List<TrafficTileHour> = findOutliersInSpeed(
+  getData(
+    startDay = startDay,
+    days = days,
+    tile = tile,
+    level = levelFromString(level),
+    geometry = geometry
   )
-
-
-
-  return anomalies.sortedBy { it.date }
-}
+)
 
 private fun levelFromString(level: String): MortonTileLevel<*> {
   return when (level) {

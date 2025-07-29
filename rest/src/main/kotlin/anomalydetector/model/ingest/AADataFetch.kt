@@ -46,7 +46,7 @@ fun getData(
 private suspend fun getDay(
   day: LocalDate,
   tile: Long = 3597,
-  level: MortonTileLevel<*> = MortonTileLevel.M19,
+  level: MortonTileLevel<*> = MortonTileLevel.M16,
   geometry: Geometry
 ): List<AggregatedTraffic> = storage.traffic
   .read(day, processingTileFromCode(tile), level, geometry)

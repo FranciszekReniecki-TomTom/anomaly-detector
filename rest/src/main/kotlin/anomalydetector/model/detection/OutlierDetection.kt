@@ -1,51 +1,49 @@
 package anomalydetector.model.detection
 
 import anomalydetector.model.TrafficTileHour
+import org.slf4j.LoggerFactory
 import java.time.DayOfWeek
 import kotlin.math.abs
+import kotlin.math.sqrt
 
-fun findOutliers(
+private val log = LoggerFactory.getLogger("OutlierDetection")
+
+private data class TrafficId(
+  val day: DayOfWeek,
+  val hour: Byte,
+  val id: Long
+)
+
+private data class PlainTraffic(
+  val speed: Double,
+  val distance: Long,
+  val freeFlowSpeed: Double
+)
+
+fun findOutliersInSpeed(
   data: List<TrafficTileHour>,
-  threshold: Double = 2.0
+  threshold: Double = 1.0
 ): List<TrafficTileHour> {
-
-  val averages: Map<Triple<DayOfWeek, Byte, Long>, AverageTraffic> = getAverages(data)
+  val trafficWeekly: Map<TrafficId, List<TrafficTileHour>> = data
+    .groupBy { TrafficId(it.date.dayOfWeek, it.hour, it.id) }
+  val averages: Map<TrafficId, Double> = trafficWeekly
+    .mapValues { it.value.map { tileHour -> tileHour.traffic.speedKmH }.average() }
+  val stds: Map<TrafficId, Double> = trafficWeekly
+    .mapValues { (trafficId, tileHours) ->
+      val avgSpeed = averages[trafficId]
+        ?: throw IllegalArgumentException("No average for trafficId: $trafficId")
+      sqrt(tileHours.map { (it.traffic.speedKmH - avgSpeed).let { d -> d * d } }.average())
+    }
 
   return data.filter { trafficTileHour ->
-    val key = Triple(trafficTileHour.date.dayOfWeek, trafficTileHour.hour, trafficTileHour.id)
-    val (avgSpeed, avgDistance, avgFreeFlow) = averages[key] ?: throw IllegalArgumentException(
-      "No average found for key: $key"
+    val trafficId =
+      TrafficId(trafficTileHour.date.dayOfWeek, trafficTileHour.hour, trafficTileHour.id)
+    val avgSpeed = averages[trafficId] ?: throw IllegalArgumentException(
+      "No average speed found for key: $trafficId"
     )
-
-    // find residuals for speed, distance, and free flow speed
-    val speedResidual = abs(trafficTileHour.traffic.speedKmH - avgSpeed) * 100 / avgSpeed
-    val distanceResidual =
-      abs(trafficTileHour.traffic.totalDistanceM - avgDistance) * 100 / avgDistance
-    val freeFlowResidual =
-      abs(trafficTileHour.traffic.freeFlowSpeedKmH - avgFreeFlow) * 100 / avgFreeFlow
-
-    // if any residual is greater than the threshold, mark as anomaly
-    speedResidual > threshold || distanceResidual > threshold || freeFlowResidual > threshold
+    val std = stds[trafficId] ?: throw IllegalArgumentException(
+      "No standard deviation found for key: $trafficId"
+    )
+    abs(trafficTileHour.traffic.speedKmH - avgSpeed) / std > threshold
   }
 }
-
-private fun getAverages(data: List<TrafficTileHour>) = data
-  .groupBy { Triple(it.date.dayOfWeek, it.hour, it.id) }
-  .mapValues {
-    val avgSpeed = it.value.map { tileHour -> tileHour.traffic.speedKmH }.average()
-    val avgDistance =
-      it.value.map { tileHour -> tileHour.traffic.totalDistanceM }.average().toLong()
-    val avgFreeFlowSpeed = it.value.map { tileHour -> tileHour.traffic.freeFlowSpeedKmH }.average()
-
-    AverageTraffic(
-      avgSpeed = avgSpeed,
-      avgDistance = avgDistance,
-      avgFreeFlowSpeed = avgFreeFlowSpeed
-    )
-  }
-
-private data class AverageTraffic(
-  val avgSpeed: Double,
-  val avgDistance: Long,
-  val avgFreeFlowSpeed: Double
-)
