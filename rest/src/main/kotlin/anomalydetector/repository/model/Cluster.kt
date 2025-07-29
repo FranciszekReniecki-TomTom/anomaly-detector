@@ -6,7 +6,6 @@ import java.util.*
 @Entity
 data class Cluster(
     @Id
-    @GeneratedValue
     val id: UUID? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")
