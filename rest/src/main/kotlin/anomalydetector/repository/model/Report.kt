@@ -1,4 +1,4 @@
-package com.tomtom.anomalydetector.model
+package anomalydetector.repository.model
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
