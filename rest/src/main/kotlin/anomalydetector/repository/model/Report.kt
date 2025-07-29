@@ -7,9 +7,11 @@ import org.locationtech.jts.geom.Polygon
 
 @Entity
 data class Report(
-        @Id @GeneratedValue val id: UUID? = null,
+        @Id
+        val id: UUID? = null,
         val name: String,
-        @Column(name = "creation_date") val creationDate: LocalDateTime,
+        @Column(name = "creation_date")
+        val creationDate: LocalDateTime,
         @Column(columnDefinition = "geometry(Polygon,4326)")
         val geometry: Polygon? = null,
         @OneToMany(mappedBy = "report", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)

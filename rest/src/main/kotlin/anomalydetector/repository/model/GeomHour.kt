@@ -8,7 +8,6 @@ import org.locationtech.jts.geom.Polygon
 @Entity
 data class GeomHour(
     @Id
-    @GeneratedValue
     val id: UUID? = null,
     val timestamp: LocalDateTime,
     @Column(columnDefinition = "geometry(Polygon,4326)")
