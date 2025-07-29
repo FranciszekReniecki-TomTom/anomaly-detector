@@ -1,4 +1,4 @@
-package anomalydetector.service
+package anomalydetector.service.trafficdata
 
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
 import org.junit.jupiter.api.Assertions.*
@@ -22,8 +22,8 @@ class AreaAnalyticsDataServiceTest {
   @Test
   fun `get data for 1 day`() {
     val data = getData(
-      1,
       LocalDate.of(2024, 1, 1),
+      1,
       3597,
       MortonTileLevel.M16,
       lodzCenter

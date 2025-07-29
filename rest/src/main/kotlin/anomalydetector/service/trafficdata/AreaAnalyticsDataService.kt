@@ -1,6 +1,6 @@
-package anomalydetector.service
+package anomalydetector.service.trafficdata
 
-import anomalydetector.model.TileHour
+import anomalydetector.model.TrafficTileHour
 import com.tomtom.tti.area.analytics.io.storage.AreaAnalyticsStorage
 import com.tomtom.tti.area.analytics.model.traffic.M20Traffic
 import com.tomtom.tti.area.analytics.model.traffic.Traffic
@@ -21,12 +21,12 @@ private val storage = AreaAnalyticsStorage(
 )
 
 fun getData(
-  days: Int,
   startDay: LocalDate,
+  days: Int,
   tile: Long,
   level: MortonTileLevel<*>,
   geometry: Geometry
-): List<TileHour> = runBlocking {
+): List<TrafficTileHour> = runBlocking {
   generateSequence(startDay) { it.plusDays(1) }
     .take(days)
     .map { day ->
@@ -38,7 +38,7 @@ fun getData(
     .awaitAll()
     .flatMap { (date, trafficList) ->
       trafficList.map { traffic ->
-        TileHour(date, traffic.hour, traffic.id, traffic.traffic)
+        TrafficTileHour(date, traffic.hour, traffic.id, traffic.traffic)
       }
     }
 }
