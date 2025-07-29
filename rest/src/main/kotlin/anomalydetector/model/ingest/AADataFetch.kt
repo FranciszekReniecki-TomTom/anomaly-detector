@@ -1,4 +1,4 @@
-package anomalydetector.service.trafficdata
+package anomalydetector.model.ingest
 
 import anomalydetector.model.TrafficTileHour
 import com.tomtom.tti.area.analytics.io.storage.AreaAnalyticsStorage
@@ -46,7 +46,7 @@ fun getData(
 private suspend fun getDay(
   day: LocalDate,
   tile: Long = 3597,
-  level: MortonTileLevel<*>,
+  level: MortonTileLevel<*> = MortonTileLevel.M19,
   geometry: Geometry
 ): List<AggregatedTraffic> = storage.traffic
   .read(day, processingTileFromCode(tile), level, geometry)
