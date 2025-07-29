@@ -1,7 +1,8 @@
-package anomalydetector.service
+package anomalydetector.service.trafficdata
 
-import anomalydetector.model.TileHour
+import anomalydetector.model.TrafficTileHour
 import com.tomtom.tti.area.analytics.io.storage.AreaAnalyticsStorage
+import com.tomtom.tti.area.analytics.model.traffic.M20Traffic
 import com.tomtom.tti.area.analytics.model.traffic.Traffic
 import com.tomtom.tti.area.analytics.model.traffic.aggregate
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
@@ -20,12 +21,12 @@ private val storage = AreaAnalyticsStorage(
 )
 
 fun getData(
-  days: Int,
   startDay: LocalDate,
+  days: Int,
   tile: Long,
   level: MortonTileLevel<*>,
   geometry: Geometry
-): List<TileHour> = runBlocking {
+): List<TrafficTileHour> = runBlocking {
   generateSequence(startDay) { it.plusDays(1) }
     .take(days)
     .map { day ->
@@ -37,7 +38,7 @@ fun getData(
     .awaitAll()
     .flatMap { (date, trafficList) ->
       trafficList.map { traffic ->
-        TileHour(date, traffic.hour, traffic.id, traffic.traffic)
+        TrafficTileHour(date, traffic.hour, traffic.id, traffic.traffic)
       }
     }
 }
@@ -52,6 +53,9 @@ private suspend fun getDay(
   .awaitAll()
   .flatten()
   .flatMap { it.m20Traffic }
+  .aggregateRoads()
+
+private fun List<M20Traffic>.aggregateRoads(): List<AggregatedTraffic> = this
   .groupBy { (Pair(it.id, it.hour)) }
   .map { (key, group) ->
     val (id, hour) = key

@@ -11,4 +11,4 @@ import java.time.LocalDate
  * @property id The Morton Tile identifier for the tile hour.
  * @property traffic Traffic data associated with the tile hour.
  */
-data class TileHour(val date: LocalDate, val hour: Byte, val id: Long, val traffic: Traffic)
+data class TrafficTileHour(val date: LocalDate, val hour: Byte, val id: Long, val traffic: Traffic)
