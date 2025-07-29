@@ -5,7 +5,7 @@ CREATE TABLE report (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
     creation_date TIMESTAMP NOT NULL,
-    geometry geometry
+    geometry geometry(Polygon,4326)
 );
 
 CREATE TABLE cluster (
@@ -13,9 +13,9 @@ CREATE TABLE cluster (
     report_id UUID REFERENCES report(id) ON DELETE CASCADE
 );
 
-CREATE TABLE tile_hour (
-    tile_id BIGINT NOT NULL,
+CREATE TABLE geom_hour (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     timestamp TIMESTAMP NOT NULL,
-    cluster_id UUID REFERENCES cluster(id) ON DELETE CASCADE,
-    PRIMARY KEY (tile_id, timestamp)
+    geometry geometry(Polygon,4326) NOT NULL,
+    cluster_id UUID REFERENCES cluster(id) ON DELETE CASCADE
 );

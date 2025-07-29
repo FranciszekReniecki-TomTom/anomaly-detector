@@ -10,4 +10,4 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
-        dialect: orghibernate.spatial.dialect.postgis.PostgisDialect
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
