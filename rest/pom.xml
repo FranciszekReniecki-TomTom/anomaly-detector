@@ -19,6 +19,7 @@
         <jts.version>1.19.0</jts.version>
         <io.github.cdimascio>6.2.2</io.github.cdimascio>
         <org.springdoc>2.8.9</org.springdoc>
+        <nida.version>2.19.0</nida.version>
         <jackson.module.kotlin.version>2.19.1</jackson.module.kotlin.version>
     </properties>
 
@@ -96,6 +97,11 @@
             <groupId>com.tomtom.tti.area.analytics</groupId>
             <artifactId>area-analytics-io</artifactId>
             <version>${com.tomtom.tti.area.analytics}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tomtom.tti.nida</groupId>
+            <artifactId>nida-morton</artifactId>
+            <version>${nida.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.cdimascio</groupId>

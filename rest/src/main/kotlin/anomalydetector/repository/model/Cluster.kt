@@ -7,13 +7,11 @@ import java.util.*
 data class Cluster(
     @Id
     val id: UUID? = null,
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "report_id")
-    val report: Report,
     @OneToMany(
-        mappedBy = "cluster",
         cascade = [CascadeType.ALL],
         orphanRemoval = true,
-        fetch = FetchType.LAZY)
+        fetch = FetchType.LAZY
+    )
+    @JoinColumn(name = "cluster_id")
     val geomHours: List<GeomHour> = emptyList()
 )
