@@ -4,13 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.tomtom</groupId>
-        <artifactId>anomaly-detector</artifactId>
-        <version>${revision}</version>
-    </parent>
-
+    <groupId>com.tomtom.anomaly-detector</groupId>
     <artifactId>rest</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,7 +17,6 @@
         <org.springframework.boot>3.5.4</org.springframework.boot>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <com.tomtom.tti.area.analytics>1.6</com.tomtom.tti.area.analytics>
-        <io.github.cdimascio>6.4.1</io.github.cdimascio>
     </properties>
 
     <repositories>
@@ -99,11 +94,6 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${org.jetbrains.kotlin}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.cdimascio</groupId>
-            <artifactId>dotenv-kotlin</artifactId>
-            <version>${io.github.cdimascio}</version>
         </dependency>
     </dependencies>
 
