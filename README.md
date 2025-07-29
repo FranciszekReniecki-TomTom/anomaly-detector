@@ -8,6 +8,13 @@
   AREA_ANALYTICS_KEY=your_area_analytics_key_here
   ```
 
+- Create a `.env` file in the directory with docker-compose file to store crucial database connection information:
+  ```
+  POSTGRES_DB=your_database_name_here
+  POSTGRES_USER=your_postgres_username_here
+  POSTGRES_PASSWORD=your_postgres_password_here
+  ```
+
 ## Commit and Branch Naming Conventions
 
 ### Commit Messages
