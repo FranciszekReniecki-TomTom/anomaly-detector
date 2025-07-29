@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
-        <org.jetbrains.kotlin>2.2.0</org.jetbrains.kotlin>
+        <kotlin.version>2.2.0</kotlin.version>
         <org.junit.jupiter>5.10.0</org.junit.jupiter>
         <org.springframework.boot>3.5.4</org.springframework.boot>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
@@ -44,7 +44,7 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${org.jetbrains.kotlin}</version>
+                <version>${kotlin.version}</version>
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
-            <version>${org.jetbrains.kotlin}</version>
+            <version>${kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -120,7 +120,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-      </dependency>
+        </dependency>
       <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
@@ -129,7 +129,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test-junit5</artifactId>
-            <version>${org.jetbrains.kotlin}</version>
+            <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -141,7 +141,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
-            <version>${org.jetbrains.kotlin}</version>
+            <version>${kotlin.version}</version>
         </dependency>
     </dependencies>
 
