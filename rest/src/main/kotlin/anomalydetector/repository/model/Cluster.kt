@@ -5,10 +5,16 @@ import java.util.*
 
 @Entity
 data class Cluster(
-        @Id @GeneratedValue val id: UUID? = null,
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "report_id")
-        val report: Report? = null,
-        @OneToMany(mappedBy = "cluster", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-        val tileHours: List<TileHour> = emptyList()
+    @Id
+    @GeneratedValue
+    val id: UUID? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "report_id")
+    val report: Report? = null,
+    @OneToMany(
+        mappedBy = "cluster",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+        fetch = FetchType.LAZY)
+    val geomHours: List<GeomHour> = emptyList()
 )
