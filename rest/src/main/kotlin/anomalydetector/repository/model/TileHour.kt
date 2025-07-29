@@ -1,12 +1,13 @@
-package com.tomtom.anomalydetector.model
+package anomalydetector.repository.model
 
 import jakarta.persistence.*
 import java.io.Serializable
-import java.time.LocalDate
-import java.util.*
+import java.time.LocalDateTime
 
 @Embeddable
-data class TileHourId(val tileId: Long = 0, val date: LocalDate = LocalDate.now()) : Serializable
+data class TileHourId(
+        val tileId: Long = 0,
+        val date: LocalDateTime = LocalDateTime.now()) : Serializable
 
 @Entity
 data class TileHour(

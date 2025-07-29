@@ -1,6 +1,6 @@
-package com.tomtom.anomalydetector.repository
+package anomalydetector.repository
 
-import com.tomtom.anomalydetector.model.Cluster
+import anomalydetector.repository.model.Cluster
 import java.util.UUID
 import org.springframework.data.jpa.repository.JpaRepository
 
