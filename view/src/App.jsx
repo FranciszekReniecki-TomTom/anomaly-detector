@@ -1,35 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, Suspense } from "react";
+// import reactLogo from "./assets/react.svg";
+// import viteLogo from "/vite.svg";
+import "./App.css";
+import { GlMap, MapMenuToggle } from "legoland-shared";
+import { Button } from "tombac";
+import { TombacApp } from "tombac";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+  const [mapModel, setMapModel] = useState("Genesis");
+  const [mapStyleSettings, setMapStyleSettings] = useState({
+    style: "Street dark",
+    languageGenesis: "ngt",
+    languageOrbis: "ngt",
+    latin: true,
+    basicPOI: true,
+    buildings3D: false,
+    driving: false,
+  });
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <TombacApp
+        defineCssVariables
+        theme={{ baseUnit: "px", settings: { modalZIndex: 20 } }}
+      >
+        <Button>Click me</Button>
+        <div style={{ height: "600px", width: "900px", position: "relative" }}>
+          <GlMap
+            mapModel={mapModel}
+            apiKey="1ncwaIygtJ0KrjH5ssohlEKUGFf7G5Dv"
+            createMapOptions={{ center: [0, 0], zoom: 1 }}
+            hideNavigationControls={false}
+            controlLocation="top-right"
+            mapControlsProps={{
+              shouldCloseOnInteractOutside: (el) => {
+                return true;
+              },
+              mapLayersMenuContent: (
+                <>
+                  <MapMenuToggle
+                    label="Orbis"
+                    checked={mapModel === "Orbis"}
+                    onChange={() => {
+                      setMapModel((prev) =>
+                        prev === "Genesis" ? "Orbis" : "Genesis"
+                      );
+                    }}
+                  />
+                </>
+              ),
+              styleOptions: [
+                "Street light",
+                "Street dark",
+                "Mono light",
+                "Mono dark",
+                "Satellite",
+              ],
+            }}
+          ></GlMap>
+        </div>
+      </TombacApp>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
