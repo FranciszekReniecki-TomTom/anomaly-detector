@@ -2,6 +2,7 @@ package anomalydetector.service
 
 import anomalydetector.model.TileHour
 import com.tomtom.tti.area.analytics.io.storage.AreaAnalyticsStorage
+import com.tomtom.tti.area.analytics.model.traffic.M20Traffic
 import com.tomtom.tti.area.analytics.model.traffic.Traffic
 import com.tomtom.tti.area.analytics.model.traffic.aggregate
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
@@ -52,6 +53,9 @@ private suspend fun getDay(
   .awaitAll()
   .flatten()
   .flatMap { it.m20Traffic }
+  .aggregateRoads()
+
+private fun List<M20Traffic>.aggregateRoads(): List<AggregatedTraffic> = this
   .groupBy { (Pair(it.id, it.hour)) }
   .map { (key, group) ->
     val (id, hour) = key
