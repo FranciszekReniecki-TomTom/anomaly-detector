@@ -14,6 +14,11 @@ data class Report(
         val creationDate: LocalDateTime,
         @Column(columnDefinition = "geometry(Polygon,4326)")
         val geometry: Polygon? = null,
-        @OneToMany(mappedBy = "report", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+        @OneToMany(
+                cascade = [CascadeType.ALL],
+                orphanRemoval = true,
+                fetch = FetchType.LAZY
+        )
+        @JoinColumn(name = "report_id")
         val clusters: List<Cluster> = emptyList()
 )
