@@ -14,7 +14,6 @@
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
         <kotlin.version>2.2.0</kotlin.version>
         <org.junit.jupiter>5.10.0</org.junit.jupiter>
-        <org.springframework.boot>3.5.4</org.springframework.boot>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <com.tomtom.tti.area.analytics>1.6</com.tomtom.tti.area.analytics>
         <jts.version>1.19.0</jts.version>
@@ -111,12 +110,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <version>${org.springframework.boot}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${org.springframework.boot}</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
