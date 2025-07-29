@@ -13,7 +13,12 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tombac": "^2.5.3",
-    "tombac-icons": "^1.0.0-2023.297.1005"
+    "tombac-icons": "^1.0.0-2023.297.1005",
+    "legoland-shared": "1.3.3",
+    "react-modal": "^3.16.3",
+    "react-is": "^19.1.0",
+    "styled-components": "5.3.6",
+    "mapbox-gl": "1.13.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
