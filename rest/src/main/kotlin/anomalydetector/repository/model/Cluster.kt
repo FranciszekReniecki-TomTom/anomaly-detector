@@ -10,7 +10,7 @@ data class Cluster(
     val id: UUID? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")
-    val report: Report? = null,
+    val report: Report,
     @OneToMany(
         mappedBy = "cluster",
         cascade = [CascadeType.ALL],
