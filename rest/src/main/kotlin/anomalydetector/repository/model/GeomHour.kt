@@ -15,5 +15,5 @@ data class GeomHour(
     val geometry: Polygon,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cluster_id")
-    val cluster: Cluster? = null
+    val cluster: Cluster
 )
