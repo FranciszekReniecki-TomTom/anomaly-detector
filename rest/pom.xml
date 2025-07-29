@@ -18,6 +18,8 @@
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <com.tomtom.tti.area.analytics>1.6</com.tomtom.tti.area.analytics>
         <io.github.cdimascio>6.2.2</io.github.cdimascio>
+        <org.springdoc>2.8.9</org.springdoc>
+        <jackson.module.kotlin.version>2.19.1</jackson.module.kotlin.version>
     </properties>
 
     <repositories>
@@ -75,6 +77,11 @@
             <version>${io.github.cdimascio}</version>
         </dependency>
         <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${org.springdoc}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
             <version>${org.springframework.boot}</version>
@@ -83,6 +90,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${org.springframework.boot}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+            <version>${jackson.module.kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
