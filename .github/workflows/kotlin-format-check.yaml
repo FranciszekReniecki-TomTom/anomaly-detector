@@ -1,6 +1,12 @@
 name: Kotlin format check (spotless, ktfmt)
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   kotlin_format_check:
