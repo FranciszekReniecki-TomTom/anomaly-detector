@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.tomtom.anomaly-detector</groupId>
@@ -21,13 +21,15 @@
         <org.springdoc>2.8.9</org.springdoc>
         <nida.version>2.19.0</nida.version>
         <jackson.module.kotlin.version>2.19.1</jackson.module.kotlin.version>
+        <spotless.version>2.46.1</spotless.version>
+        <ktfmt.version>0.56</ktfmt.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.0.6</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
 
@@ -62,6 +64,30 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apply</goal>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <ratchetFrom>origin/master</ratchetFrom>
+                    <kotlin>
+                        <ktfmt>
+                            <version>${ktfmt.version}</version>
+                            <style>KOTLINLANG</style>
+                            <removeUnusedImports>true</removeUnusedImports>
+                            <manageTrailingCommas>true</manageTrailingCommas>
+                        </ktfmt>
+                    </kotlin>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -143,5 +169,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
