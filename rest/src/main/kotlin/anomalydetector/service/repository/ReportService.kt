@@ -33,27 +33,27 @@ class ReportService(private val reportRepository: ReportRepository) {
                 creationDate = creationDate,
                 geometry = geometryChosenByUser,
                 clusters = clusteredTiles.map { clusterOfTiles ->
-                    Cluster(
-                        geomHours = clusterOfTiles.groupBy {
-                            it.time.truncatedTo(ChronoUnit.HOURS)
-                        }.map { (hour, tilesInGivenHour) ->
-                            val combinedGeometryOfTiles: Geometry =
-                                tilesInGivenHour.map { (mortonTile19Id, _) ->
-                                    MortonTileLevel.M19.getTile(mortonTile19Id).geometry() }
-                                .reduce { acc, geometry ->
-                                    if (acc.isEmpty) geometry else acc.union(geometry)
-                                }
-                            GeomHour(
-                                timestamp = hour,
-                                geometry = when (combinedGeometryOfTiles) {
-                                    is Polygon -> combinedGeometryOfTiles
-                                    else -> error("Expected Polygon, but got : ${combinedGeometryOfTiles.geometryType}")
-                                }
-                            )
-                        }
-                    )
+                    Cluster( geomHours = combineClusteredTilesIntoGeometries(clusterOfTiles))
                 }
             )
         )
     }
+}
+
+private fun combineClusteredTilesIntoGeometries(clusterOfTiles: List<TiloHour>) = clusterOfTiles.groupBy {
+    it.time.truncatedTo(ChronoUnit.HOURS)}
+    .map { (hour, tilesInGivenHour) ->
+        val combinedGeometryOfTiles: Geometry =
+            tilesInGivenHour.map { (mortonTile19Id, _) ->
+                MortonTileLevel.M19.getTile(mortonTile19Id).geometry() }
+                .reduce { acc, geometry ->
+                    if (acc.isEmpty) geometry else acc.union(geometry)
+            }
+        GeomHour(
+            timestamp = hour,
+            geometry = when (combinedGeometryOfTiles) {
+                is Polygon -> combinedGeometryOfTiles
+                else -> error("Expected Polygon, but got : ${combinedGeometryOfTiles.geometryType}")
+            }
+    )
 }
