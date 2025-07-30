@@ -1,9 +1,12 @@
-name: Format Kotlin with Spotless Ktfmt (All Files)
+name: Check Kotlin formatting (spotless, ktfmt)
 
 on: [ push, pull_request ]
 
+
 jobs:
-  spotless:
+  name: "Check Kotlin formatting"
+  kotlin_format_check:
+    name: "Run Spotless Kotlin Format Check"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
