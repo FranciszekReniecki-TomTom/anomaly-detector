@@ -4,7 +4,6 @@ on: [ push, pull_request ]
 
 
 jobs:
-  name: "Check Kotlin formatting"
   kotlin_format_check:
     name: "Run Spotless Kotlin Format Check"
     runs-on: ubuntu-latest
