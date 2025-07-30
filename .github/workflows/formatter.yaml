@@ -1,6 +1,6 @@
 name: Format Kotlin with Spotless Ktfmt (All Files)
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   spotless:
@@ -15,4 +15,6 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - run: mvn spotless:check
+      - run: |
+          cd rest
+          mvn spotless:check

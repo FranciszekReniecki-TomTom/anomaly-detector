@@ -83,8 +83,6 @@
                         <ktfmt>
                             <version>${ktfmt.version}</version>
                             <style>KOTLINLANG</style>
-                            <removeUnusedImports>true</removeUnusedImports>
-                            <manageTrailingCommas>true</manageTrailingCommas>
                         </ktfmt>
                     </kotlin>
                 </configuration>
