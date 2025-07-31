@@ -1,6 +1,5 @@
-package anomalydetector.model.ingest
+package anomalydetector.model
 
-import anomalydetector.model.TrafficTileHour
 import com.tomtom.tti.area.analytics.io.storage.AreaAnalyticsStorage
 import com.tomtom.tti.area.analytics.model.traffic.M20Traffic
 import com.tomtom.tti.area.analytics.model.traffic.Traffic
@@ -14,6 +13,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.locationtech.jts.geom.Geometry
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 private val storage = AreaAnalyticsStorage(
   account = Dotenv.load()["AREA_ANALYTICS_ACCOUNT_NAME"],
@@ -38,7 +39,15 @@ fun getData(
     .awaitAll()
     .flatMap { (date, trafficList) ->
       trafficList.map { traffic ->
-        TrafficTileHour(date, traffic.hour, traffic.id, traffic.traffic)
+        TrafficTileHour(
+          LocalDateTime.of(
+            date,
+            LocalTime.of(traffic.hour.toInt(), 0)
+          ),
+          traffic.id,
+          level,
+          traffic.traffic
+        )
       }
     }
 }

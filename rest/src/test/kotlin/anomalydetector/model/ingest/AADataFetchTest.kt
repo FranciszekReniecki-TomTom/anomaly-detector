@@ -1,5 +1,6 @@
 package anomalydetector.model.ingest
 
+import anomalydetector.model.getData
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -31,13 +32,13 @@ class AADataFetchTest {
 
     assertTrue(data.isNotEmpty(), "Data should not be empty")
 
-    data.sortedBy { it.date }
-    assertTrue { data.first().date == LocalDate.of(2024, 1, 1) }
-    assertTrue { data.last().date == LocalDate.of(2024, 1, 1) }
+    data.sortedBy { it.datetime }
+    assertTrue { data.first().datetime.toLocalDate() == LocalDate.of(2024, 1, 1) }
+    assertTrue { data.last().datetime.toLocalDate() == LocalDate.of(2024, 1, 1) }
 
     assertTrue(data.groupBy { it.id }.isNotEmpty())
-    assertEquals(1, data.groupBy { it.date }.size)
-    assertEquals(24, data.groupBy { it.hour }.size)
+    assertEquals(1, data.groupBy { it.datetime.toLocalDate() }.size)
+    assertEquals(24, data.groupBy { it.datetime.hour }.size)
   }
 
 }
