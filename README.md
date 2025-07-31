@@ -15,6 +15,17 @@
   POSTGRES_PASSWORD=your_postgres_password_here
   ```
 
+## Code formatting
+
+### Ktfmt
+
+This project uses **Ktfmt (kotlinlang style)** for code formatting. 
+
+Run `mvn spotless:check` to verify formatting or `mvn spotless:apply` to apply formatting, both limited to files changed since the origin/master branch.
+
+IntelliJ users can also install the ktfmt plugin to simplify code formatting within the IDE. 
+Make sure to set the style to kotlinlang in the plugin settings.
+
 ## Commit and Branch Naming Conventions
 
 ### Commit Messages
