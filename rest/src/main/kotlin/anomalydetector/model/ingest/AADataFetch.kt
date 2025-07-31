@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:rest/src/main/kotlin/anomalydetector/model/DataFetch.kt
 package anomalydetector.model
+========
+package anomalydetector.model.ingest
+>>>>>>>> origin/ad-002-detect-anomalies:rest/src/main/kotlin/anomalydetector/model/ingest/AADataFetch.kt
 
 import com.tomtom.tti.area.analytics.io.storage.AreaAnalyticsStorage
 import com.tomtom.tti.area.analytics.model.traffic.M20Traffic
@@ -55,7 +59,11 @@ fun getData(
 private suspend fun getDay(
   day: LocalDate,
   tile: Long = 3597,
+<<<<<<<< HEAD:rest/src/main/kotlin/anomalydetector/model/DataFetch.kt
   level: MortonTileLevel<*> = MortonTileLevel.M16,
+========
+  level: MortonTileLevel<*> = MortonTileLevel.M19,
+>>>>>>>> origin/ad-002-detect-anomalies:rest/src/main/kotlin/anomalydetector/model/ingest/AADataFetch.kt
   geometry: Geometry
 ): List<AggregatedTraffic> = storage.traffic
   .read(day, processingTileFromCode(tile), level, geometry)
