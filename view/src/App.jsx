@@ -1,15 +1,37 @@
 import { useState, useMemo, useEffect } from "react";
 import "./App.css";
-import {
-  DrawingLayers,
-  DrawingOption,
-  DrawingTools,
-  GlMap,
-  Layers,
-  MapMenuToggle,
-} from "legoland-shared";
-import { Box, Button, Input, Label, Select, Slider } from "tombac";
+import { GlMap, Layers, MapMenuToggle } from "legoland-shared";
+import { Box, Label, Slider } from "tombac";
 import { TombacApp } from "tombac";
+
+const containerStyle = {
+  display: "flex",
+  height: "100vh",
+  width: "100vw",
+  margin: 0,
+  padding: 0,
+};
+
+const sidebarStyle = {
+  width: 280,
+  borderRight: "1px solid #ccc",
+  padding: 16,
+  boxSizing: "border-box",
+  overflowY: "auto",
+};
+
+const anomalyDotsContainerStyle = (width, height, padding) => ({
+  position: "relative",
+  width,
+  height,
+  background: "#eee",
+  borderRadius: 6,
+  border: "1px solid #ccc",
+  marginBottom: 16,
+  paddingLeft: padding,
+  paddingRight: padding,
+  boxSizing: "border-box",
+});
 
 function AnomalyDots({
   timestamps,
@@ -19,31 +41,19 @@ function AnomalyDots({
   baseLaneHeight = 20,
   padding = 12,
 }) {
-  const anomalyIds = [...new Set(timestamps.map((t) => t.anomaly_id))];
+  const anomalyIds = useMemo(
+    () => [...new Set(timestamps.map((t) => t.anomaly_id))],
+    [timestamps]
+  );
   const laneCount = anomalyIds.length;
   const height = laneCount * baseLaneHeight;
   const totalDuration = maxTime - minTime;
 
-  const getColor = (index) => {
-    const hue = (index * 360) / anomalyIds.length;
-    return `hsl(${hue}, 70%, 50%)`;
-  };
+  const getColor = (index) =>
+    `hsl(${(index * 360) / anomalyIds.length}, 70%, 50%)`;
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width,
-        height,
-        background: "#eee",
-        borderRadius: 6,
-        border: "1px solid #ccc",
-        marginBottom: 16,
-        paddingLeft: padding,
-        paddingRight: padding,
-        boxSizing: "border-box",
-      }}
-    >
+    <div style={anomalyDotsContainerStyle(width, height, padding)}>
       {timestamps.map(({ time, anomaly_id }, i) => {
         const laneIndex = anomalyIds.indexOf(anomaly_id);
         const laneCenter = baseLaneHeight * laneIndex + baseLaneHeight / 2;
@@ -78,18 +88,15 @@ function AnomalyDots({
 
 function App() {
   const ONE_HOUR_MS = 3600000;
-
   const [mapModel, setMapModel] = useState("Orbis");
-  const [drawingOption, setDrawingOption] = useState();
-  const [regions, setRegions] = useState([]);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedAnomaly, setSelectedAnomaly] = useState("all");
+  const [selectedAnomalies, setSelectedAnomalies] = useState(new Set(["all"]));
   const [anomalyGeoJson, setAnomalyGeoJson] = useState(null);
+  const [range, setRange] = useState([0, 0]);
 
   useEffect(() => {
     fetch("/.env/anomalies.json")
       .then((res) => res.json())
-      .then((data) => setAnomalyGeoJson(data))
+      .then(setAnomalyGeoJson)
       .catch(console.error);
   }, []);
 
@@ -103,133 +110,162 @@ function App() {
       .sort((a, b) => a.time - b.time);
   }, [anomalyGeoJson]);
 
-  const minTime = timestamps.length > 0 ? timestamps[0].time : 0;
-  const maxTime =
-    timestamps.length > 0 ? timestamps[timestamps.length - 1].time : 0;
-
-  const [range, setRange] = useState([minTime, maxTime]);
+  const minTime = timestamps.length ? timestamps[0].time : 0;
+  const maxTime = timestamps.length
+    ? timestamps[timestamps.length - 1].time
+    : 0;
 
   useEffect(() => {
     setRange([minTime, maxTime]);
   }, [minTime, maxTime]);
 
-  const onChangeStart = (val) => {
-    const newVal = Math.min(val, range[1]);
-    setRange([newVal, range[1]]);
-  };
+  const anomalyIds = useMemo(() => {
+    if (!anomalyGeoJson) return [];
+    return [
+      ...new Set(anomalyGeoJson.features.map((f) => f.properties.anomaly_id)),
+    ];
+  }, [anomalyGeoJson]);
 
-  const onChangeEnd = (val) => {
-    const newVal = Math.max(val, range[0]);
-    setRange([range[0], newVal]);
+  const toggleAnomaly = (id) => {
+    setSelectedAnomalies((prev) => {
+      if (id === "all") return new Set(["all"]);
+
+      const newSet = new Set(prev);
+      newSet.delete("all");
+
+      if (newSet.has(id)) {
+        newSet.delete(id);
+        if (newSet.size === 0) newSet.add("all");
+      } else {
+        newSet.add(id);
+      }
+
+      return newSet;
+    });
   };
 
   const filteredFeatures = useMemo(() => {
     if (!anomalyGeoJson) return [];
     return anomalyGeoJson.features.filter((f) => {
       const ts = new Date(f.properties.timestamp).getTime();
-      const matchTime = ts >= range[0] && ts <= range[1];
-      const matchAnomaly =
-        selectedAnomaly === "all" ||
-        f.properties.anomaly_id === selectedAnomaly;
-      return matchTime && matchAnomaly;
+      const withinRange = ts >= range[0] && ts <= range[1];
+      const matchesAnomaly =
+        selectedAnomalies.has("all") ||
+        selectedAnomalies.has(f.properties.anomaly_id);
+      return withinRange && matchesAnomaly;
     });
-  }, [range, selectedAnomaly, anomalyGeoJson]);
+  }, [range, selectedAnomalies, anomalyGeoJson]);
 
-  const anomalyIds = anomalyGeoJson
-    ? [...new Set(anomalyGeoJson.features.map((f) => f.properties.anomaly_id))]
-    : [];
+  const formatTimestamp = (ts) => new Date(ts).toLocaleString();
 
-  function formatTimestamp(ts) {
-    return new Date(ts).toLocaleString();
-  }
-
-  if (!anomalyGeoJson) {
-    return <div>Loading anomalies...</div>;
-  }
+  if (!anomalyGeoJson) return <div>Loading anomalies...</div>;
 
   return (
     <TombacApp
       defineCssVariables
       theme={{ baseUnit: "px", settings: { modalZIndex: 20 } }}
     >
-      <Box
-        style={{
-          display: "flex",
-          height: "100vh",
-          width: "100vw",
-          margin: 0,
-          padding: 0,
-        }}
-      >
-        <Box
-          style={{
-            width: "280px",
-            borderRight: "1px solid #ccc",
-            padding: 16,
-            boxSizing: "border-box",
-          }}
-        >
+      <Box style={containerStyle}>
+        <Box style={sidebarStyle}>
           <h3>Anomaly Report</h3>
 
           <Label style={{ display: "block", marginBottom: 8 }}>
             Filter by anomaly:
           </Label>
-          <Select
-            value={selectedAnomaly}
-            onChange={(e) => setSelectedAnomaly(e.target.value)}
-            style={{ width: "100%", marginBottom: 16 }}
-          >
-            <option value="all">All</option>
-            {anomalyIds.map((id) => (
-              <option key={id} value={id}>
-                {id}
-              </option>
-            ))}
-          </Select>
+          <div style={{ marginBottom: 16, maxHeight: 300, overflowY: "auto" }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectedAnomalies.has("all")}
+                onChange={() => toggleAnomaly("all")}
+              />
+              <strong>All</strong>
+            </label>
+
+            {anomalyIds.map((id) => {
+              const timestampsForId = anomalyGeoJson.features
+                .filter((f) => f.properties.anomaly_id === id)
+                .map((f) => f.properties.timestamp)
+                .sort();
+
+              return (
+                <div
+                  key={id}
+                  style={{
+                    marginLeft: 12,
+                    marginBottom: 8,
+                    userSelect: "none",
+                  }}
+                >
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={selectedAnomalies.has(id)}
+                      onChange={() => toggleAnomaly(id)}
+                    />
+                    {id}
+                  </label>
+                  <ul
+                    style={{
+                      marginTop: 4,
+                      marginLeft: 20,
+                      fontSize: 12,
+                      maxHeight: 100,
+                      overflowY: "auto",
+                    }}
+                  >
+                    {timestampsForId.map((ts, i) => (
+                      <li key={i}>{new Date(ts).toLocaleString()}</li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
 
           <Label style={{ display: "block", marginBottom: 18 }}>
             Time range:
           </Label>
-          <>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: 4,
-              }}
-            >
-              <div>{formatTimestamp(minTime)}</div>
-              <div>{formatTimestamp(range[0])}</div>
-              <div>{formatTimestamp(maxTime)}</div>
-            </div>
-            <Slider
-              min={minTime}
-              max={maxTime}
-              step={ONE_HOUR_MS}
-              value={range[0]}
-              onChange={onChangeStart}
-              style={{ width: "100%", marginBottom: 4 }}
-            />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: 4,
-              }}
-            >
-              <div>{formatTimestamp(minTime)}</div>
-              <div>{formatTimestamp(range[1])}</div>
-              <div>{formatTimestamp(maxTime)}</div>
-            </div>
-            <Slider
-              min={minTime}
-              max={maxTime}
-              step={ONE_HOUR_MS}
-              value={range[1]}
-              onChange={onChangeEnd}
-              style={{ width: "100%", marginBottom: 12 }}
-            />
-          </>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 4,
+            }}
+          >
+            <div>{formatTimestamp(minTime)}</div>
+            <div>{formatTimestamp(range[0])}</div>
+            <div>{formatTimestamp(maxTime)}</div>
+          </div>
+          <Slider
+            min={minTime}
+            max={maxTime}
+            step={ONE_HOUR_MS}
+            value={range[0]}
+            onChange={(val) => setRange([Math.min(val, range[1]), range[1]])}
+            style={{ width: "100%", marginBottom: 4 }}
+          />
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 4,
+            }}
+          >
+            <div>{formatTimestamp(minTime)}</div>
+            <div>{formatTimestamp(range[1])}</div>
+            <div>{formatTimestamp(maxTime)}</div>
+          </div>
+          <Slider
+            min={minTime}
+            max={maxTime}
+            step={ONE_HOUR_MS}
+            value={range[1]}
+            onChange={(val) => setRange([range[0], Math.max(val, range[0])])}
+            style={{ width: "100%", marginBottom: 12 }}
+          />
 
           <AnomalyDots
             timestamps={timestamps}
@@ -253,7 +289,6 @@ function App() {
           <GlMap
             mapModel={mapModel}
             apiKey="1ncwaIygtJ0KrjH5ssohlEKUGFf7G5Dv"
-            mapOverlayElements={null}
             createMapOptions={{ center: [15, 15], zoom: 3 }}
             hideNavigationControls={false}
             controlLocation="top-right"
@@ -286,16 +321,10 @@ function App() {
                 {
                   id: "anomalies",
                   type: "fill",
-                  paint: {
-                    "fill-color": "#cc0000",
-                    "fill-opacity": 0.4,
-                  },
+                  paint: { "fill-color": "#cc0000", "fill-opacity": 0.4 },
                 },
               ]}
-              data={{
-                type: "FeatureCollection",
-                features: filteredFeatures,
-              }}
+              data={{ type: "FeatureCollection", features: filteredFeatures }}
             />
           </GlMap>
         </Box>
