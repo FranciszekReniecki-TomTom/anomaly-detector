@@ -1,37 +1,40 @@
 package anomalydetector.model
 
-import anomalydetector.model.ingest.getData
-import anomalydetector.model.detection.findOutliersInSpeed
-import com.tomtom.tti.nida.morton.geom.MortonTileLevel
-import org.locationtech.jts.geom.Geometry
-import java.time.LocalDate
+import anomalydetector.model.engine.findClusters
+import anomalydetector.model.engine.findWeeklyOutliers
+
+enum class TrafficType {
+  SPEED, FLOW
+}
 
 fun findAnomalies(
-  startDay: LocalDate,
-  days: Int,
-  tile: Long,
-  level: String,
-  geometry: Geometry
-): List<TrafficTileHour> = findOutliersInSpeed(
-  getData(
-    startDay = startDay,
-    days = days,
-    tile = tile,
-    level = levelFromString(level),
-    geometry = geometry
-  )
-)
+  tiles: List<TrafficTileHour>,
+  trafficType: TrafficType
+): List<List<TrafficTileHour>> {
+  val outliers: List<TrafficTileHour> = extractOutliers(tiles, trafficType)
 
-private fun levelFromString(level: String): MortonTileLevel<*> {
-  return when (level) {
-    "M12" -> MortonTileLevel.M12
-    "M13" -> MortonTileLevel.M13
-    "M14" -> MortonTileLevel.M14
-    "M15" -> MortonTileLevel.M15
-    "M16" -> MortonTileLevel.M16
-    "M17" -> MortonTileLevel.M17
-    "M18" -> MortonTileLevel.M18
-    "M19" -> MortonTileLevel.M19
-    else -> throw IllegalArgumentException("Unsupported tile level: $level")
-  }
+  val outliersPlain = outliers
+    .map { it.geoTime() }
+    .toTypedArray()
+
+  val clusters = findClusters(outliersPlain, 6, 0.25)
+
+  return clusters
+    .map { cluster ->
+      cluster.map { outliers[it] }
+    }.toList()
 }
+
+internal fun extractOutliers(
+  tiles: List<TrafficTileHour>,
+  trafficType: TrafficType
+): List<TrafficTileHour> = tiles
+  .groupBy { it.id }
+  .map { (_, tileTraffic) ->
+    val values: DoubleArray = when (trafficType) {
+      TrafficType.SPEED -> tileTraffic.map { it.traffic.speedKmH }.toDoubleArray()
+      TrafficType.FLOW -> tileTraffic.map { it.traffic.freeFlowSpeedKmH }.toDoubleArray()
+    }
+    val outlierIndexes = findWeeklyOutliers(values, 2.0)
+    tileTraffic.filterIndexed { index, _ -> index in outlierIndexes }
+  }.toList().flatten().toList()
