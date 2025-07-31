@@ -16,6 +16,13 @@
         <org.junit.jupiter>5.10.0</org.junit.jupiter>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <com.tomtom.tti.area.analytics>1.6</com.tomtom.tti.area.analytics>
+        <jts.version>1.19.0</jts.version>
+        <io.github.cdimascio>6.2.2</io.github.cdimascio>
+        <org.springdoc>2.8.9</org.springdoc>
+        <nida.version>2.19.0</nida.version>
+        <jackson.module.kotlin.version>2.19.1</jackson.module.kotlin.version>
+        <spotless.version>2.46.1</spotless.version>
+        <ktfmt.version>0.56</ktfmt.version>
     </properties>
 
     <parent>
