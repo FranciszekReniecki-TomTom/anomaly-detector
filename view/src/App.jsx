@@ -1,14 +1,35 @@
 import { useState, Suspense } from "react";
-// import reactLogo from "./assets/react.svg";
-// import viteLogo from "/vite.svg";
 import "./App.css";
-import { GlMap, MapMenuToggle } from "legoland-shared";
+import {
+  DrawingLayers,
+  DrawingOption,
+  DrawingTools,
+  GlMap,
+  Layers,
+  MapMenuToggle,
+} from "legoland-shared";
 import { Button } from "tombac";
 import { TombacApp } from "tombac";
+import { setAppElement } from "react-modal";
 
 function App() {
   const [count, setCount] = useState(0);
-  const [mapModel, setMapModel] = useState("Genesis");
+  const [mapModel, setMapModel] = useState("Orbis");
+  const [drawingOption, setDrawingOption] = useState();
+  const [regions, setRegions] = useState([]);
+
+  const layers = [
+    {
+      id: "regions",
+      type: "fill",
+      paint: {
+        "fill-color": "green",
+        "fill-outline-color": "green",
+        "fill-opacity": 0.4,
+      },
+    },
+  ];
+
   const [mapStyleSettings, setMapStyleSettings] = useState({
     style: "Street dark",
     languageGenesis: "ngt",
@@ -30,9 +51,20 @@ function App() {
           <GlMap
             mapModel={mapModel}
             apiKey="1ncwaIygtJ0KrjH5ssohlEKUGFf7G5Dv"
+            mapOverlayElements={
+              <DrawingTools
+                $position="absolute"
+                $left="0"
+                $top="0"
+                $margin="15px"
+                drawingOption={drawingOption}
+                onDrawingOptionChange={setDrawingOption}
+              />
+            }
             createMapOptions={{ center: [0, 0], zoom: 1 }}
             hideNavigationControls={false}
             controlLocation="top-right"
+            map
             mapControlsProps={{
               shouldCloseOnInteractOutside: (el) => {
                 return true;
@@ -58,7 +90,15 @@ function App() {
                 "Satellite",
               ],
             }}
-          ></GlMap>
+          >
+            <Layers sourceId="regiosn" layers={layers} data={regions} />
+            <DrawingLayers
+              drawingOption={drawingOption}
+              units="KM"
+              regions={regions}
+              onAddRegions={(newRegions) => setRegions((prev) => prev.concat(newRegions))}
+            />
+          </GlMap>
         </div>
       </TombacApp>
     </>
