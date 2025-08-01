@@ -7,6 +7,7 @@ import TimeSlider from "./components/TimeSlider";
 import AnomalyDots from "./components/AnomalyDots";
 import MapView from "./components/MapView";
 
+
 const containerStyle = {
   display: "flex",
   height: "100vh",
@@ -38,6 +39,7 @@ function App() {
   const [anomalyGeoJson, setAnomalyGeoJson] = useState(null);
   const [selectedTime, setSelectedTime] = useState(0);
   const [expanded, setExpanded] = useState(false);
+
 
   useEffect(() => {
     fetch("/.env/anomalies.json")
