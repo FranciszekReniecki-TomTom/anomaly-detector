@@ -23,7 +23,7 @@ fun findWeeklyOutliers(values: DoubleArray, threshold: Double): IntArray {
             val hourIndex = index % WEEK_PERIOD
             val mean = means[hourIndex]
             val std = stds[hourIndex]
-            abs(value - mean) / std > threshold
+            std > 0.0 && abs(value - mean) / std > threshold
         }
         .map { it.index }
         .toIntArray()

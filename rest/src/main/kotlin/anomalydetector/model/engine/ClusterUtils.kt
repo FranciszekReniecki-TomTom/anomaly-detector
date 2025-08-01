@@ -42,8 +42,8 @@ internal fun draw3DScatter(points: Array<DoubleArray>) {
                 .setAxisLabel(2, "Time")
         )
 
-    canvas.window()
-    Thread.sleep(100_000)
+    val window = canvas.window()
+    window.defaultCloseOperation = javax.swing.JFrame.EXIT_ON_CLOSE
 }
 
 internal fun drawKDistances(points: Array<DoubleArray>) {
@@ -55,8 +55,8 @@ internal fun drawKDistances(points: Array<DoubleArray>) {
         )
 
     val canvas = Canvas(scatterPlot.figure())
-    canvas.window()
-    Thread.sleep(100_000)
+    val window = canvas.window()
+    window.defaultCloseOperation = javax.swing.JFrame.EXIT_ON_CLOSE
 }
 
 internal fun computeKDistances(points: Array<DoubleArray>): List<Double> {
