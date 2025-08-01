@@ -50,10 +50,12 @@ export default function AnomalyDots({
           top: 0,
           bottom: 0,
           left: `${getLeftPercent(selectedTime)}%`,
-          width: 1,
-          backgroundColor: "#000",
-          opacity: 0.5,
+          width: 2,
+          backgroundColor: "#f0faff",
           pointerEvents: "none",
+          borderRadius: 1,
+          boxShadow: "0 0 4px 2px hsla(200, 100%, 68%, 0.6)",
+          zIndex: 9999,
         }}
       />
       {timestamps.map(({ time, anomaly_id }, i) => {
