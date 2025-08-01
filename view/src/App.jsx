@@ -5,7 +5,6 @@ import { Box, TombacApp } from "tombac";
 import AnomalyFilter from "./components/AnomalyFilter";
 import TimeSlider from "./components/TimeSlider";
 import AnomalyDots from "./components/AnomalyDots";
-import AnomalyList from "./components/AnomalyList";
 import MapView from "./components/MapView";
 
 const containerStyle = {
@@ -121,8 +120,6 @@ function App() {
             selectedAnomalies={selectedAnomalies}
             toggleAnomaly={toggleAnomaly}
           />
-
-          <AnomalyList filteredFeatures={filteredFeatures} />
         </Box>
 
         <Box style={{ flex: 1, position: "relative", paddingBottom: 60 }}>

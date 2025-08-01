@@ -1,4 +1,5 @@
 import { Label } from "tombac";
+import { useState } from "react";
 
 export default function AnomalyFilter({
   anomalyIds,
@@ -6,22 +7,28 @@ export default function AnomalyFilter({
   selectedAnomalies,
   toggleAnomaly,
 }) {
+  const [expanded, setExpanded] = useState({});
+
+  const toggleExpand = (id) => {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
     <>
-      <h3>Anomaly Report</h3>
+      <Label>Anomaly Report</Label>
 
       <Label style={{ display: "block", marginBottom: 8 }}>
         Filter by anomaly:
       </Label>
       <div style={{ marginBottom: 16, maxHeight: 300, overflowY: "auto" }}>
-        <label>
+        <Label style={{ display: "block", marginBottom: 8 }}>
           <input
             type="checkbox"
             checked={selectedAnomalies.has("all")}
             onChange={() => toggleAnomaly("all")}
           />
           <strong>All</strong>
-        </label>
+        </Label>
 
         {anomalyIds.map((id) => {
           const timestampsForId = anomalyGeoJson.features
@@ -34,27 +41,44 @@ export default function AnomalyFilter({
               key={id}
               style={{ marginLeft: 12, marginBottom: 8, userSelect: "none" }}
             >
-              <label>
+              <Label
+                onClick={() => toggleExpand(id)}
+                style={{
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
                 <input
                   type="checkbox"
                   checked={selectedAnomalies.has(id)}
-                  onChange={() => toggleAnomaly(id)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    toggleAnomaly(id);
+                  }}
+                  style={{ marginRight: 6 }}
                 />
-                {id}
-              </label>
-              <ul
-                style={{
-                  marginTop: 4,
-                  marginLeft: 20,
-                  fontSize: 12,
-                  maxHeight: 100,
-                  overflowY: "auto",
-                }}
-              >
-                {timestampsForId.map((ts, i) => (
-                  <li key={i}>{new Date(ts).toLocaleString()}</li>
-                ))}
-              </ul>
+                <span>{id}</span>
+                <span style={{ marginLeft: "auto", fontSize: 10 }}>
+                  {expanded[id] ? "▼" : "▶"}
+                </span>
+              </Label>
+
+              {expanded[id] && (
+                <ul
+                  style={{
+                    marginTop: 4,
+                    marginLeft: 20,
+                    fontSize: 12,
+                    maxHeight: 100,
+                    overflowY: "auto",
+                  }}
+                >
+                  {timestampsForId.map((ts, i) => (
+                    <li key={i}>{new Date(ts).toLocaleString()}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           );
         })}
