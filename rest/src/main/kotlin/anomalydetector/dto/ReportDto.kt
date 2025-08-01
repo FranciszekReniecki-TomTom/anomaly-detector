@@ -1,5 +1,8 @@
 package anomalydetector.dto
 
+import anomalydetector.controller.FeatureCollection
+
 data class ReportDto(
-  val anomalies: List<Byte> = emptyList()
+    val name: String,
+    val hourToClassIdToPolygon: FeatureCollection
 )
