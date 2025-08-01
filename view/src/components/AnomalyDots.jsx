@@ -5,8 +5,8 @@ export default function AnomalyDots({
   minTime,
   maxTime,
   selectedTime,
-  baseLaneHeight = 8,
-  padding = 0,
+  baseLaneHeight,
+  padding,
 }) {
   const containerRef = useRef(null);
   const [width, setWidth] = useState(0);

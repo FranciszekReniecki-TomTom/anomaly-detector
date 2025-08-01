@@ -140,7 +140,7 @@ function App() {
               selectedTime={selectedTime}
               width={100}
               baseLaneHeight={10}
-              padding={20}
+              padding={9}
             />
           </Box>
         </Box>
