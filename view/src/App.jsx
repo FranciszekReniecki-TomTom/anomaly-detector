@@ -23,6 +23,17 @@ const sidebarStyle = {
   overflowY: "auto",
 };
 
+const bottomBarStyle = {
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  borderTop: "1px solid #ccc",
+  padding: 8,
+  background: "#f8f8f8",
+  boxSizing: "border-box",
+};
+
 function App() {
   const [selectedAnomalies, setSelectedAnomalies] = useState(new Set(["all"]));
   const [anomalyGeoJson, setAnomalyGeoJson] = useState(null);
@@ -111,26 +122,27 @@ function App() {
             toggleAnomaly={toggleAnomaly}
           />
 
-          <TimeSlider
-            timestamps={timestampValues}
-            value={selectedTime}
-            setValue={setSelectedTime}
-          />
-
-          <AnomalyDots
-            timestamps={timestamps}
-            minTime={timestampValues[0] || 0}
-            maxTime={timestampValues[timestampValues.length - 1] || 0}
-            selectedTime={selectedTime}
-            width={220}
-            height={30}
-          />
-
           <AnomalyList filteredFeatures={filteredFeatures} />
         </Box>
 
-        <Box style={{ flex: 1, position: "relative" }}>
+        <Box style={{ flex: 1, position: "relative", paddingBottom: 60 }}>
           <MapView filteredFeatures={filteredFeatures} />
+          <Box style={bottomBarStyle}>
+            <TimeSlider
+              timestamps={timestampValues}
+              value={selectedTime}
+              setValue={setSelectedTime}
+            />
+            <AnomalyDots
+              timestamps={timestamps}
+              minTime={timestampValues[0]}
+              maxTime={timestampValues[timestampValues.length - 1]}
+              selectedTime={selectedTime}
+              width={100}
+              baseLaneHeight={10}
+              padding={20}
+            />
+          </Box>
         </Box>
       </Box>
     </TombacApp>
