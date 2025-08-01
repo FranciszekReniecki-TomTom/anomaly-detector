@@ -119,6 +119,7 @@ function App() {
             timestamps={timestamps}
             minTime={timestampValues[0] || 0}
             maxTime={timestampValues[timestampValues.length - 1] || 0}
+            selectedTime={selectedTime}
             width={280}
             height={30}
           />
