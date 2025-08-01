@@ -17,9 +17,10 @@ export default function AnomalyDots({
   timestamps,
   minTime,
   maxTime,
-  width = 280,
-  baseLaneHeight = 20,
-  padding = 12,
+  selectedTime,
+  width = 250,
+  baseLaneHeight = 8,
+  padding = 0,
 }) {
   const anomalyIds = useMemo(
     () => [...new Set(timestamps.map((t) => t.anomaly_id))],
@@ -32,16 +33,31 @@ export default function AnomalyDots({
   const getColor = (index) =>
     `hsl(${(index * 360) / anomalyIds.length}, 70%, 50%)`;
 
+  const getLeftPercent = (time) =>
+    ((time - minTime) / totalDuration) *
+      (100 - (padding * 2 * 100) / width) +
+    (padding * 100) / width;
+
+  const selectedLeft = getLeftPercent(selectedTime);
+
   return (
     <div style={anomalyDotsContainerStyle(width, height, padding)}>
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          left: `${selectedLeft}%`,
+          width: 1,
+          backgroundColor: "#000",
+          opacity: 0.5,
+          pointerEvents: "none",
+        }}
+      />
       {timestamps.map(({ time, anomaly_id }, i) => {
         const laneIndex = anomalyIds.indexOf(anomaly_id);
         const laneCenter = baseLaneHeight * laneIndex + baseLaneHeight / 2;
-
-        const leftPercent =
-          ((time - minTime) / totalDuration) *
-            (100 - (padding * 2 * 100) / width) +
-          (padding * 100) / width;
+        const leftPercent = getLeftPercent(time);
 
         return (
           <div
@@ -52,11 +68,10 @@ export default function AnomalyDots({
               left: `${leftPercent}%`,
               top: laneCenter,
               transform: "translate(-50%, -50%)",
-              width: 10,
-              height: 10,
+              width: 2,
+              height: 5,
               borderRadius: "50%",
               backgroundColor: getColor(laneIndex),
-              border: "1.5px solid #00000050",
               cursor: "default",
             }}
           />
