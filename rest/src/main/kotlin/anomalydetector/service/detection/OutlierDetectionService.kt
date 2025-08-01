@@ -1,10 +1,6 @@
 package anomalydetector.service.detection
 
-import anomalydetector.model.TrafficTileHour
-
-fun findAnomalies(
-  data: List<TrafficTileHour>,
-  threshold: Double = 50.0
-): List<TrafficTileHour> {
-  return data.filter { it.traffic.speedKmH > threshold }
+fun findOutliers(dataSeries: List<Double>): List<Int> {
+    val radius: Double = 50.0
+    return listOf(1, 2, 3)
 }
