@@ -1,8 +1,35 @@
 import { useState } from "react";
-import { GlMap, Layers, MapMenuToggle } from "legoland-shared";
+import {
+  DrawingLayers,
+  DrawingOption,
+  DrawingTools,
+  GlMap,
+  Layers,
+  MapMenuToggle,
+  PolygonSelector,
+  useDrawingTools,
+} from "legoland-shared";
 
 export default function MapView({ filteredFeatures }) {
   const [mapModel, setMapModel] = useState("Orbis");
+  const [drawingOption, setDrawingOption] = useState();
+  const [regions, setRegions] = useState([]);
+
+  const { handleSelect } = useDrawingTools(regions, (newRegions) =>
+    setRegions(newRegions)
+  );
+
+  const layers = [
+    {
+      id: "regions",
+      type: "fill",
+      paint: {
+        "fill-color": "green",
+        "fill-outline-color": "green",
+        "fill-opacity": 0.4,
+      },
+    },
+  ];
 
   return (
     <GlMap
@@ -11,7 +38,17 @@ export default function MapView({ filteredFeatures }) {
       createMapOptions={{ center: [15, 15], zoom: 3 }}
       hideNavigationControls={false}
       controlLocation="top-right"
-      map
+      mapOverlayElements={
+        <DrawingTools
+          $position="absolute"
+          $left="0"
+          $top="0"
+          $margin="15px"
+          enabledDrawingOptions={[DrawingOption.POLYGON]}
+          drawingOption={drawingOption}
+          onDrawingOptionChange={setDrawingOption}
+        />
+      }
       mapControlsProps={{
         shouldCloseOnInteractOutside: () => true,
         mapLayersMenuContent: (
@@ -43,6 +80,11 @@ export default function MapView({ filteredFeatures }) {
         ]}
         data={{ type: "FeatureCollection", features: filteredFeatures }}
       />
+      <Layers sourceId="regions" layers={layers} data={regions} />
+
+      {drawingOption === DrawingOption.POLYGON && (
+        <PolygonSelector onSelect={handleSelect} />
+      )}
     </GlMap>
   );
 }
