@@ -1,4 +1,9 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import React from "react";
+import {
+  useContainerWidth,
+  useAnomalyIds,
+  useLeftPercent,
+} from "../hooks/useAnomalyDots";
 
 export default function AnomalyDots({
   timestamps,
@@ -8,34 +13,17 @@ export default function AnomalyDots({
   baseLaneHeight,
   padding,
 }) {
-  const containerRef = useRef(null);
-  const [width, setWidth] = useState(0);
+  const [containerRef, width] = useContainerWidth();
+  const anomalyIds = useAnomalyIds(timestamps);
+  const getLeftPercentRaw = useLeftPercent(minTime, maxTime);
 
-  useEffect(() => {
-    function updateWidth() {
-      if (containerRef.current) {
-        setWidth(containerRef.current.offsetWidth);
-      }
-    }
-    updateWidth();
-
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
-
-  const anomalyIds = useMemo(
-    () => [...new Set(timestamps.map((t) => t.anomaly_id))],
-    [timestamps]
-  );
-  const laneCount = anomalyIds.length;
-  const height = laneCount * baseLaneHeight;
-  const totalDuration = maxTime - minTime;
+  const height = anomalyIds.length * baseLaneHeight;
 
   const getLeftPercent = (time) =>
-    ((time - minTime) / totalDuration) * (100 - (padding * 2 * 100) / width) +
-    (padding * 100) / width;
+    getLeftPercentRaw(time) * (1 - (padding * 2) / width) +
+    (padding / width) * 100;
 
-  if (width === 0) {
+  if (!width || timestamps.length === 0) {
     return <div ref={containerRef} style={{ width: "100%" }} />;
   }
 
@@ -60,8 +48,8 @@ export default function AnomalyDots({
       />
       {timestamps.map(({ time, anomaly_id }, i) => {
         const laneIndex = anomalyIds.indexOf(anomaly_id);
-        const laneCenter = baseLaneHeight * laneIndex + baseLaneHeight / 2;
         const leftPercent = getLeftPercent(time);
+        const topPos = baseLaneHeight * laneIndex + baseLaneHeight / 2;
 
         return (
           <div
@@ -70,13 +58,13 @@ export default function AnomalyDots({
             style={{
               position: "absolute",
               left: `${leftPercent}%`,
-              top: laneCenter,
-
+              top: topPos,
               width: 5,
               height: 5,
-              borderRadius: "100%",
+              borderRadius: "50%",
               backgroundColor: "#de1c12",
               cursor: "default",
+              transform: "translate(-50%, -50%)",
             }}
           />
         );

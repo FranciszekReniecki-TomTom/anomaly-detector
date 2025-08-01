@@ -1,4 +1,5 @@
 import { useAppContext } from "../AppContext";
+import { Checkbox, Label } from "tombac";
 
 export default function AnomalyList() {
   const { anomalyIds, anomalyGeoJson, selectedAnomalies, toggleAnomaly } =
@@ -9,14 +10,14 @@ export default function AnomalyList() {
   return (
     <div>
       {anomalyIds.map((id) => (
-        <label key={id} style={{ display: "block", marginBottom: 4 }}>
-          <input
-            type="checkbox"
+        <Label key={id} style={{ display: "block", marginBottom: 4 }}>
+          <Checkbox
             checked={selectedAnomalies.has(id)}
             onChange={() => toggleAnomaly(id)}
+            style={{ padding: 10 }}
           />
           {id}
-        </label>
+        </Label>
       ))}
     </div>
   );
