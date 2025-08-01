@@ -1,12 +1,11 @@
 import { useState, useMemo, useEffect } from "react";
 import "./App.css";
-import { Box, TombacApp } from "tombac";
+import { Box, TombacApp, Button } from "tombac";
 
 import AnomalyFilter from "./components/AnomalyFilter";
 import TimeSlider from "./components/TimeSlider";
 import AnomalyDots from "./components/AnomalyDots";
 import MapView from "./components/MapView";
-
 
 const containerStyle = {
   display: "flex",
@@ -38,8 +37,7 @@ function App() {
   const [selectedAnomalies, setSelectedAnomalies] = useState(new Set(["all"]));
   const [anomalyGeoJson, setAnomalyGeoJson] = useState(null);
   const [selectedTime, setSelectedTime] = useState(0);
-  const [expanded, setExpanded] = useState(false);
-
+  const [mode, setMode] = useState("drawing");
 
   useEffect(() => {
     fetch("/.env/anomalies.json")
@@ -116,35 +114,66 @@ function App() {
       }}
     >
       <Box style={containerStyle}>
-        <Box style={sidebarStyle}>
-          <AnomalyFilter
-            anomalyIds={anomalyIds}
-            anomalyGeoJson={anomalyGeoJson}
-            selectedAnomalies={selectedAnomalies}
-            toggleAnomaly={toggleAnomaly}
-          />
-        </Box>
-
-        <Box style={{ flex: 1, position: "relative", paddingBottom: 60 }}>
-          <MapView filteredFeatures={filteredFeatures} />
-          <Box style={bottomBarStyle}>
-            <TimeSlider
-              timestamps={timestampValues}
-              value={selectedTime}
-              setValue={setSelectedTime}
+        {mode === "viewing" && (
+          <Box style={sidebarStyle}>
+            <AnomalyFilter
+              anomalyIds={anomalyIds}
+              anomalyGeoJson={anomalyGeoJson}
+              selectedAnomalies={selectedAnomalies}
+              toggleAnomaly={toggleAnomaly}
             />
-            <div style={{ height: "240px", overflowY: "auto" }}>
-              <AnomalyDots
-                timestamps={timestamps}
-                minTime={timestampValues[0]}
-                maxTime={timestampValues[timestampValues.length - 1]}
-                selectedTime={selectedTime}
-                width={100}
-                baseLaneHeight={10}
-                padding={9}
-              />
-            </div>
+            <Button
+              onClick={() => setMode("drawing")}
+              style={{ marginTop: 16 }}
+            >
+              Back to Drawing
+            </Button>
           </Box>
+        )}
+
+        {mode === "drawing" && (
+          <Box style={sidebarStyle}>
+            <Button
+              onClick={() => setMode("viewing")}
+              style={{ marginTop: 16 }}
+            >
+              Generate Report
+            </Button>
+          </Box>
+        )}
+
+        <Box
+          style={{
+            flex: 1,
+            position: "relative",
+            paddingBottom: mode === "viewing" ? 60 : 0,
+          }}
+        >
+          <MapView
+            filteredFeatures={filteredFeatures}
+            drawingEnabled={mode === "drawing"}
+          />
+
+          {mode === "viewing" && (
+            <Box style={bottomBarStyle}>
+              <TimeSlider
+                timestamps={timestampValues}
+                value={selectedTime}
+                setValue={setSelectedTime}
+              />
+              <div style={{ height: "240px", overflowY: "auto" }}>
+                <AnomalyDots
+                  timestamps={timestamps}
+                  minTime={timestampValues[0]}
+                  maxTime={timestampValues[timestampValues.length - 1]}
+                  selectedTime={selectedTime}
+                  width={100}
+                  baseLaneHeight={10}
+                  padding={9}
+                />
+              </div>
+            </Box>
+          )}
         </Box>
       </Box>
     </TombacApp>

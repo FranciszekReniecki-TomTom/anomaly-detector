@@ -1,6 +1,4 @@
-import { useState } from "react";
 import {
-  DrawingLayers,
   DrawingOption,
   DrawingTools,
   GlMap,
@@ -9,27 +7,30 @@ import {
   PolygonSelector,
   useDrawingTools,
 } from "legoland-shared";
+import { useState } from "react";
 
-export default function MapView({ filteredFeatures }) {
+export default function MapView({ filteredFeatures, drawingEnabled }) {
   const [mapModel, setMapModel] = useState("Orbis");
   const [drawingOption, setDrawingOption] = useState();
   const [regions, setRegions] = useState([]);
 
-  const { handleSelect } = useDrawingTools(regions, (newRegions) =>
-    setRegions(newRegions)
-  );
+  const { handleSelect } = useDrawingTools(regions, setRegions);
 
-  const layers = [
-    {
-      id: "regions",
-      type: "fill",
-      paint: {
-        "fill-color": "green",
-        "fill-outline-color": "green",
-        "fill-opacity": 0.4,
-      },
+  const anomalyLayer = {
+    id: "anomalies",
+    type: "fill",
+    paint: { "fill-color": "#cc0000", "fill-opacity": 0.4 },
+  };
+
+  const regionLayer = {
+    id: "regions",
+    type: "fill",
+    paint: {
+      "fill-color": "green",
+      "fill-outline-color": "green",
+      "fill-opacity": 0.4,
     },
-  ];
+  };
 
   return (
     <GlMap
@@ -39,15 +40,17 @@ export default function MapView({ filteredFeatures }) {
       hideNavigationControls={false}
       controlLocation="top-right"
       mapOverlayElements={
-        <DrawingTools
-          $position="absolute"
-          $left="0"
-          $top="0"
-          $margin="15px"
-          enabledDrawingOptions={[DrawingOption.POLYGON]}
-          drawingOption={drawingOption}
-          onDrawingOptionChange={setDrawingOption}
-        />
+        drawingEnabled && (
+          <DrawingTools
+            $position="absolute"
+            $left="0"
+            $top="0"
+            $margin="15px"
+            enabledDrawingOptions={[DrawingOption.POLYGON]}
+            drawingOption={drawingOption}
+            onDrawingOptionChange={setDrawingOption}
+          />
+        )
       }
       mapControlsProps={{
         shouldCloseOnInteractOutside: () => true,
@@ -69,20 +72,15 @@ export default function MapView({ filteredFeatures }) {
         ],
       }}
     >
-      <Layers
-        sourceId="anomalies"
-        layers={[
-          {
-            id: "anomalies",
-            type: "fill",
-            paint: { "fill-color": "#cc0000", "fill-opacity": 0.4 },
-          },
-        ]}
-        data={{ type: "FeatureCollection", features: filteredFeatures }}
-      />
-      <Layers sourceId="regions" layers={layers} data={regions} />
-
-      {drawingOption === DrawingOption.POLYGON && (
+      {!drawingEnabled && (
+        <Layers
+          sourceId="anomalies"
+          layers={[anomalyLayer]}
+          data={{ type: "FeatureCollection", features: filteredFeatures }}
+        />
+      )}
+      <Layers sourceId="regions" layers={[regionLayer]} data={regions} />
+      {drawingEnabled && drawingOption === DrawingOption.POLYGON && (
         <PolygonSelector onSelect={handleSelect} />
       )}
     </GlMap>
