@@ -4,7 +4,7 @@ import kotlin.math.abs
 import kotlin.math.sqrt
 
 /** Week period constant representing the number of hours in a week. */
-private const val weekPeriod = 168
+private const val WEEK_PERIOD = 168
 
 /**
  * Given an array of weekly periodic values (with an hourly step), finds outliers indexes.
@@ -14,13 +14,13 @@ private const val weekPeriod = 168
  * @return An array of indices of the outliers in the input array.
  */
 fun findWeeklyOutliers(values: DoubleArray, threshold: Double): IntArray {
-    val means = calculateMeans(values, weekPeriod)
-    val stds = calculateStds(values, means, weekPeriod)
+    val means = calculateMeans(values, WEEK_PERIOD)
+    val stds = calculateStds(values, means, WEEK_PERIOD)
 
     return values
         .withIndex()
         .filter { (index, value) ->
-            val hourIndex = index % weekPeriod
+            val hourIndex = index % WEEK_PERIOD
             val mean = means[hourIndex]
             val std = stds[hourIndex]
             abs(value - mean) / std > threshold
