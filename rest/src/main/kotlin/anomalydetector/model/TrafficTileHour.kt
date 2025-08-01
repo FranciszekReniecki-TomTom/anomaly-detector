@@ -13,19 +13,19 @@ import java.time.LocalDateTime
  * @property traffic Traffic data associated with the tile hour.
  */
 data class TrafficTileHour(
-  val datetime: LocalDateTime,
-  val id: Long,
-  val level: MortonTileLevel<*>,
-  val traffic: Traffic
+    val datetime: LocalDateTime,
+    val id: Long,
+    val level: MortonTileLevel<*>,
+    val traffic: Traffic,
 ) {
-  fun geoTime(): DoubleArray {
-    val tile = level.getTile(id)
-    val hour = datetime.dayOfYear * 24 + datetime.hour
-    return doubleArrayOf(tile.lat, tile.lon, hour.toDouble())
-  }
+    fun geoTime(): DoubleArray {
+        val tile = level.getTile(id)
+        val hour = datetime.dayOfYear * 24 + datetime.hour
+        return doubleArrayOf(tile.lat, tile.lon, hour.toDouble())
+    }
 
-  fun stringify(): String {
-    val tile = level.getTile(id)
-    return "TTH: $datetime [$id (${tile.lat}, ${tile.lon})], traffic=$traffic"
-  }
+    fun stringify(): String {
+        val tile = level.getTile(id)
+        return "TTH: $datetime [$id (${tile.lat}, ${tile.lon})], traffic=$traffic"
+    }
 }
