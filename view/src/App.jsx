@@ -1,5 +1,5 @@
 import { TombacApp, Button } from "tombac";
-import AnomalyFilter from "./components/AnomalyFilter";
+import AnomalyList from "./components/AnomalyList";
 import MapView from "./components/MapView";
 import BottomBar from "./components/BottomBar";
 import { AppProvider, useAppContext } from "./AppContext";
@@ -41,7 +41,7 @@ function AppContent() {
           <aside style={sidebarStyle}>
             {mode === "viewing" ? (
               <>
-                <AnomalyFilter />
+                <AnomalyList />
                 <Button
                   onClick={() => setMode("drawing")}
                   style={{ marginTop: 16 }}
