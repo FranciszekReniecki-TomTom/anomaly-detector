@@ -7,15 +7,18 @@ import com.tomtom.tti.area.analytics.model.traffic.Traffic
 import com.tomtom.tti.area.analytics.model.traffic.aggregate
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
 import com.tomtom.tti.nida.storage.processingTileFromCode
+import com.tomtom.tti.nida.storage.processingTiles
 import io.github.cdimascio.dotenv.Dotenv
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.locationtech.jts.geom.Geometry
+
+val level: MortonTileLevel<*> = MortonTileLevel.M19
 
 private val storage =
     AreaAnalyticsStorage(
@@ -24,26 +27,21 @@ private val storage =
     )
 
 fun getData(
-    startDay: LocalDate,
-    days: Int,
-    tile: Long,
-    level: MortonTileLevel<*>,
+    startDay: LocalDateTime,
+    endDay: LocalDateTime,
     geometry: Geometry,
 ): List<TrafficTileHour> = runBlocking {
     generateSequence(startDay) { it.plusDays(1) }
-        .take(days)
-        .map { day -> async(Dispatchers.Default) { day to getDay(day, tile, level, geometry) } }
+        .take(ChronoUnit.DAYS.between(startDay.toLocalDate(), endDay.toLocalDate()).toInt())
+        .map { day ->
+            // TODO MAP for all tiles
+            val tmp =  geometry.processingTiles()
+            async(Dispatchers.Default) { day to getDay(day.toLocalDate(), tmp.first().code, level, geometry) }
+        }
         .toList()
         .awaitAll()
         .flatMap { (date, trafficList) ->
-            trafficList.map { traffic ->
-                TrafficTileHour(
-                    LocalDateTime.of(date, LocalTime.of(traffic.hour.toInt(), 0)),
-                    traffic.id,
-                    level,
-                    traffic.traffic,
-                )
-            }
+            trafficList.map { traffic -> TrafficTileHour(date, traffic.id, traffic.traffic) }
         }
 }
 
