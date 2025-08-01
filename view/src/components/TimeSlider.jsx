@@ -1,53 +1,33 @@
 import { Label, Slider } from "tombac";
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { useAppContext } from "../AppContext";
+import {
+  useContainerWidth,
+  useSliderValue,
+  useThumbLeft,
+  useSnapToNearest,
+} from "../hooks/useTimeSlider";
 
 export default function TimeSlider() {
   const { timestampValues, selectedTime, setSelectedTime } = useAppContext();
 
-  const formatTimestamp = (ts) => new Date(ts).toLocaleString();
-  const containerRef = useRef(null);
-  const [thumbLeft, setThumbLeft] = useState(0);
-  const [sliderValue, setSliderValue] = useState(0);
+  if (timestampValues.length === 0) return null;
 
   const times = timestampValues.map((t) => new Date(t).getTime());
   const minTime = Math.min(...times);
   const maxTime = Math.max(...times);
 
-  useEffect(() => {
-    if (!selectedTime) return;
-    const currentTime = new Date(selectedTime).getTime();
-    setSliderValue(currentTime);
-  }, [selectedTime]);
+  const [containerRef, containerWidth] = useContainerWidth();
+  const [sliderValue, setSliderValue] = useSliderValue(selectedTime);
+  const thumbLeft = useThumbLeft(sliderValue, minTime, maxTime, containerWidth);
+  const snapToNearest = useSnapToNearest(times);
 
-  useLayoutEffect(() => {
-    if (!containerRef.current) return;
-    const containerWidth = containerRef.current.offsetWidth;
-    const percent = (sliderValue - minTime) / (maxTime - minTime);
-    const left = percent * containerWidth;
-    setThumbLeft(left);
-  }, [sliderValue, minTime, maxTime]);
-
-  const snapToNearest = (time) => {
-    let closest = times[0];
-    let minDiff = Math.abs(time - closest);
-    for (let i = 1; i < times.length; i++) {
-      const diff = Math.abs(time - times[i]);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closest = times[i];
-      }
-    }
-    return closest;
-  };
+  const formatTimestamp = (ts) => new Date(ts).toLocaleString();
 
   const onSliderChange = (t) => {
     const snapped = snapToNearest(t);
     setSliderValue(snapped);
     setSelectedTime(snapped);
   };
-
-  if (timestampValues.length === 0) return null;
 
   return (
     <>
