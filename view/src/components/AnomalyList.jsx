@@ -1,6 +1,6 @@
 import { useAppContext } from "../AppContext";
 
-export default function AnomalyFilter() {
+export default function AnomalyList() {
   const { anomalyIds, anomalyGeoJson, selectedAnomalies, toggleAnomaly } =
     useAppContext();
 
