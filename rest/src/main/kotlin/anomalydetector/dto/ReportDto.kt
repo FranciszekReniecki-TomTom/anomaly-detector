@@ -1,5 +1,9 @@
 package anomalydetector.dto
 
+import org.locationtech.jts.geom.Polygon
+import java.time.LocalDateTime
+
 data class ReportDto(
-  val anomalies: List<Byte> = emptyList()
+  val name: String,
+  val hourToClassIdToPolygon: Map<LocalDateTime, Map<Int, Polygon>> = emptyMap()
 )
