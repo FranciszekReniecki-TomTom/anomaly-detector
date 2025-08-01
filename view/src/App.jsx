@@ -20,7 +20,6 @@ const sidebarStyle = {
   width: 280,
   borderRight: "1px solid #ccc",
   padding: 16,
-  boxSizing: "border-box",
   overflowY: "auto",
 };
 
@@ -98,7 +97,10 @@ function App() {
   return (
     <TombacApp
       defineCssVariables
-      theme={{ baseUnit: "px", settings: { modalZIndex: 20 } }}
+      theme={{
+        baseUnit: "px",
+        settings: { modalZIndex: 20 },
+      }}
     >
       <Box style={containerStyle}>
         <Box style={sidebarStyle}>
@@ -120,7 +122,7 @@ function App() {
             minTime={timestampValues[0] || 0}
             maxTime={timestampValues[timestampValues.length - 1] || 0}
             selectedTime={selectedTime}
-            width={280}
+            width={220}
             height={30}
           />
 
