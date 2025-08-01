@@ -3,29 +3,45 @@ import { useState, useEffect, useRef, useLayoutEffect } from "react";
 
 export default function TimeSlider({ timestamps, value, setValue }) {
   const formatTimestamp = (ts) => new Date(ts).toLocaleString();
-
-  const [sliderIndex, setSliderIndex] = useState(0);
   const containerRef = useRef(null);
   const [thumbLeft, setThumbLeft] = useState(0);
+  const [sliderValue, setSliderValue] = useState(0);
+
+  const times = timestamps.map((t) => new Date(t).getTime());
+  const minTime = Math.min(...times);
+  const maxTime = Math.max(...times);
 
   useEffect(() => {
-    const index = timestamps.indexOf(value);
-    setSliderIndex(index === -1 ? 0 : index);
-  }, [value, timestamps]);
+    if (!value) return;
+    const currentTime = new Date(value).getTime();
+    setSliderValue(currentTime);
+  }, [value]);
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
-
     const containerWidth = containerRef.current.offsetWidth;
-    const maxIndex = timestamps.length - 1;
-    const percent = sliderIndex / maxIndex;
+    const percent = (sliderValue - minTime) / (maxTime - minTime);
     const left = percent * containerWidth;
     setThumbLeft(left);
-  }, [sliderIndex, timestamps]);
+  }, [sliderValue, minTime, maxTime]);
 
-  const onChange = (index) => {
-    setSliderIndex(index);
-    setValue(timestamps[index]);
+  const snapToNearest = (time) => {
+    let closest = times[0];
+    let minDiff = Math.abs(time - closest);
+    for (let i = 1; i < times.length; i++) {
+      const diff = Math.abs(time - times[i]);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = times[i];
+      }
+    }
+    return closest;
+  };
+
+  const onSliderChange = (t) => {
+    const snapped = snapToNearest(t);
+    setSliderValue(snapped);
+    setValue(snapped);
   };
 
   if (timestamps.length === 0) return null;
@@ -50,29 +66,19 @@ export default function TimeSlider({ timestamps, value, setValue }) {
             userSelect: "none",
           }}
         >
-          <Label>{formatTimestamp(timestamps[sliderIndex])}</Label>
+          <Label>{formatTimestamp(value)}</Label>
         </div>
         <div style={{ top: 0 }}>
           <Slider
-            min={0}
-            max={timestamps.length - 1}
+            min={minTime}
+            max={maxTime}
             step={1}
-            value={sliderIndex}
-            onChange={onChange}
+            value={sliderValue}
+            onChange={onSliderChange}
             style={{ width: "100%" }}
           />
         </div>
       </div>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginTop: 0,
-          fontSize: 12,
-          color: "#ccc",
-        }}
-      ></div>
     </>
   );
 }
