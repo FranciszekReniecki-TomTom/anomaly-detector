@@ -74,10 +74,7 @@ export default function TimeSlider({ timestamps, value, setValue }) {
           fontSize: 12,
           color: "#ccc",
         }}
-      >
-        <div>{formatTimestamp(timestamps[0])}</div>
-        <div>{formatTimestamp(timestamps[timestamps.length - 1])}</div>
-      </div>
+      ></div>
     </>
   );
 }
