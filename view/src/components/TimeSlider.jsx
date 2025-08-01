@@ -1,21 +1,24 @@
 import { Label, Slider } from "tombac";
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { useAppContext } from "../AppContext";
 
-export default function TimeSlider({ timestamps, value, setValue }) {
+export default function TimeSlider() {
+  const { timestampValues, selectedTime, setSelectedTime } = useAppContext();
+
   const formatTimestamp = (ts) => new Date(ts).toLocaleString();
   const containerRef = useRef(null);
   const [thumbLeft, setThumbLeft] = useState(0);
   const [sliderValue, setSliderValue] = useState(0);
 
-  const times = timestamps.map((t) => new Date(t).getTime());
+  const times = timestampValues.map((t) => new Date(t).getTime());
   const minTime = Math.min(...times);
   const maxTime = Math.max(...times);
 
   useEffect(() => {
-    if (!value) return;
-    const currentTime = new Date(value).getTime();
+    if (!selectedTime) return;
+    const currentTime = new Date(selectedTime).getTime();
     setSliderValue(currentTime);
-  }, [value]);
+  }, [selectedTime]);
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
@@ -41,10 +44,10 @@ export default function TimeSlider({ timestamps, value, setValue }) {
   const onSliderChange = (t) => {
     const snapped = snapToNearest(t);
     setSliderValue(snapped);
-    setValue(snapped);
+    setSelectedTime(snapped);
   };
 
-  if (timestamps.length === 0) return null;
+  if (timestampValues.length === 0) return null;
 
   return (
     <>
@@ -66,7 +69,7 @@ export default function TimeSlider({ timestamps, value, setValue }) {
             userSelect: "none",
           }}
         >
-          <Label>{formatTimestamp(value)}</Label>
+          <Label>{formatTimestamp(selectedTime)}</Label>
         </div>
         <div style={{ top: 0 }}>
           <Slider
