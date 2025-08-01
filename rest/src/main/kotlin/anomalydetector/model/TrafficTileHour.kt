@@ -14,4 +14,5 @@ import java.time.LocalDateTime
 data class TrafficTileHour(
     val hourOfTheDay: LocalDateTime,
     val mortonTileId: Long,
-    val traffic: Traffic)
+    val traffic: Traffic,
+)
