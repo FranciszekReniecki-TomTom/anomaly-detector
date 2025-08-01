@@ -18,9 +18,7 @@ export default function TimeSlider({ timestamps, value, setValue }) {
 
     const containerWidth = containerRef.current.offsetWidth;
     const maxIndex = timestamps.length - 1;
-    // Calculate position percentage of the thumb on the slider track
     const percent = sliderIndex / maxIndex;
-    // Approximate left position in pixels, adjust for thumb size (~12-16px)
     const left = percent * containerWidth;
     setThumbLeft(left);
   }, [sliderIndex, timestamps]);

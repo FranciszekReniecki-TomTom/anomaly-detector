@@ -37,6 +37,7 @@ function App() {
   const [selectedAnomalies, setSelectedAnomalies] = useState(new Set(["all"]));
   const [anomalyGeoJson, setAnomalyGeoJson] = useState(null);
   const [selectedTime, setSelectedTime] = useState(0);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     fetch("/.env/anomalies.json")
@@ -130,15 +131,17 @@ function App() {
               value={selectedTime}
               setValue={setSelectedTime}
             />
-            <AnomalyDots
-              timestamps={timestamps}
-              minTime={timestampValues[0]}
-              maxTime={timestampValues[timestampValues.length - 1]}
-              selectedTime={selectedTime}
-              width={100}
-              baseLaneHeight={10}
-              padding={9}
-            />
+            <div style={{ height: "240px", overflowY: "auto" }}>
+              <AnomalyDots
+                timestamps={timestamps}
+                minTime={timestampValues[0]}
+                maxTime={timestampValues[timestampValues.length - 1]}
+                selectedTime={selectedTime}
+                width={100}
+                baseLaneHeight={10}
+                padding={9}
+              />
+            </div>
           </Box>
         </Box>
       </Box>
