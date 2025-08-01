@@ -3,7 +3,7 @@ import "./App.css";
 import { Box, TombacApp } from "tombac";
 
 import AnomalyFilter from "./components/AnomalyFilter";
-import TimeRangeSlider from "./components/TimeRangeSlider";
+import TimeSlider from "./components/TimeSlider";
 import AnomalyDots from "./components/AnomalyDots";
 import AnomalyList from "./components/AnomalyList";
 import MapView from "./components/MapView";
@@ -25,10 +25,9 @@ const sidebarStyle = {
 };
 
 function App() {
-  const ONE_HOUR_MS = 3600000;
   const [selectedAnomalies, setSelectedAnomalies] = useState(new Set(["all"]));
   const [anomalyGeoJson, setAnomalyGeoJson] = useState(null);
-  const [range, setRange] = useState([0, 0]);
+  const [selectedTime, setSelectedTime] = useState(0);
 
   useEffect(() => {
     fetch("/.env/anomalies.json")
@@ -47,14 +46,16 @@ function App() {
       .sort((a, b) => a.time - b.time);
   }, [anomalyGeoJson]);
 
-  const minTime = timestamps.length ? timestamps[0].time : 0;
-  const maxTime = timestamps.length
-    ? timestamps[timestamps.length - 1].time
-    : 0;
+  const timestampValues = useMemo(
+    () => timestamps.map((t) => t.time),
+    [timestamps]
+  );
 
   useEffect(() => {
-    setRange([minTime, maxTime]);
-  }, [minTime, maxTime]);
+    if (timestampValues.length) {
+      setSelectedTime(timestampValues[0]);
+    }
+  }, [timestampValues]);
 
   const anomalyIds = useMemo(() => {
     if (!anomalyGeoJson) return [];
@@ -85,13 +86,12 @@ function App() {
     if (!anomalyGeoJson) return [];
     return anomalyGeoJson.features.filter((f) => {
       const ts = new Date(f.properties.timestamp).getTime();
-      const withinRange = ts >= range[0] && ts <= range[1];
       const matchesAnomaly =
         selectedAnomalies.has("all") ||
         selectedAnomalies.has(f.properties.anomaly_id);
-      return withinRange && matchesAnomaly;
+      return ts === selectedTime && matchesAnomaly;
     });
-  }, [range, selectedAnomalies, anomalyGeoJson]);
+  }, [selectedTime, selectedAnomalies, anomalyGeoJson]);
 
   if (!anomalyGeoJson) return <div>Loading anomalies...</div>;
 
@@ -109,18 +109,16 @@ function App() {
             toggleAnomaly={toggleAnomaly}
           />
 
-          <TimeRangeSlider
-            minTime={minTime}
-            maxTime={maxTime}
-            range={range}
-            setRange={setRange}
-            step={ONE_HOUR_MS}
+          <TimeSlider
+            timestamps={timestampValues}
+            value={selectedTime}
+            setValue={setSelectedTime}
           />
 
           <AnomalyDots
             timestamps={timestamps}
-            minTime={minTime}
-            maxTime={maxTime}
+            minTime={timestampValues[0] || 0}
+            maxTime={timestampValues[timestampValues.length - 1] || 0}
             width={280}
             height={30}
           />
