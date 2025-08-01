@@ -30,12 +30,8 @@ export default function AnomalyDots({
   const height = laneCount * baseLaneHeight;
   const totalDuration = maxTime - minTime;
 
-  const getColor = (index) =>
-    `hsl(${(index * 360) / anomalyIds.length}, 70%, 50%)`;
-
   const getLeftPercent = (time) =>
-    ((time - minTime) / totalDuration) *
-      (100 - (padding * 2 * 100) / width) +
+    ((time - minTime) / totalDuration) * (100 - (padding * 2 * 100) / width) +
     (padding * 100) / width;
 
   const selectedLeft = getLeftPercent(selectedTime);
@@ -71,7 +67,7 @@ export default function AnomalyDots({
               width: 2,
               height: 5,
               borderRadius: "50%",
-              backgroundColor: getColor(laneIndex),
+              backgroundColor: "#de1c12",
               cursor: "default",
             }}
           />
