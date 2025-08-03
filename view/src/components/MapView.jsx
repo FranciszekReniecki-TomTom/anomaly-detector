@@ -5,32 +5,20 @@ import {
   Layers,
   MapMenuToggle,
   PolygonSelector,
-  useDrawingTools,
 } from "legoland-shared";
-import { useState } from "react";
+import { useMapView } from "../hooks/useMapView";
 
 export default function MapView({ filteredFeatures, drawingEnabled }) {
-  const [mapModel, setMapModel] = useState("Orbis");
-  const [drawingOption, setDrawingOption] = useState();
-  const [regions, setRegions] = useState([]);
-
-  const { handleSelect } = useDrawingTools(regions, setRegions);
-
-  const anomalyLayer = {
-    id: "anomalies",
-    type: "fill",
-    paint: { "fill-color": "#cc0000", "fill-opacity": 0.4 },
-  };
-
-  const regionLayer = {
-    id: "regions",
-    type: "fill",
-    paint: {
-      "fill-color": "green",
-      "fill-outline-color": "green",
-      "fill-opacity": 0.4,
-    },
-  };
+  const {
+    mapModel,
+    setMapModel,
+    drawingOption,
+    setDrawingOption,
+    regions,
+    handleSelect,
+    anomalyLayer,
+    regionLayer,
+  } = useMapView(filteredFeatures);
 
   return (
     <GlMap
