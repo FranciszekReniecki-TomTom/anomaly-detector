@@ -7,7 +7,7 @@ import {
   useSelectedAnomalies,
   useFilteredFeatures,
   useMode,
-} from "./hooks/AppHooks";
+} from "./hooks/useApp";
 
 const AppContext = createContext(null);
 
