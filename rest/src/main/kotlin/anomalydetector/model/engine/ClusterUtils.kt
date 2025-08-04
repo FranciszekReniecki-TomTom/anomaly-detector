@@ -8,6 +8,8 @@ import smile.feature.transform.RobustStandardizer
 import smile.neighbor.KDTree
 import smile.plot.swing.Canvas
 import smile.plot.swing.ScatterPlot
+import kotlin.math.abs
+import kotlin.math.pow
 
 internal fun drawAnomalies(anomalies: List<List<TrafficTileHour>>) {
     val points: Array<DoubleArray> =
@@ -41,13 +43,12 @@ internal fun draw3DScatter(points: Array<DoubleArray>) {
                 .setAxisLabel(1, "Longitude")
                 .setAxisLabel(2, "Time")
         )
-
-    val window = canvas.window()
-    window.defaultCloseOperation = javax.swing.JFrame.EXIT_ON_CLOSE
+    canvas.window()
+    Thread.sleep(1_000_000)
 }
 
 internal fun drawKDistances(points: Array<DoubleArray>) {
-    val distances: List<Double> = computeKDistances(points)
+    val distances = computeKDistances(points)
 
     val scatterPlot =
         ScatterPlot.of(
@@ -55,11 +56,11 @@ internal fun drawKDistances(points: Array<DoubleArray>) {
         )
 
     val canvas = Canvas(scatterPlot.figure())
-    val window = canvas.window()
-    window.defaultCloseOperation = javax.swing.JFrame.EXIT_ON_CLOSE
+    canvas.window()
+    Thread.sleep(100_000)
 }
 
-internal fun computeKDistances(points: Array<DoubleArray>): List<Double> {
+fun computeKDistances(points: Array<DoubleArray>): DoubleArray {
     val minPts = points.first().size * 2
     val df = DataFrame.of(points)
 
@@ -74,6 +75,54 @@ internal fun computeKDistances(points: Array<DoubleArray>): List<Double> {
             neighbors[minPts - 1].distance
         }
         .sorted()
+        .toDoubleArray()
+}
+
+fun findBreakPoint(points: Array<DoubleArray>): Double {
+    val y = computeKDistances(points)
+    val x = DoubleArray(y.size) { it.toDouble() }
+    val segmentSize = 5
+
+    var breakPoint = 0
+    var bestError = Double.MAX_VALUE
+
+    for (i in segmentSize until points.size - segmentSize) {
+        val leftX = x.sliceArray(0 until i)
+        val leftY = y.sliceArray(0 until i)
+        val rightX = x.sliceArray(i until x.size)
+        val rightY = y.sliceArray(i until y.size)
+
+        val (inter1, slope1) = simpleLinearRegression(leftX, leftY)
+        val (inter2, slope2) = simpleLinearRegression(rightX, rightY)
+
+        val leftError = mse(leftX, leftY, inter1, slope1)
+        val rightError = mse(rightX, rightY, inter2, slope2)
+        val totalError = leftError + rightError
+
+        val slopeChange = abs(slope2 - slope1) / slope1
+        if (slopeChange > 0.5) {
+            return y[i]
+        }
+    }
+
+    return y[breakPoint]
+}
+
+fun simpleLinearRegression(x: DoubleArray, y: DoubleArray): Pair<Double, Double> {
+    val n = x.size
+    val xMean = x.average()
+    val yMean = y.average()
+
+    val slope = (0 until n).sumOf { (x[it] - xMean) * (y[it] - yMean) } /
+            (0 until n).sumOf { (x[it] - xMean).pow(2) }
+    val intercept = yMean - slope * xMean
+
+    return intercept to slope
+}
+
+fun mse(x: DoubleArray, y: DoubleArray, intercept: Double, slope: Double): Double {
+    val errors = y.indices.map { i -> (y[i] - (slope * x[i] + intercept)).pow(2) }
+    return errors.average()
 }
 
 internal fun testRadius(points: Array<DoubleArray>) {
