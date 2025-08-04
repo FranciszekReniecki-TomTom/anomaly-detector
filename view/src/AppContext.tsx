@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, ReactNode } from "react";
 import {
   useAnomalyData,
   useTimestamps,
@@ -9,9 +9,23 @@ import {
   useMode,
 } from "./hooks/useApp";
 
-const AppContext = createContext(null);
+interface AppContextType {
+  selectedAnomalies: Set<string>;
+  toggleAnomaly: (id: string) => void;
+  anomalyIds: string[];
+  anomalyGeoJson: any;
+  filteredFeatures: any[];
+  timestamps: any[];
+  timestampValues: number[];
+  selectedTime: number;
+  setSelectedTime: (t: number) => void;
+  mode: string;
+  setMode: (mode: string) => void;
+}
 
-export function AppProvider({ children }) {
+const AppContext = createContext<AppContextType | null>(null);
+
+export function AppProvider({ children }: { children: ReactNode }) {
   const anomalyGeoJson = useAnomalyData();
 
   const { timestamps, timestampValues } = useTimestamps(anomalyGeoJson);
