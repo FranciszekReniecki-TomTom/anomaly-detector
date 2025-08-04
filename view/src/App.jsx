@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TombacApp, Button } from "tombac";
+import { TombacApp, Button, DatePicker } from "tombac";
 import AnomalyList from "./components/AnomalyList";
 import MapView from "./components/MapView";
 import BottomBar from "./components/BottomBar";
@@ -19,16 +19,16 @@ const sidebarStyle = {
   overflowY: "auto",
 };
 
-function addMonths(dateString, months) {
-  const date = new Date(dateString);
-  date.setMonth(date.getMonth() + months);
-  return date.toISOString().slice(0, 16);
+function addMonths(date, months) {
+  const d= new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
 }
 
-function subtractMonths(dateString, months) {
-  const date = new Date(dateString);
-  date.setMonth(date.getMonth() - months);
-  return date.toISOString().slice(0, 16);
+function subtractMonths(date, months) {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() - months);
+  return d;
 }
 
 function AppContent() {
@@ -42,8 +42,8 @@ function AppContent() {
     filteredFeatures,
   } = useAppContext();
 
-  const [startDay, setStartDay] = useState("2025-01-01T00:00");
-  const [endDay, setEndDay] = useState("2025-02-01T00:00");
+  const [startDay, setStartDay] = useState(new Date("2025-01-01T00:00"));
+  const [endDay, setEndDay] = useState(new Date("2025-02-01T00:00"));
 
   useEffect(() => {
     const minEnd = addMonths(startDay, 1);
@@ -67,24 +67,16 @@ function AppContent() {
           <aside style={sidebarStyle}>
             {mode === "drawing" && (
               <>
-                <label>
-                  Start Day:
-                  <input
-                    type="datetime-local"
-                    value={startDay}
-                    onChange={(e) => setStartDay(e.target.value)}
-                    max={subtractMonths(endDay, 0)}
-                  />
-                </label>
-                <label style={{ marginLeft: 12 }}>
-                  End Day:
-                  <input
-                    type="datetime-local"
-                    value={endDay}
-                    onChange={(e) => setEndDay(e.target.value)}
-                    min={addMonths(startDay, 1)}
-                  />
-                </label>
+                <DatePicker
+                  value={startDay}
+                  onChange={(date) => setStartDay(date)}
+                  maxDate={subtractMonths(endDay, 0)}
+                />
+                <DatePicker
+                  value={endDay}
+                  onChange={(date) => setEndDay(date)}
+                  minDate={addMonths(startDay, 1)}
+                />
                 <Button
                   onClick={() => setMode("viewing")}
                   style={{ marginTop: 16 }}
