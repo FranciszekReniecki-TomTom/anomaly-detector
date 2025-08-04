@@ -1,6 +1,8 @@
 package anomalydetector.controller
 
+import anomalydetector.dto.AnomalyLabelRequestDto
 import anomalydetector.dto.AnomalyRequestDto
+import anomalydetector.dto.LabelDto
 import anomalydetector.dto.ReportDto
 import anomalydetector.service.AnomalyService
 import io.swagger.v3.oas.annotations.Operation
@@ -17,6 +19,12 @@ class AnomalyController(private val anomalyService: AnomalyService) {
   @PostMapping
   fun detectAnomaly(@RequestBody request: AnomalyRequestDto): ResponseEntity<ReportDto> {
     return ResponseEntity.ok(anomalyService.detectAnomaly(request))
+  }
+
+  @Operation(summary = "Labels given anomaly")
+  @PostMapping("/label")
+  fun labelAnomaly(@RequestBody request: AnomalyLabelRequestDto): ResponseEntity<LabelDto> {
+    return ResponseEntity.ok(anomalyService.labelAnomaly(request))
   }
 }
 
