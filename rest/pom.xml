@@ -23,6 +23,7 @@
         <jackson.module.kotlin.version>2.19.1</jackson.module.kotlin.version>
         <spotless.version>2.46.1</spotless.version>
         <ktfmt.version>0.56</ktfmt.version>
+        <smile.version>4.4.0</smile.version>
     </properties>
 
     <parent>
@@ -126,6 +127,16 @@
             <groupId>com.tomtom.tti.nida</groupId>
             <artifactId>nida-morton</artifactId>
             <version>${nida.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.haifengl</groupId>
+            <artifactId>smile-core</artifactId>
+            <version>${smile.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.haifengl</groupId>
+            <artifactId>smile-plot</artifactId>
+            <version>${smile.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.cdimascio</groupId>
