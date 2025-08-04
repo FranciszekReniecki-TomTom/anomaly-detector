@@ -1,6 +1,7 @@
 package anomalydetector.model.engine
 
 import kotlin.math.abs
+import kotlin.math.min
 import kotlin.math.sqrt
 
 /** Week period constant representing the number of hours in a week. */
@@ -9,18 +10,19 @@ private const val WEEK_PERIOD = 168
 /**
  * Given an array of weekly periodic values (with an hourly step), finds outliers indexes.
  *
- * @param values Array of periodic values, e.g., traffic data for a week.
+ * @param values Array of periodic values, e.g., traffic data for a week, month, year.
  * @param threshold The threshold for determining an outlier based on Z-score.
  * @return An array of indices of the outliers in the input array.
  */
 fun findWeeklyOutliers(values: DoubleArray, threshold: Double): IntArray {
-    val means = calculateMeans(values, WEEK_PERIOD)
-    val stds = calculateStds(values, means, WEEK_PERIOD)
+    val period = min(values.size, WEEK_PERIOD)
+    val means = calculateMeans(values, period)
+    val stds = calculateStds(values, means, period)
 
     return values
         .withIndex()
         .filter { (index, value) ->
-            val hourIndex = index % WEEK_PERIOD
+            val hourIndex = index % period
             val mean = means[hourIndex]
             val std = stds[hourIndex]
             std > 0.0 && abs(value - mean) / std > threshold
@@ -31,8 +33,8 @@ fun findWeeklyOutliers(values: DoubleArray, threshold: Double): IntArray {
 
 fun calculateMeans(values: DoubleArray, period: Int): DoubleArray {
     require(values.isNotEmpty()) { "Values array must not be empty." }
-    require(period > 0 && period <= values.size) {
-        "Period must be greater than 0 and less than or equal to the size of values."
+    require(period > 0) {
+        "Period must be greater than 0."
     }
 
     return DoubleArray(period) { index ->
@@ -45,7 +47,7 @@ fun calculateMeans(values: DoubleArray, period: Int): DoubleArray {
 fun calculateStds(values: DoubleArray, means: DoubleArray, period: Int): DoubleArray {
     require(values.isNotEmpty()) { "Values array must not be empty." }
     require(period > 0) {
-        "Period must be greater than 0 and less than or equal to the size of values."
+        "Period must be greater than 0."
     }
 
     return DoubleArray(period) { index ->
