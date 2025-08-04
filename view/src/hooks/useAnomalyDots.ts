@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 
-export function useContainerWidth() {
-  const containerRef = useRef(null);
+export function useContainerWidth(): [React.RefObject<HTMLDivElement>, number] {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
 
   useEffect(() => {
@@ -15,14 +15,19 @@ export function useContainerWidth() {
   return [containerRef, width];
 }
 
-export function useAnomalyIds(timestamps) {
+export interface AnomalyDotTimestamp {
+  time: number;
+  anomaly_id: string;
+}
+
+export function useAnomalyIds(timestamps: AnomalyDotTimestamp[]): string[] {
   return useMemo(
     () => [...new Set(timestamps.map((t) => t.anomaly_id))],
     [timestamps]
   );
 }
 
-export function useLeftPercent(minTime, maxTime) {
+export function useLeftPercent(minTime: number, maxTime: number) {
   const totalDuration = maxTime - minTime;
-  return (time) => ((time - minTime) / totalDuration) * 100;
+  return (time: number) => ((time - minTime) / totalDuration) * 100;
 }

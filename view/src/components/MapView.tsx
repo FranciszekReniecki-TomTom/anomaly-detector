@@ -6,13 +6,19 @@ import {
   MapMenuToggle,
   PolygonSelector,
 } from "legoland-shared";
-import { useMapView } from "../hooks/useMapView.js";
+import { useMapView } from "../hooks/useMapView";
+
+export interface MapViewProps {
+  filteredFeatures: any[];
+  drawingEnabled: boolean;
+  onPolygonSelect?: (feature: any) => void;
+}
 
 export default function MapView({
   filteredFeatures,
   drawingEnabled,
   onPolygonSelect,
-}) {
+}: MapViewProps) {
   const {
     mapModel,
     setMapModel,
@@ -24,7 +30,7 @@ export default function MapView({
     regionLayer,
   } = useMapView(filteredFeatures);
 
-  function handlePolygonSelect(features) {
+  function handlePolygonSelect(features: any[]) {
     if (features && features.length > 0) {
       handleSelect(features[0]);
       if (onPolygonSelect) onPolygonSelect(features[0]);
@@ -58,7 +64,7 @@ export default function MapView({
             label="Orbis"
             checked={mapModel === "Orbis"}
             onChange={() =>
-              setMapModel((prev) => (prev === "Genesis" ? "Orbis" : "Genesis"))
+              setMapModel((prev: string) => (prev === "Genesis" ? "Orbis" : "Genesis"))
             }
           />
         ),

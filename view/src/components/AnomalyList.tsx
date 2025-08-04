@@ -9,7 +9,7 @@ export default function AnomalyList() {
 
   return (
     <div>
-      {anomalyIds.map((id) => (
+      {anomalyIds.map((id: string) => (
         <Label key={id} style={{ display: "block", marginBottom: 4 }}>
           <Checkbox
             checked={selectedAnomalies.has(id)}

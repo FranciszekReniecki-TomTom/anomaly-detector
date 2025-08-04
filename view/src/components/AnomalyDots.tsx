@@ -5,6 +5,20 @@ import {
   useLeftPercent,
 } from "../hooks/useAnomalyDots";
 
+export interface AnomalyDotTimestamp {
+  time: number;
+  anomaly_id: string;
+}
+
+export interface AnomalyDotsProps {
+  timestamps: AnomalyDotTimestamp[];
+  minTime: number;
+  maxTime: number;
+  selectedTime: number;
+  baseLaneHeight: number;
+  padding: number;
+}
+
 export default function AnomalyDots({
   timestamps,
   minTime,
@@ -12,14 +26,14 @@ export default function AnomalyDots({
   selectedTime,
   baseLaneHeight,
   padding,
-}) {
+}: AnomalyDotsProps) {
   const [containerRef, width] = useContainerWidth();
   const anomalyIds = useAnomalyIds(timestamps);
   const getLeftPercentRaw = useLeftPercent(minTime, maxTime);
 
   const height = anomalyIds.length * baseLaneHeight;
 
-  const getLeftPercent = (time) =>
+  const getLeftPercent = (time: number) =>
     getLeftPercentRaw(time) * (1 - (padding * 2) / width) +
     (padding / width) * 100;
 

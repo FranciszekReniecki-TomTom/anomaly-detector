@@ -12,7 +12,7 @@ export default function TimeSlider() {
 
   if (timestampValues.length === 0) return null;
 
-  const times = timestampValues.map((t) => new Date(t).getTime());
+  const times = timestampValues.map((t: number) => new Date(t).getTime());
   const minTime = Math.min(...times);
   const maxTime = Math.max(...times);
 
@@ -21,9 +21,9 @@ export default function TimeSlider() {
   const thumbLeft = useThumbLeft(sliderValue, minTime, maxTime, containerWidth);
   const snapToNearest = useSnapToNearest(times);
 
-  const formatTimestamp = (ts) => new Date(ts).toLocaleString();
+  const formatTimestamp = (ts: number) => new Date(ts).toLocaleString();
 
-  const onSliderChange = (t) => {
+  const onSliderChange = (t: number) => {
     const snapped = snapToNearest(t);
     setSliderValue(snapped);
     setSelectedTime(snapped);

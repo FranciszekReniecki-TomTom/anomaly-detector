@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 
-export function useAnomalyData() {
-  const [anomalyGeoJson, setAnomalyGeoJson] = useState(null);
+export function useAnomalyData(): any {
+  const [anomalyGeoJson, setAnomalyGeoJson] = useState<any>(null);
 
   useEffect(() => {
     fetch("/.env/anomalies.json")
@@ -13,7 +13,21 @@ export function useAnomalyData() {
   return anomalyGeoJson;
 }
 
-export function useTimestamps(anomalyGeoJson) {
+export interface AnomalyGeoJson {
+  features: Array<{
+    properties: {
+      timestamp: string;
+      anomaly_id: string;
+    };
+  }>;
+}
+
+export interface Timestamp {
+  time: number;
+  anomaly_id: string;
+}
+
+export function useTimestamps(anomalyGeoJson: AnomalyGeoJson | null) {
   const timestamps = useMemo(() => {
     if (!anomalyGeoJson) return [];
     return anomalyGeoJson.features
@@ -32,7 +46,7 @@ export function useTimestamps(anomalyGeoJson) {
   return { timestamps, timestampValues };
 }
 
-export function useSelectedTime(timestampValues) {
+export function useSelectedTime(timestampValues: number[]): [number, (t: number) => void] {
   const [selectedTime, setSelectedTime] = useState(0);
 
   useEffect(() => {
@@ -42,7 +56,7 @@ export function useSelectedTime(timestampValues) {
   return [selectedTime, setSelectedTime];
 }
 
-export function useAnomalyIds(anomalyGeoJson) {
+export function useAnomalyIds(anomalyGeoJson: AnomalyGeoJson | null): string[] {
   return useMemo(() => {
     if (!anomalyGeoJson) return [];
     return [
@@ -52,9 +66,9 @@ export function useAnomalyIds(anomalyGeoJson) {
 }
 
 export function useSelectedAnomalies() {
-  const [selectedAnomalies, setSelectedAnomalies] = useState(new Set(["all"]));
+  const [selectedAnomalies, setSelectedAnomalies] = useState<Set<string>>(new Set(["all"]));
 
-  const toggleAnomaly = (id) => {
+  const toggleAnomaly = (id: string) => {
     setSelectedAnomalies((prev) => {
       if (id === "all") return new Set(["all"]);
 
@@ -76,9 +90,9 @@ export function useSelectedAnomalies() {
 }
 
 export function useFilteredFeatures(
-  anomalyGeoJson,
-  selectedTime,
-  selectedAnomalies
+  anomalyGeoJson: AnomalyGeoJson | null,
+  selectedTime: number,
+  selectedAnomalies: Set<string>
 ) {
   return useMemo(() => {
     if (!anomalyGeoJson) return [];
@@ -92,7 +106,7 @@ export function useFilteredFeatures(
   }, [selectedTime, selectedAnomalies, anomalyGeoJson]);
 }
 
-export function useMode() {
+export function useMode(): [string, (mode: string) => void] {
   const [mode, setMode] = useState("drawing");
   return [mode, setMode];
 }
