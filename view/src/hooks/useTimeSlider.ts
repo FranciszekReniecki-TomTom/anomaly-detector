@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 
-export function useContainerWidth() {
-  const containerRef = useRef(null);
+export function useContainerWidth(): [React.RefObject<HTMLDivElement>, number] {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export function useContainerWidth() {
   return [containerRef, width];
 }
 
-export function useSliderValue(selectedTime) {
+export function useSliderValue(selectedTime: number): [number, (t: number) => void] {
   const [sliderValue, setSliderValue] = useState(0);
 
   useEffect(() => {
@@ -27,7 +27,12 @@ export function useSliderValue(selectedTime) {
   return [sliderValue, setSliderValue];
 }
 
-export function useThumbLeft(sliderValue, minTime, maxTime, containerWidth) {
+export function useThumbLeft(
+  sliderValue: number,
+  minTime: number,
+  maxTime: number,
+  containerWidth: number
+): number {
   const [thumbLeft, setThumbLeft] = useState(0);
 
   useLayoutEffect(() => {
@@ -40,8 +45,8 @@ export function useThumbLeft(sliderValue, minTime, maxTime, containerWidth) {
   return thumbLeft;
 }
 
-export function useSnapToNearest(times) {
-  return (time) => {
+export function useSnapToNearest(times: number[]) {
+  return (time: number) => {
     let closest = times[0];
     let minDiff = Math.abs(time - closest);
     for (let i = 1; i < times.length; i++) {

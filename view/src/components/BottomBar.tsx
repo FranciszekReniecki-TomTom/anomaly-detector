@@ -4,14 +4,14 @@ import AnomalyDots from "./AnomalyDots";
 import { useAppContext } from "../AppContext";
 
 const bottomBarStyle = {
-  position: "absolute",
+  position: "absolute" as const,
   bottom: 0,
   left: 0,
   right: 0,
   borderTop: "1px solid #ccc",
   padding: 8,
   background: "#f8f8f8",
-  boxSizing: "border-box",
+  boxSizing: "border-box" as const,
 };
 
 export default function BottomBar() {

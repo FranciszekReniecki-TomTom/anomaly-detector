@@ -4,7 +4,7 @@ import AnomalyList from "./components/AnomalyList";
 import MapView from "./components/MapView";
 import BottomBar from "./components/BottomBar";
 import { AppProvider, useAppContext } from "./AppContext";
-import { fetchAnomalyData } from "./api/Api";
+import { fetchAnomalyData } from "./api/api";
 
 const containerStyle = {
   display: "flex",
@@ -20,13 +20,13 @@ const sidebarStyle = {
   overflowY: "auto",
 };
 
-function addMonths(date, months) {
+function addMonths(date: Date, months: number) {
   const d = new Date(date);
   d.setMonth(d.getMonth() + months);
   return d;
 }
 
-function subtractMonths(date, months) {
+function subtractMonths(date: Date, months: number) {
   const d = new Date(date);
   d.setMonth(d.getMonth() - months);
   return d;
@@ -43,9 +43,9 @@ function AppContent() {
     filteredFeatures,
   } = useAppContext();
 
-  const [startDay, setStartDay] = useState(new Date("2025-01-01T00:00"));
-  const [endDay, setEndDay] = useState(new Date("2025-02-01T00:00"));
-  const [selectedPolygon, setSelectedPolygon] = useState(null);
+  const [startDay, setStartDay] = useState<Date>(new Date("2025-01-01T00:00"));
+  const [endDay, setEndDay] = useState<Date>(new Date("2025-02-01T00:00"));
+  const [selectedPolygon, setSelectedPolygon] = useState<any>(null);
 
   useEffect(() => {
     const minEnd = addMonths(startDay, 1);
@@ -72,7 +72,7 @@ function AppContent() {
         dataType: "TOTAL_DISTANCE_M",
       });
       setMode("viewing");
-    } catch (error) {
+    } catch (error: any) {
       alert("Failed to generate report: " + error.message);
     }
   };
@@ -89,12 +89,12 @@ function AppContent() {
               <>
                 <DatePicker
                   value={startDay}
-                  onChange={(date) => setStartDay(date)}
+                  onChange={(date: Date) => setStartDay(date)}
                   maxDate={subtractMonths(endDay, 0)}
                 />
                 <DatePicker
                   value={endDay}
-                  onChange={(date) => setEndDay(date)}
+                  onChange={(date: Date) => setEndDay(date)}
                   minDate={addMonths(startDay, 1)}
                 />
                 <Button
