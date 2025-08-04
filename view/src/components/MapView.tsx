@@ -64,7 +64,9 @@ export default function MapView({
             label="Orbis"
             checked={mapModel === "Orbis"}
             onChange={() =>
-              setMapModel((prev: string) => (prev === "Genesis" ? "Orbis" : "Genesis"))
+              setMapModel((prev: string) =>
+                prev === "Genesis" ? "Orbis" : "Genesis"
+              )
             }
           />
         ),

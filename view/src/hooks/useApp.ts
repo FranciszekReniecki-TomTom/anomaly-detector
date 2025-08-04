@@ -46,7 +46,9 @@ export function useTimestamps(anomalyGeoJson: AnomalyGeoJson | null) {
   return { timestamps, timestampValues };
 }
 
-export function useSelectedTime(timestampValues: number[]): [number, (t: number) => void] {
+export function useSelectedTime(
+  timestampValues: number[]
+): [number, (t: number) => void] {
   const [selectedTime, setSelectedTime] = useState(0);
 
   useEffect(() => {
@@ -66,7 +68,9 @@ export function useAnomalyIds(anomalyGeoJson: AnomalyGeoJson | null): string[] {
 }
 
 export function useSelectedAnomalies() {
-  const [selectedAnomalies, setSelectedAnomalies] = useState<Set<string>>(new Set(["all"]));
+  const [selectedAnomalies, setSelectedAnomalies] = useState<Set<string>>(
+    new Set(["all"])
+  );
 
   const toggleAnomaly = (id: string) => {
     setSelectedAnomalies((prev) => {
