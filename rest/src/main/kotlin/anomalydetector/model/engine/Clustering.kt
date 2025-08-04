@@ -17,6 +17,7 @@ fun findClusters(
     dataPoints: Array<DoubleArray>,
     minN: Int = dataPoints.first().size * 2,
     radius: Double = 0.1,
+    noise: Boolean = true
 ): List<List<Int>> {
     val df = DataFrame.of(dataPoints)
 
@@ -29,6 +30,7 @@ fun findClusters(
         .withIndex()
         .map { (dataPointIndex, _) -> dataPointIndex to clusters.group()[dataPointIndex] }
         .groupBy({ it.second }, { it.first })
+        .filter { noise || it.key != Int.MAX_VALUE }
         .values
         .toList()
 }
