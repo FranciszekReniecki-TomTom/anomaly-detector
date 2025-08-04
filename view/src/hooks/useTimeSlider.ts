@@ -1,12 +1,16 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 
-export function useContainerWidth(): [React.RefObject<HTMLDivElement>, number] {
+export function useContainerWidth(): [React.RefObject<HTMLDivElement | null>, number] {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
 
   useEffect(() => {
     if (!containerRef.current) return;
-    const updateWidth = () => setWidth(containerRef.current.offsetWidth);
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setWidth(containerRef.current.offsetWidth);
+      }
+    };
     updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
@@ -15,7 +19,9 @@ export function useContainerWidth(): [React.RefObject<HTMLDivElement>, number] {
   return [containerRef, width];
 }
 
-export function useSliderValue(selectedTime: number): [number, (t: number) => void] {
+export function useSliderValue(
+  selectedTime: number
+): [number, (t: number) => void] {
   const [sliderValue, setSliderValue] = useState(0);
 
   useEffect(() => {

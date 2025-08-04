@@ -15,25 +15,19 @@ const bottomBarStyle = {
 };
 
 export default function BottomBar() {
-  const { timestampValues, selectedTime, setSelectedTime, timestamps } =
-    useAppContext();
+  const { timestampValues, selectedTime, timestamps } = useAppContext();
 
   if (timestampValues.length === 0) return null;
 
   return (
     <Box style={bottomBarStyle}>
-      <TimeSlider
-        timestamps={timestampValues}
-        value={selectedTime}
-        setValue={setSelectedTime}
-      />
+      <TimeSlider />
       <div style={{ height: "240px", overflowY: "auto" }}>
         <AnomalyDots
           timestamps={timestamps}
           minTime={timestampValues[0]}
           maxTime={timestampValues[timestampValues.length - 1]}
           selectedTime={selectedTime}
-          width={100}
           baseLaneHeight={10}
           padding={9}
         />
