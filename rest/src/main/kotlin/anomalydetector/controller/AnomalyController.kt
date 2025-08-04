@@ -27,3 +27,4 @@ class AnomalyController(private val anomalyService: AnomalyService) {
         return ResponseEntity.ok(anomalyService.labelAnomaly(request))
     }
 }
+
