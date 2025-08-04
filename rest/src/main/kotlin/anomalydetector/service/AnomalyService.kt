@@ -10,8 +10,8 @@ import anomalydetector.service.labeling.LLMLabelingService
 import anomalydetector.service.labeling.ReverseGeoCodeService
 import anomalydetector.service.trafficdata.getData
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
-import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
+import java.time.LocalDateTime
 import org.springframework.stereotype.Service
 
 @Service
@@ -35,32 +35,27 @@ class AnomalyService(
     fun labelAnomaly(request: AnomalyLabelRequestDto): LabelDto {
         val name = request.name
 
-        val datetime = LocalDateTime.of(2020, 6, 14, 14, 0)
-        val points: List<GeoTime> =
-            listOf(
-                GeoTime(51.575332, 18.937928, datetime),
-                GeoTime(51.577466, 18.919387, datetime),
-                GeoTime(51.574531, 18.947237, datetime),
-            )
+        val points: List<GeoTime> = listOf(
+            GeoTime(52.5200, 13.4050, LocalDateTime.now()),
+            GeoTime(48.8566, 2.3522, LocalDateTime.now().minusDays(1)),
+            GeoTime(51.5074, -0.1278, LocalDateTime.now().minusDays(2))
+        )
 
-        val anomalySliceHours: List<AnomalySliceHour> =
-            points
-                .map { geoTime ->
-                    runBlocking {
-                        val (country, municipality, streets) =
-                            reverseGeoCodeService.reverseGeocode(geoTime.lat, geoTime.lon)
-                        AnomalySliceHour(
-                            country = country,
-                            municipality = municipality,
-                            streets = streets,
-                            time = geoTime.time,
-                        )
-                    }
-                }
-                .toList()
+        val anomalySliceHours: List<AnomalySliceHour> = points.map { geoTime ->
+            runBlocking {
+                val (country, municipality, streets) = reverseGeoCodeService.reverseGeocode(geoTime.lat, geoTime.lon)
+                AnomalySliceHour(
+                    country = country,
+                    municipality = municipality,
+                    streets = streets,
+                    time = geoTime.time
+                )
+            }
+        }.toList()
 
-        val llmResponse = runBlocking { llmLabelingService.labelUsingLLM(anomalySliceHours) }
 
-        return LabelDto(llmResponse.response)
+        val llmResponse = llmLabelingService.labelUsingLLM(anomalySliceHours)
+
+        return LabelDto("dupa")
     }
 }
