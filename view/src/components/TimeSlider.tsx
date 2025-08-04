@@ -3,7 +3,6 @@ import { useAppContext } from "../AppContext";
 import {
   useContainerWidth,
   useSliderValue,
-  useThumbLeft,
   useSnapToNearest,
 } from "../hooks/useTimeSlider";
 
@@ -18,10 +17,25 @@ export default function TimeSlider() {
 
   const [containerRef, containerWidth] = useContainerWidth();
   const [sliderValue, setSliderValue] = useSliderValue(selectedTime);
-  const thumbLeft = useThumbLeft(sliderValue, minTime, maxTime, containerWidth);
   const snapToNearest = useSnapToNearest(times);
 
   const formatTimestamp = (ts: number) => new Date(ts).toLocaleString();
+
+  const padding = 9;
+
+  const snappedSelectedTime = snapToNearest(selectedTime);
+
+  const getThumbLeftPercent = (time: number) => {
+    if (!containerWidth) return 0;
+    const totalDuration = maxTime - minTime;
+    const rawPercent = ((time - minTime) / totalDuration) * 100;
+    return (
+      rawPercent * (1 - (padding * 2) / containerWidth) +
+      (padding / containerWidth) * 100
+    );
+  };
+
+  const thumbLeftPercent = getThumbLeftPercent(snappedSelectedTime);
 
   const onSliderChange = (t: number) => {
     const snapped = snapToNearest(t);
@@ -37,7 +51,7 @@ export default function TimeSlider() {
         <div
           style={{
             position: "absolute",
-            left: thumbLeft,
+            left: `${thumbLeftPercent}%`,
             bottom: 24,
             transform: "translateX(-50%)",
             color: "white",
@@ -49,7 +63,7 @@ export default function TimeSlider() {
             userSelect: "none",
           }}
         >
-          <Label>{formatTimestamp(selectedTime)}</Label>
+          <Label>{formatTimestamp(snappedSelectedTime)}</Label>
         </div>
         <div style={{ top: 0 }}>
           <div style={{ width: "100%" }}>

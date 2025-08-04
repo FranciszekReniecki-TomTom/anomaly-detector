@@ -21,8 +21,10 @@ export default function BottomBar() {
 
   return (
     <Box style={bottomBarStyle}>
-      <TimeSlider />
-      <div style={{ height: "240px", overflowY: "auto" }}>
+      <div style={{ overflowY: "scroll", height: "60px" }}>
+        <TimeSlider />
+      </div>
+      <div style={{ height: "180px", overflowY: "auto", marginTop: 8 }}>
         <AnomalyDots
           timestamps={timestamps}
           minTime={timestampValues[0]}
