@@ -5,6 +5,7 @@ export function useMapView(filteredFeatures) {
   const [mapModel, setMapModel] = useState("Orbis");
   const [drawingOption, setDrawingOption] = useState();
   const [regions, setRegions] = useState([]);
+  const [selectedPolygon, setSelectedPolygon] = useState(null);
 
   const { handleSelect: originalHandleSelect } = useDrawingTools(
     regions,
@@ -13,29 +14,7 @@ export function useMapView(filteredFeatures) {
 
   async function handleSelect(polygon) {
     originalHandleSelect(polygon);
-
-    const formattedData = {
-      startDay: "2025-01-01T00:00:00",
-      endDay: "2025-01-07T23:59:59",
-      coordinates: polygon.coordinates[0],
-      dataType: "TOTAL_DISTANCE_M",
-    };
-
-    try {
-      const response = await fetch("/api/polygons", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formattedData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to send polygon data: ${response.statusText}`);
-      }
-
-      console.log("Polygon data sent successfully");
-    } catch (error) {
-      console.error(error);
-    }
+    setSelectedRegion(polygon);
   }
 
   const anomalyLayer = {
@@ -64,5 +43,6 @@ export function useMapView(filteredFeatures) {
     handleSelect,
     anomalyLayer,
     regionLayer,
+    selectedPolygon,
   };
 }

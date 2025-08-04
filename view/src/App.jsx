@@ -4,6 +4,7 @@ import AnomalyList from "./components/AnomalyList";
 import MapView from "./components/MapView";
 import BottomBar from "./components/BottomBar";
 import { AppProvider, useAppContext } from "./AppContext";
+import { fetchAnomalyData } from "./api/Api";
 
 const containerStyle = {
   display: "flex",
@@ -20,7 +21,7 @@ const sidebarStyle = {
 };
 
 function addMonths(date, months) {
-  const d= new Date(date);
+  const d = new Date(date);
   d.setMonth(d.getMonth() + months);
   return d;
 }
@@ -44,6 +45,7 @@ function AppContent() {
 
   const [startDay, setStartDay] = useState(new Date("2025-01-01T00:00"));
   const [endDay, setEndDay] = useState(new Date("2025-02-01T00:00"));
+  const [selectedPolygon, setSelectedPolygon] = useState(null);
 
   useEffect(() => {
     const minEnd = addMonths(startDay, 1);
@@ -56,6 +58,24 @@ function AppContent() {
   }, [endDay]);
 
   if (!anomalyGeoJson) return <div>Loading anomalies...</div>;
+
+  const handleGenerateReport = async () => {
+    if (!selectedPolygon) {
+      alert("Please select a polygon to generate the report.");
+      return;
+    }
+    try {
+      await fetchAnomalyData({
+        startDay: startDay.toISOString().slice(0, 19),
+        endDay: endDay.toISOString().slice(0, 19),
+        coordinates: selectedPolygon.geometry.coordinates[0],
+        dataType: "TOTAL_DISTANCE_M",
+      });
+      setMode("viewing");
+    } catch (error) {
+      alert("Failed to generate report: " + error.message);
+    }
+  };
 
   return (
     <TombacApp
@@ -78,7 +98,7 @@ function AppContent() {
                   minDate={addMonths(startDay, 1)}
                 />
                 <Button
-                  onClick={() => setMode("viewing")}
+                  onClick={handleGenerateReport}
                   style={{ marginTop: 16 }}
                 >
                   Generate Report
@@ -105,6 +125,7 @@ function AppContent() {
             drawingEnabled={mode === "drawing"}
             startDay={startDay + ":00"}
             endDay={endDay + ":59"}
+            onPolygonSelect={setSelectedPolygon}
           />
           {mode === "viewing" && <BottomBar />}
         </main>

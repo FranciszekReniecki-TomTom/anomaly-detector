@@ -6,9 +6,13 @@ import {
   MapMenuToggle,
   PolygonSelector,
 } from "legoland-shared";
-import { useMapView } from "../hooks/useMapView";
+import { useMapView } from "../hooks/useMapView.js";
 
-export default function MapView({ filteredFeatures, drawingEnabled }) {
+export default function MapView({
+  filteredFeatures,
+  drawingEnabled,
+  onPolygonSelect,
+}) {
   const {
     mapModel,
     setMapModel,
@@ -19,6 +23,13 @@ export default function MapView({ filteredFeatures, drawingEnabled }) {
     anomalyLayer,
     regionLayer,
   } = useMapView(filteredFeatures);
+
+  function handlePolygonSelect(features) {
+    if (features && features.length > 0) {
+      handleSelect(features[0]);
+      if (onPolygonSelect) onPolygonSelect(features[0]);
+    }
+  }
 
   return (
     <GlMap
@@ -69,7 +80,7 @@ export default function MapView({ filteredFeatures, drawingEnabled }) {
       )}
       <Layers sourceId="regions" layers={[regionLayer]} data={regions} />
       {drawingEnabled && drawingOption === DrawingOption.POLYGON && (
-        <PolygonSelector onSelect={handleSelect} />
+        <PolygonSelector onSelect={handlePolygonSelect} />
       )}
     </GlMap>
   );
