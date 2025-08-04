@@ -35,8 +35,10 @@ fun getData(
         .take(ChronoUnit.DAYS.between(startDay.toLocalDate(), endDay.toLocalDate()).toInt())
         .map { day ->
             // TODO MAP for all tiles
-            val tmp =  geometry.processingTiles()
-            async(Dispatchers.Default) { day to getDay(day.toLocalDate(), tmp.first().code, level, geometry) }
+            val tmp = geometry.processingTiles()
+            async(Dispatchers.Default) {
+                day to getDay(day.toLocalDate(), tmp.first().code, level, geometry)
+            }
         }
         .toList()
         .awaitAll()

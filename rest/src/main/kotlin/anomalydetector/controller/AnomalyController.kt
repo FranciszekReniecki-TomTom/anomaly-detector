@@ -2,7 +2,6 @@ package anomalydetector.controller
 
 import anomalydetector.dto.AnomalyRequestDto
 import anomalydetector.dto.DataType
-import anomalydetector.dto.ReportDto
 import anomalydetector.model.TrafficTileHour
 import anomalydetector.model.engine.findClusters
 import anomalydetector.service.detection.findOutliers
@@ -11,6 +10,11 @@ import com.tomtom.tti.nida.morton.geom.MortonTileLevel
 import com.tomtom.tti.nida.morton.geometry
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.Valid
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import org.locationtech.jts.geom.Coordinate as JtsCoordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import org.springframework.http.ResponseEntity
@@ -20,11 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import org.locationtech.jts.geom.Coordinate as JtsCoordinate
 
 val MIN_LON = -180.0
 val MAX_LON = 180.0
@@ -33,10 +32,7 @@ val MAX_LAT = 90.0
 val LON_RANGE = MAX_LON - MIN_LON
 val LAT_RANGE = MAX_LAT - MIN_LAT
 
-data class GeoJsonPolygon(
-    val type: String = "Polygon",
-    val coordinates: List<List<List<Double>>>,
-)
+data class GeoJsonPolygon(val type: String = "Polygon", val coordinates: List<List<List<Double>>>)
 
 data class GeoJsonFeature(
     val type: String = "Feature",
@@ -56,13 +52,12 @@ open class AnomalyController {
     @Operation(summary = "Detect anomalies in provided data and time range")
     @PostMapping
     fun detectAnomaly(
-        @Valid @RequestBody request: AnomalyRequestDto,
+        @Valid @RequestBody request: AnomalyRequestDto
     ): ResponseEntity<FeatureCollection> {
         return ResponseEntity.ok(getAnomalies(request))
     }
 
-    @GetMapping("/ping")
-    fun ping() = "pong"
+    @GetMapping("/ping") fun ping() = "pong"
 
     fun getAnomalies(anomalyRequestDto: AnomalyRequestDto): FeatureCollection {
         val (startDay, endDay, coordinates, dataType) = anomalyRequestDto
@@ -95,7 +90,8 @@ open class AnomalyController {
                             val hourSinceEpoch = dateTime.toEpochSecond(ZoneOffset.UTC) / 3600L
                             (tileId to hourSinceEpoch) to number
                         }
-                }.toMap()
+                }
+                .toMap()
 
         // [tileId, hour] -> [lon, lat, hour]
         val tileHourToLonLatHour: Map<Pair<Long, Long>, List<Double>> =
@@ -103,12 +99,7 @@ open class AnomalyController {
                 val tile = MortonTileLevel.M19.getTile(tileId)
                 val lon = tile.lon
                 val lat = tile.lat
-                (tileId to hourSinceEpoch) to
-                    listOf(
-                        lon,
-                        lat,
-                        hourSinceEpoch.toDouble(),
-                    )
+                (tileId to hourSinceEpoch) to listOf(lon, lat, hourSinceEpoch.toDouble())
             }
 
         // List of keys in the same order as the clustering input
@@ -117,10 +108,11 @@ open class AnomalyController {
         // [[Int]]
         val clusters: List<List<Int>> =
             findClusters(
-                tileHourToLonLatHour.values
-                    .map { doubleArrayOf(it[0], it[1], it[2]) }
-                    .toTypedArray<DoubleArray>(),
-            ).dropLast(1)
+                    tileHourToLonLatHour.values
+                        .map { doubleArrayOf(it[0], it[1], it[2]) }
+                        .toTypedArray<DoubleArray>()
+                )
+                .dropLast(1)
 
         // TODO: implement report creation
 
@@ -138,7 +130,8 @@ open class AnomalyController {
                         val polygon = MortonTileLevel.M19.getTile(tileId).geometry() as Polygon
                         Triple(hour, clusterId, polygon)
                     }
-                }.groupBy { it.first } // group by hour (LocalDateTime)
+                }
+                .groupBy { it.first } // group by hour (LocalDateTime)
                 .mapValues { (_, triples) ->
                     triples.associate { (_, clusterId, polygon) -> clusterId to polygon }
                 }
@@ -147,7 +140,8 @@ open class AnomalyController {
     }
 }
 
-fun polygonToGeoJson(polygon: Polygon) = GeoJsonPolygon(coordinates = listOf(polygon.coordinates.map { listOf(it.y, it.x) }))
+fun polygonToGeoJson(polygon: Polygon) =
+    GeoJsonPolygon(coordinates = listOf(polygon.coordinates.map { listOf(it.y, it.x) }))
 
 fun buildFeatureCollection(data: Map<LocalDateTime, Map<Int, Polygon>>): FeatureCollection =
     FeatureCollection(
@@ -160,11 +154,14 @@ fun buildFeatureCollection(data: Map<LocalDateTime, Map<Int, Polygon>>): Feature
                         properties =
                             mapOf(
                                 "classId" to classId,
-                                "time" to dataTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")),
+                                "time" to
+                                    dataTime.format(
+                                        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                                    ),
                             ),
                     )
                 }
-            },
+            }
     )
 
 fun List<List<Double>>.toPolygon(geometryFactory: GeometryFactory = GeometryFactory()): Polygon =
@@ -175,14 +172,13 @@ fun List<List<Double>>.toPolygon(geometryFactory: GeometryFactory = GeometryFact
         require(coordinates.isNotEmpty()) { "Coordinate list must not be empty" }
         geometryFactory.createPolygon(
             geometryFactory.createLinearRing(
-                (
-                    if (coordinates.first() != coordinates.last()) {
+                (if (coordinates.first() != coordinates.last()) {
                         coordinates + listOf(coordinates.first())
                     } else {
                         coordinates
-                    }
-                ).map { (lat, lon) -> JtsCoordinate(lon, lat) }
-                    .toTypedArray<JtsCoordinate>(),
+                    })
+                    .map { (lat, lon) -> JtsCoordinate(lon, lat) }
+                    .toTypedArray<JtsCoordinate>()
             ),
             null,
         )
