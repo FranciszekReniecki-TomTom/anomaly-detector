@@ -5,6 +5,7 @@ import MapView from "./components/MapView";
 import BottomBar from "./components/BottomBar";
 import { AppProvider, useAppContext } from "./AppContext";
 import { fetchAnomalyData } from "./api/api";
+import { CSSProperties } from "react";
 
 const containerStyle = {
   display: "flex",
@@ -13,7 +14,8 @@ const containerStyle = {
   margin: 0,
   padding: 0,
 };
-const sidebarStyle = {
+
+const sidebarStyle: CSSProperties = {
   width: 280,
   borderRight: "1px solid #ccc",
   padding: 16,
@@ -36,10 +38,7 @@ function AppContent() {
   const {
     mode,
     setMode,
-    anomalyIds,
     anomalyGeoJson,
-    selectedAnomalies,
-    toggleAnomaly,
     filteredFeatures,
   } = useAppContext();
 
@@ -89,12 +88,16 @@ function AppContent() {
               <>
                 <DatePicker
                   value={startDay}
-                  onChange={(date: Date) => setStartDay(date)}
+                  onChange={(date) => {
+                    if (date instanceof Date) setStartDay(date);
+                  }}
                   maxDate={subtractMonths(endDay, 0)}
                 />
                 <DatePicker
                   value={endDay}
-                  onChange={(date: Date) => setEndDay(date)}
+                  onChange={(date) => {
+                    if (date instanceof Date) setEndDay(date);
+                  }}
                   minDate={addMonths(startDay, 1)}
                 />
                 <Button
@@ -123,8 +126,6 @@ function AppContent() {
           <MapView
             filteredFeatures={filteredFeatures}
             drawingEnabled={mode === "drawing"}
-            startDay={startDay + ":00"}
-            endDay={endDay + ":59"}
             onPolygonSelect={setSelectedPolygon}
           />
           {mode === "viewing" && <BottomBar />}

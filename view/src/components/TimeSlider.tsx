@@ -52,14 +52,15 @@ export default function TimeSlider() {
           <Label>{formatTimestamp(selectedTime)}</Label>
         </div>
         <div style={{ top: 0 }}>
-          <Slider
-            min={minTime}
-            max={maxTime}
-            step={1}
-            value={sliderValue}
-            onChange={onSliderChange}
-            style={{ width: "100%" }}
-          />
+          <div style={{ width: "100%" }}>
+            <Slider
+              min={minTime}
+              max={maxTime}
+              step={1}
+              value={sliderValue}
+              onChange={onSliderChange}
+            />
+          </div>
         </div>
       </div>
     </>
