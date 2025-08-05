@@ -2,9 +2,9 @@ import React from "react";
 import { Box, Text } from "tombac";
 import {
   useContainerWidth,
-  useAnomalyIds,
   useLeftPercent,
 } from "../../hooks/useAnomalyDots";
+import { useAppContext } from "../../AppContext";
 
 export interface AnomalyDotTimestamp {
   time: number;
@@ -31,7 +31,7 @@ export default function AnomalyDots({
   selectedAnomalies,
 }: AnomalyDotsProps) {
   const [containerRef, width] = useContainerWidth();
-  const anomalyIds = useAnomalyIds(timestamps);
+  const { anomalyIds } = useAppContext();
   const getLeftPercentRaw = useLeftPercent(minTime, maxTime);
 
   const height = anomalyIds.length * baseLaneHeight;
