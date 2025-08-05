@@ -1,4 +1,4 @@
-import { Label, Slider } from "tombac";
+import { Label, Slider, Box } from "tombac";
 import { useAppContext } from "../AppContext";
 import {
   useContainerWidth,
@@ -46,8 +46,8 @@ export default function TimeSlider() {
     <>
       <Label style={{ display: "block", marginBottom: 18 }}>Select time:</Label>
 
-      <div ref={containerRef} style={{ position: "relative", width: "100%" }}>
-        <div
+      <Box ref={containerRef} style={{ position: "relative", width: "100%" }}>
+        <Box
           style={{
             position: "absolute",
             left: `${thumbLeftPercent}%`,
@@ -63,9 +63,9 @@ export default function TimeSlider() {
           }}
         >
           <Label>{formatTimestamp(snappedSelectedTime)}</Label>
-        </div>
-        <div style={{ top: 0 }}>
-          <div style={{ width: "100%" }}>
+        </Box>
+        <Box style={{ top: 0 }}>
+          <Box style={{ width: "100%" }}>
             <Slider
               min={minTime}
               max={maxTime}
@@ -73,9 +73,9 @@ export default function TimeSlider() {
               value={sliderValue}
               onChange={onSliderChange}
             />
-          </div>
-        </div>
-      </div>
+          </Box>
+        </Box>
+      </Box>
     </>
   );
 }

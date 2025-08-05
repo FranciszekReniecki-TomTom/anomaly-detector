@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, DatePicker } from "tombac";
+import { Button, DatePicker, Label } from "tombac";
 import AnomalyList from "./AnomalyList";
 import { useAppContext } from "../AppContext";
 import { fetchAnomalyData } from "../api/api";
@@ -85,7 +85,7 @@ function Sidebar({ selectedPolygon }: SidebarProps) {
             minDate={addMonths(startDay, 1)}
           />
           <Button onClick={handleGenerateReport} style={{ marginTop: 16 }}>
-            Generate Report
+            <Label>Generate Report</Label>
           </Button>
         </>
       )}
@@ -93,7 +93,7 @@ function Sidebar({ selectedPolygon }: SidebarProps) {
         <>
           <AnomalyList />
           <Button onClick={() => setMode("drawing")} style={{ marginTop: 16 }}>
-            Back to Drawing
+            <Label>Back to Drawing</Label>
           </Button>
         </>
       )}

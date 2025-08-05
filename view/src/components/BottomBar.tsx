@@ -23,7 +23,7 @@ export default function BottomBar() {
 
   return (
     <Box style={bottomBarStyle}>
-      <div
+      <Box
         style={{
           overflowY: "hidden",
           height: "60px",
@@ -32,8 +32,8 @@ export default function BottomBar() {
         }}
       >
         <TimeSlider />
-      </div>
-      <div
+      </Box>
+      <Box
         style={{
           height: "160px",
           overflowY: "auto",
@@ -51,14 +51,14 @@ export default function BottomBar() {
           padding={9}
           selectedAnomalies={selectedAnomalies}
         />
-      </div>
-      <div style={{ paddingLeft: "80px", paddingRight: "40px" }}>
+      </Box>
+      <Box style={{ paddingLeft: "80px", paddingRight: "40px" }}>
         <DateTimeLabels
           minTime={timestampValues[0]}
           maxTime={timestampValues[timestampValues.length - 1]}
           padding={9}
         />
-      </div>
+      </Box>
     </Box>
   );
 }
