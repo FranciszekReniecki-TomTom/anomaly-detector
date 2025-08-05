@@ -1,4 +1,5 @@
 import React from "react";
+import { Box, Label, Text } from "tombac";
 import { useContainerWidth, useLeftPercent } from "../hooks/useAnomalyDots";
 
 export interface DateTimeLabelsProps {
@@ -20,7 +21,7 @@ export default function DateTimeLabels({
     (padding / width) * 100;
 
   if (!width) {
-    return <div ref={containerRef} style={{ width: "100%" }} />;
+    return <Box ref={containerRef} style={{ width: "100%" }} />;
   }
 
   const generateDateLabels = () => {
@@ -50,14 +51,13 @@ export default function DateTimeLabels({
         });
 
         labels.push(
-          <div
+          <Box
             key={`date-${index}`}
             style={{
               position: "absolute",
               left: `${leftPercent}%`,
               top: 0,
               transform: "translateX(-50%)",
-              fontSize: 10,
               color: "#666",
               whiteSpace: "nowrap",
               pointerEvents: "none",
@@ -69,9 +69,9 @@ export default function DateTimeLabels({
               borderRadius: "2px",
             }}
           >
-            <div>{dateLabel}</div>
-            <div>{timeLabel}</div>
-          </div>
+            <Text style={{ fontSize: 11 }}>{dateLabel}</Text>
+            <Text style={{ fontSize: 11 }}>{timeLabel}</Text>
+          </Box>
         );
       }
 
@@ -83,7 +83,7 @@ export default function DateTimeLabels({
   };
 
   return (
-    <div
+    <Box
       ref={containerRef}
       style={{
         width: "100%",
@@ -93,6 +93,6 @@ export default function DateTimeLabels({
       }}
     >
       {generateDateLabels()}
-    </div>
+    </Box>
   );
 }
