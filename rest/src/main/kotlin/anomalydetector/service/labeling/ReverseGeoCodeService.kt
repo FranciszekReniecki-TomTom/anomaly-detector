@@ -1,6 +1,5 @@
-package anomalydetector.service.reversegeocode
+package anomalydetector.service.labeling
 
-import anomalydetector.service.ReverseGeoCodeResponse
 import io.github.cdimascio.dotenv.Dotenv
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.serialization.Serializable
@@ -23,12 +22,10 @@ class ReverseGeoCodeService(private val builder: WebClient.Builder) {
             .bodyToMono(String::class.java)
             .awaitSingle()
 
-        val tomTomResponse = parseFromString(response)
-
-        return ReverseGeoCodeResponse("dupa", "dupa", listOf())
+        return parseFromString(response)
     }
 
-    private fun parseFromString(response: String) {
+    private fun parseFromString(response: String): ReverseGeoCodeResponse {
         val json = Json { ignoreUnknownKeys = true }
         val parsed = json.decodeFromString<TomTomResponse>(response)
 
@@ -36,31 +33,38 @@ class ReverseGeoCodeService(private val builder: WebClient.Builder) {
         println("Query Time: ${summary.queryTime} ms")
         println("Number of Results: ${summary.numResults}")
 
-        for ((i, element) in parsed.addresses.withIndex()) {
-            val address = element.jsonObject["address"]?.jsonObject ?: continue
+        var municipality = "Unknown"
+        var country = "Unknown"
+        var street = "Unknown"
 
-            val municipality = address["municipality"]?.jsonPrimitive?.contentOrNull
-            val postalCode = address["postalCode"]?.jsonPrimitive?.contentOrNull
-            val country = address["country"]?.jsonPrimitive?.contentOrNull
-            val street = address["street"]?.jsonPrimitive?.contentOrNull
+        val firstAddress = parsed.addresses.firstOrNull()?.jsonObject
+        val addressObj = firstAddress?.get("address")?.jsonObject
 
-            println("Address #$i:")
+        if (addressObj != null) {
+            municipality = addressObj["municipality"]?.jsonPrimitive?.contentOrNull ?: municipality
+            country = addressObj["country"]?.jsonPrimitive?.contentOrNull ?: country
+            street = addressObj["street"]?.jsonPrimitive?.contentOrNull ?: street
+
+            println("Parsed address:")
             println("- Municipality: $municipality")
-            println("- Postal Code: $postalCode")
             println("- Country: $country")
             println("- Street: $street")
+        } else {
+            println("No address found.")
         }
+
+        return ReverseGeoCodeResponse(country, municipality, listOf(street))
     }
+
+    @Serializable
+    data class TomTomResponse(
+        val summary: Summary,
+        val addresses: List<JsonElement>
+    )
+
+    @Serializable
+    data class Summary(
+        val queryTime: Int,
+        val numResults: Int
+    )
 }
-
-@Serializable
-data class Summary(
-    val queryTime: Int,
-    val numResults: Int
-)
-
-@Serializable
-data class TomTomResponse(
-    val summary: Summary,
-    val addresses: List<JsonElement>
-)
