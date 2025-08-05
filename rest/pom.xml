@@ -69,7 +69,7 @@
                 </executions>
                 <configuration>
                     <compilerPlugins>
-                        <plugin>>kotlinx-serialization</plugin>
+                        <plugin>kotlinx-serialization</plugin>
                         <plugin>spring</plugin>
                     </compilerPlugins>
                 </configuration>
