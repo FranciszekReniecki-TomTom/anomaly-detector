@@ -6,6 +6,7 @@ import com.tomtom.tti.area.analytics.model.traffic.M20Traffic
 import com.tomtom.tti.area.analytics.model.traffic.Traffic
 import com.tomtom.tti.area.analytics.model.traffic.aggregate
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
+import com.tomtom.tti.nida.storage.ProcessingTile
 import com.tomtom.tti.nida.storage.processingTileFromCode
 import com.tomtom.tti.nida.storage.processingTiles
 import io.github.cdimascio.dotenv.Dotenv
@@ -33,17 +34,25 @@ fun getData(
 ): List<TrafficTileHour> = runBlocking {
     generateSequence(startDay) { it.plusDays(1) }
         .take(ChronoUnit.DAYS.between(startDay.toLocalDate(), endDay.toLocalDate()).toInt())
-        .map { day ->
-            // TODO MAP for all tiles
-            val tmp = geometry.processingTiles()
+        .map { day: LocalDateTime ->
+            val processingTiles: Set<ProcessingTile> = geometry.processingTiles()
             async(Dispatchers.Default) {
-                day to getDay(day.toLocalDate(), tmp.first().code, level, geometry)
+                val deferredList =
+                    processingTiles.map { tile ->
+                        async(Dispatchers.Default) {
+                            getDay(day.toLocalDate(), tile.code, level, geometry = geometry)
+                        }
+                    }
+
+                day to deferredList.awaitAll().flatten()
             }
         }
         .toList()
         .awaitAll()
-        .flatMap { (date, trafficList) ->
-            trafficList.map { traffic -> TrafficTileHour(date, traffic.id, traffic.traffic) }
+        .flatMap { (date: LocalDateTime, trafficList: List<AggregatedTraffic>) ->
+            trafficList.map { traffic: AggregatedTraffic ->
+                TrafficTileHour(date.plusHours(traffic.hour.toLong()), traffic.id, traffic.traffic)
+            }
         }
 }
 
@@ -51,14 +60,15 @@ private suspend fun getDay(
     day: LocalDate,
     tile: Long = 3597,
     level: MortonTileLevel<*>,
-    geometry: Geometry,
-): List<AggregatedTraffic> =
-    storage.traffic
+    geometry: Geometry?,
+): List<AggregatedTraffic> {
+    return storage.traffic
         .read(day, processingTileFromCode(tile), level, geometry)
         .awaitAll()
         .flatten()
         .flatMap { it.m20Traffic }
         .aggregateRoads()
+}
 
 private fun List<M20Traffic>.aggregateRoads(): List<AggregatedTraffic> =
     this.groupBy { (Pair(it.id, it.hour)) }

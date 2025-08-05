@@ -23,7 +23,6 @@ fun findClusters(
 
     val scaler = RobustStandardizer.fit(df)
     val normalized = scaler.apply(df).toArray()
-
     val clusters = DBSCAN.fit(normalized, EuclideanDistance(), minN, radius)
 
     return dataPoints
