@@ -13,6 +13,8 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
         <kotlin.version>2.2.0</kotlin.version>
+        <kotlinx.version>1.10.2</kotlinx.version>
+        <kotlinx.serialization.version>1.9.0</kotlinx.serialization.version>
         <org.junit.jupiter>5.10.0</org.junit.jupiter>
         <org.springdoc>2.8.9</org.springdoc>
         <jackson.module.kotlin.version>2.19.1</jackson.module.kotlin.version>
@@ -67,6 +69,7 @@
                 </executions>
                 <configuration>
                     <compilerPlugins>
+                        <plugin>>kotlinx-serialization</plugin>
                         <plugin>spring</plugin>
                     </compilerPlugins>
                 </configuration>
@@ -111,12 +114,31 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>${kotlinx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-reactive</artifactId>
+            <version>${kotlinx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json-jvm</artifactId>
+            <version>${kotlinx.serialization.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
