@@ -1,29 +1,39 @@
 import { TombacApp, Box } from "tombac";
+import { useCallback, useMemo } from "react";
 import MapView from "./components/MapView";
 import BottomBar from "./components/bottomBar/BottomBar";
 import Sidebar from "./components/Sidebar";
 import { AppProvider, useAppContext } from "./AppContext";
 
-const containerStyle = {
-  display: "flex",
-  height: "100vh",
-  width: "100vw",
-  margin: 0,
-  padding: 0,
-  position: "absolute" as const,
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-};
-
 function AppContent() {
-  const { mode, setSelectedPolygon, setDrawnRegions } = useAppContext();
+  const { 
+    mode, 
+    setSelectedPolygon, 
+    setDrawnRegions 
+  } = useAppContext();
 
-  const handlePolygonSelect = (polygon: any) => {
+  const handlePolygonSelect = useCallback((polygon: any) => {
     setSelectedPolygon(polygon);
     setDrawnRegions([polygon]);
-  };
+  }, [setSelectedPolygon, setDrawnRegions]);
+
+  const containerStyle = useMemo(() => ({
+    display: "flex",
+    height: "100vh",
+    width: "100vw",
+    margin: 0,
+    padding: 0,
+    position: "absolute" as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  }), []);
+
+  const mainStyle = useMemo(() => ({ 
+    flex: 1, 
+    position: "relative" as const 
+  }), []);
 
   return (
     <TombacApp
@@ -33,7 +43,7 @@ function AppContent() {
       <Box style={containerStyle}>
         <Sidebar />
 
-        <Box as="main" style={{ flex: 1, position: "relative" }}>
+        <Box as="main" style={mainStyle}>
           <MapView
             drawingEnabled={mode === "drawing"}
             onPolygonSelect={handlePolygonSelect}

@@ -7,7 +7,9 @@ export interface DateTimeLabelsProps {
   padding: number;
 }
 
-export default function DateTimeLabels({ padding }: DateTimeLabelsProps) {
+function DateTimeLabels({
+  padding,
+}: DateTimeLabelsProps) {
   const [containerRef, width] = useContainerWidth();
   const { timestampValues } = useAppContext();
 
@@ -95,3 +97,5 @@ export default function DateTimeLabels({ padding }: DateTimeLabelsProps) {
     </Box>
   );
 }
+
+export default React.memo(DateTimeLabels);

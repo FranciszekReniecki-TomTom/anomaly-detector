@@ -1,3 +1,4 @@
+import React from "react";
 import { Box } from "tombac";
 import TimeSlider from "./TimeSlider";
 import AnomalyDots from "./AnomalyDots";

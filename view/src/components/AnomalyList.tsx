@@ -1,7 +1,8 @@
+import React from "react";
 import { useAppContext } from "../AppContext";
 import { Checkbox, Label } from "tombac";
 
-export default function AnomalyList() {
+function AnomalyList() {
   const { anomalyIds, anomalyGeoJson, selectedAnomalies, toggleAnomaly } =
     useAppContext();
 
@@ -22,3 +23,5 @@ export default function AnomalyList() {
     </div>
   );
 }
+
+export default React.memo(AnomalyList);

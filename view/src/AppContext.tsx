@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useState } from "react";
+import { createContext, useContext, ReactNode, useState, useCallback } from "react";
 import {
   useAnomalyData,
   useTimestamps,
@@ -51,6 +51,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [selectedPolygon, setSelectedPolygon] = useState<any>(null);
   const [drawnRegions, setDrawnRegions] = useState<any[]>([]);
 
+  const handleSetSelectedPolygon = useCallback((polygon: any) => {
+    setSelectedPolygon(polygon);
+  }, []);
+
+  const handleSetDrawnRegions = useCallback((regions: any[]) => {
+    setDrawnRegions(regions);
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -66,9 +74,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         mode,
         setMode,
         selectedPolygon,
-        setSelectedPolygon,
+        setSelectedPolygon: handleSetSelectedPolygon,
         drawnRegions,
-        setDrawnRegions,
+        setDrawnRegions: handleSetDrawnRegions,
       }}
     >
       {children}
