@@ -2,7 +2,6 @@ package anomalydetector.service.labeling
 
 import io.github.cdimascio.dotenv.Dotenv
 import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import org.springframework.http.MediaType
@@ -16,7 +15,7 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
     private val webClient = builder.baseUrl("https://api.tomtom.com").build()
 
     suspend fun reverseGeocode(lat: Double, lon: Double): ReverseGeoCodeResponse {
-        val response: String = runBlocking {
+        val response: String =
             webClient
                 .get()
                 .uri(
@@ -29,7 +28,7 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .awaitSingle()
-        }
+
 
         return parseFromString(response)
     }
@@ -65,7 +64,9 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
         return ReverseGeoCodeResponse(country, municipality, listOf(street))
     }
 
-    @Serializable data class TomTomResponse(val summary: Summary, val addresses: List<JsonElement>)
+    @Serializable
+    data class TomTomResponse(val summary: Summary, val addresses: List<JsonElement>)
 
-    @Serializable data class Summary(val queryTime: Int, val numResults: Int)
+    @Serializable
+    data class Summary(val queryTime: Int, val numResults: Int)
 }
