@@ -1,9 +1,6 @@
 import React, { useMemo } from "react";
 import { Box, Text } from "tombac";
-import {
-  useContainerWidth,
-  useLeftPercent,
-} from "../../hooks/useAnomalyDots";
+import { useContainerWidth, useLeftPercent } from "../../hooks/useAnomalyDots";
 import { useAppContext } from "../../AppContext";
 
 export interface AnomalyDotTimestamp {
@@ -16,10 +13,7 @@ export interface AnomalyDotsProps {
   padding: number;
 }
 
-function AnomalyDots({
-  baseLaneHeight,
-  padding,
-}: AnomalyDotsProps) {
+function AnomalyDots({ baseLaneHeight, padding }: AnomalyDotsProps) {
   const [containerRef, width] = useContainerWidth();
   const {
     anomalyIds,
@@ -35,8 +29,8 @@ function AnomalyDots({
 
   const height = anomalyIds.length * baseLaneHeight;
 
-  const getLeftPercent = useMemo(() => 
-    (time: number) =>
+  const getLeftPercent = useMemo(
+    () => (time: number) =>
       getLeftPercentRaw(time) * (1 - (padding * 2) / width) +
       (padding / width) * 100,
     [getLeftPercentRaw, padding, width]
@@ -44,7 +38,7 @@ function AnomalyDots({
 
   const gridLines = useMemo(() => {
     if (!width || timestamps.length === 0) return [];
-    
+
     const lines: React.ReactElement[] = [];
     const startHour = new Date(minTime);
     startHour.setMinutes(0, 0, 0);
@@ -160,7 +154,13 @@ function AnomalyDots({
     });
 
     return lines;
-  }, [anomalyIds, timestamps, selectedAnomalies, baseLaneHeight, getLeftPercent]);
+  }, [
+    anomalyIds,
+    timestamps,
+    selectedAnomalies,
+    baseLaneHeight,
+    getLeftPercent,
+  ]);
 
   if (!width || timestamps.length === 0) {
     return <Box ref={containerRef} style={{ width: "100%" }} />;

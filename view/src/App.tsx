@@ -3,22 +3,24 @@ import { useCallback, useMemo } from "react";
 import MapView from "./components/MapView";
 import BottomBar from "./components/bottomBar/BottomBar";
 import Sidebar from "./components/Sidebar";
+import TopBar from "./components/TopBar";
 import { AppProvider, useAppContext } from "./AppContext";
 
-function AppContent() {
-  const { 
-    mode, 
-    setSelectedPolygon, 
-    setDrawnRegions 
-  } = useAppContext();
 
-  const handlePolygonSelect = useCallback((polygon: any) => {
-    setSelectedPolygon(polygon);
-    setDrawnRegions([polygon]);
-  }, [setSelectedPolygon, setDrawnRegions]);
+function AppContent() {
+  const { mode, setSelectedPolygon, setDrawnRegions } = useAppContext();
+
+  const handlePolygonSelect = useCallback(
+    (polygon: any) => {
+      setSelectedPolygon(polygon);
+      setDrawnRegions([polygon]);
+    },
+    [setSelectedPolygon, setDrawnRegions]
+  );
 
   const containerStyle = useMemo(() => ({
     display: "flex",
+    flexDirection: "column" as const,
     height: "100vh",
     width: "100vw",
     margin: 0,
@@ -30,10 +32,19 @@ function AppContent() {
     bottom: 0,
   }), []);
 
-  const mainStyle = useMemo(() => ({ 
-    flex: 1, 
-    position: "relative" as const 
+  const contentStyle = useMemo(() => ({
+    display: "flex",
+    flex: 1,
+    overflow: "hidden" as const,
   }), []);
+
+  const mainStyle = useMemo(
+    () => ({
+      flex: 1,
+      position: "relative" as const,
+    }),
+    []
+  );
 
   return (
     <TombacApp
@@ -41,14 +52,18 @@ function AppContent() {
       theme={{ baseUnit: "px", settings: { modalZIndex: 20 } }}
     >
       <Box style={containerStyle}>
-        <Sidebar />
+        <TopBar />
+        
+        <Box style={contentStyle}>
+          <Sidebar />
 
-        <Box as="main" style={mainStyle}>
-          <MapView
-            drawingEnabled={mode === "drawing"}
-            onPolygonSelect={handlePolygonSelect}
-          />
-          {mode === "viewing" && <BottomBar />}
+          <Box as="main" style={mainStyle}>
+            <MapView
+              drawingEnabled={mode === "drawing"}
+              onPolygonSelect={handlePolygonSelect}
+            />
+            {mode === "viewing" && <BottomBar />}
+          </Box>
         </Box>
       </Box>
     </TombacApp>
