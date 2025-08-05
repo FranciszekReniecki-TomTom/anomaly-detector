@@ -42,7 +42,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     selectedAnomalies
   );
 
-  const [mode, setMode] = useMode();
+  const [mode, setMode] = useMode(anomalyGeoJson);
 
   return (
     <AppContext.Provider
