@@ -7,9 +7,7 @@ export interface DateTimeLabelsProps {
   padding: number;
 }
 
-function DateTimeLabels({
-  padding,
-}: DateTimeLabelsProps) {
+function DateTimeLabels({ padding }: DateTimeLabelsProps) {
   const [containerRef, width] = useContainerWidth();
   const { timestampValues } = useAppContext();
 

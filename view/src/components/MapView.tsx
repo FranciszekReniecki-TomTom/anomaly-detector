@@ -16,10 +16,7 @@ export interface MapViewProps {
   onPolygonSelect?: (feature: any) => void;
 }
 
-function MapView({
-  drawingEnabled,
-  onPolygonSelect,
-}: MapViewProps) {
+function MapView({ drawingEnabled, onPolygonSelect }: MapViewProps) {
   const { filteredFeatures, drawnRegions } = useAppContext();
   const {
     mapModel,
