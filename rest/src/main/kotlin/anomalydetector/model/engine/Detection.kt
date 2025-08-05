@@ -15,7 +15,7 @@ private const val WEEK_PERIOD = 168
  * @return An array of indices of the outliers in the input array.
  */
 fun findWeeklyOutliers(values: DoubleArray, threshold: Double): IntArray {
-    val period = min(values.size, WEEK_PERIOD)
+    val period = WEEK_PERIOD
     val means = calculateMeans(values, period)
     val stds = calculateStds(values, means, period)
 
