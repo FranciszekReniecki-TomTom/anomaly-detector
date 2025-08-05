@@ -13,12 +13,14 @@ export interface MapViewProps {
   filteredFeatures: any[];
   drawingEnabled: boolean;
   onPolygonSelect?: (feature: any) => void;
+  drawnRegions?: any[];
 }
 
 export default function MapView({
   filteredFeatures,
   drawingEnabled,
   onPolygonSelect,
+  drawnRegions = [],
 }: MapViewProps) {
   const {
     mapModel,
@@ -29,12 +31,13 @@ export default function MapView({
     handleSelect,
     anomalyLayer,
     regionLayer,
-  } = useMapView(filteredFeatures);
+  } = useMapView(filteredFeatures, drawnRegions);
 
   function handlePolygonSelect(features: any[]) {
     if (features && features.length > 0) {
-      handleSelect(features[0]);
-      if (onPolygonSelect) onPolygonSelect(features[0]);
+      const selectedFeature = features[0];
+      handleSelect(selectedFeature);
+      if (onPolygonSelect) onPolygonSelect(selectedFeature);
     }
   }
 
@@ -87,7 +90,9 @@ export default function MapView({
           data={{ type: "FeatureCollection", features: filteredFeatures }}
         />
       )}
-      <Layers sourceId="regions" layers={[regionLayer]} data={regions} />
+      {drawingEnabled && (
+        <Layers sourceId="regions" layers={[regionLayer]} data={regions} />
+      )}
       {drawingEnabled && drawingOption === DrawingOption.POLYGON && (
         <PolygonSelector onSelect={handlePolygonSelect} />
       )}

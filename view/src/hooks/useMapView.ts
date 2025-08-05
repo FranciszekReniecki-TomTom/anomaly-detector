@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DrawingOption, MapModel, useDrawingTools } from "legoland-shared";
 
-export function useMapView(filteredFeatures: any[]) {
+export function useMapView(filteredFeatures: any[], initialRegions: any[] = []) {
   const [mapModel, setMapModel] = useState<MapModel>("Orbis");
   const [drawingOption, setDrawingOption] = useState<DrawingOption>();
-  const [regions, setRegions] = useState<any[]>([]);
+  const [regions, setRegions] = useState<any[]>(initialRegions);
   const [selectedPolygon, setSelectedRegion] = useState<any>(null);
+
+  useEffect(() => {
+    setRegions(initialRegions);
+  }, [initialRegions]);
 
   const { handleSelect: originalHandleSelect } = useDrawingTools(
     regions,

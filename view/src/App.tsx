@@ -22,6 +22,12 @@ function AppContent() {
   const { mode, anomalyGeoJson, filteredFeatures } = useAppContext();
 
   const [selectedPolygon, setSelectedPolygon] = useState<any>(null);
+  const [drawnRegions, setDrawnRegions] = useState<any[]>([]);
+
+  const handlePolygonSelect = (polygon: any) => {
+    setSelectedPolygon(polygon);
+    setDrawnRegions([polygon]);
+  };
 
   return (
     <TombacApp
@@ -35,7 +41,8 @@ function AppContent() {
           <MapView
             filteredFeatures={filteredFeatures}
             drawingEnabled={mode === "drawing"}
-            onPolygonSelect={setSelectedPolygon}
+            onPolygonSelect={handlePolygonSelect}
+            drawnRegions={drawnRegions}
           />
           {mode === "viewing" && <BottomBar />}
         </Box>
