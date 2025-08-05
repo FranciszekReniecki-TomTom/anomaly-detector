@@ -1,0 +1,147 @@
+package anomalydetector.service.labeling
+
+import anomalydetector.service.labeling.ReverseGeoCodeService.TomTomResponse
+import io.github.cdimascio.dotenv.Dotenv
+import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import org.springframework.http.MediaType
+import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClient
+
+@Service
+class LLMLabelingService(private val builder: WebClient.Builder) {
+
+    private val apiKey: String = Dotenv.load()["GROQ_API_KEY"]
+    private val webClient = builder
+        .baseUrl("https://api.groq.com/openai/v1/chat/completions")
+        .defaultHeader("Authorization", "Bearer $apiKey")
+        .build()
+
+    private val modelId = "moonshotai/kimi-k2-instruct"
+    private val systemPrompt = """
+                        ### System
+                        You are a traffic anomaly analyst. Given the following geolocation and time,
+                        provide a concise description of the anomaly (eg. incident, event) 
+                        based on data in the internet, like news, traffic API and so on.
+                        
+                        ### Instructions
+                        Return a concise (2-3 phrases) description of the anomaly based on the provided geolocation 
+                        and time [country, municipality, streets, time].
+                        You may attach links to relevant news articles or traffic reports.
+                        
+                        ### Context
+                        Provided data is a list of country, municipality, streets and time of the anomaly, 
+                        all related probably to the same event.
+                        
+                        ### Input
+                        [Poland, Lodz, [Piotrkowska, Pilsudskiego], 2020-06-14T14:00:00]
+                        [Poland, -, [Piotrkowska], 2020-06-14T15:00:00]
+                        
+                        ### Expected Output:
+                        "On June 14, 2020, a significant traffic incident occurred in Lodz, Poland, 
+                        affecting center of the city. Local news reported a major collision involving multiple vehicles, 
+                        leading to road closures and delays. For more details, see [http://example.news.com]."
+                    """
+    private val responseFormatObject = ResponseFormat(
+        type = "json_schema",
+        json_schema = ResponseFormat.JsonSchemaWrapper(
+            name = "LLMLabelingResponse",
+            schema = ResponseFormat.JsonSchema(
+                properties = mapOf("llmResponse" to ResponseFormat.JsonProperty(type = "string")),
+                required = listOf("llmResponse")
+            )
+        )
+    )
+
+    suspend fun labelUsingLLM(anomalySliceHours: List<AnomalySliceHour>): LLMLabelResponse {
+        val userPrompt = anomalySliceHours.joinToString("\n") {
+            "[${it.country}, ${it.municipality}, [${it.streets.joinToString(", ")}], ${it.time}]"
+        }
+
+        println(Json.encodeToString(responseFormatObject))
+
+        val llmRequest = LLMRequest(
+            model = modelId,
+            messages = listOf(
+                LLMRequest.Message(
+                    role = "system",
+                    content = systemPrompt
+                ),
+                LLMRequest.Message(
+                    role = "user",
+                    content = userPrompt
+                )
+            ),
+            response_format = responseFormatObject
+        )
+
+        val response: String = webClient.post()
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(llmRequest)
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .awaitSingle()
+
+        return parseResponse(response)
+    }
+
+    private fun parseResponse(response: String): LLMLabelResponse {
+        val json = Json { ignoreUnknownKeys = true }
+        val parsed = json.decodeFromString<LLMResponse>(response)
+
+        val message = parsed.choices.firstOrNull()?.jsonObject
+        val llmResponse = message?.get("content")?.jsonObject?.jsonPrimitive
+            ?.contentOrNull ?: "No response from LLM"
+
+        return LLMLabelResponse(llmResponse)
+    }
+
+    @Serializable
+    data class LLMRequest(
+        val model: String,
+        val messages: List<Message>,
+        val response_format: ResponseFormat
+    ) {
+        @Serializable
+        data class Message(
+            val role: String,
+            val content: String
+        )
+    }
+
+    @Serializable
+    data class ResponseFormat(
+        val type: String = "json_schema",
+        val json_schema: JsonSchemaWrapper
+    ) {
+        @Serializable
+        data class JsonSchemaWrapper(
+            val name: String,
+            val schema: JsonSchema
+        )
+
+        @Serializable
+        data class JsonSchema(
+            val type: String = "object",
+            val properties: Map<String, JsonProperty>,
+            val required: List<String>,
+            val additionalProperties: Boolean = false
+        )
+
+        @Serializable
+        data class JsonProperty(
+            val type: String
+        )
+    }
+
+    @Serializable
+    data class LLMResponse(
+        val choices: List<JsonElement>
+    )
+}
