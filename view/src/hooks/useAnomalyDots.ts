@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export function useContainerWidth(): [React.RefObject<HTMLDivElement | null>, number] {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -13,18 +13,6 @@ export function useContainerWidth(): [React.RefObject<HTMLDivElement | null>, nu
   }, []);
 
   return [containerRef, width];
-}
-
-export interface AnomalyDotTimestamp {
-  time: number;
-  anomaly_id: string;
-}
-
-export function useAnomalyIds(timestamps: AnomalyDotTimestamp[]): string[] {
-  return useMemo(
-    () => [...new Set(timestamps.map((t) => t.anomaly_id))],
-    [timestamps]
-  );
 }
 
 export function useLeftPercent(minTime: number, maxTime: number) {
