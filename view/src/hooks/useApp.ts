@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 export function useAnomalyData(): any {
   const [anomalyGeoJson, setAnomalyGeoJson] = useState<any>(null);
@@ -72,7 +72,7 @@ export function useSelectedAnomalies() {
     new Set(["all"])
   );
 
-  const toggleAnomaly = (id: string) => {
+  const toggleAnomaly = useCallback((id: string) => {
     setSelectedAnomalies((prev) => {
       if (id === "all") return new Set(["all"]);
 
@@ -88,7 +88,7 @@ export function useSelectedAnomalies() {
 
       return newSet;
     });
-  };
+  }, []);
 
   return { selectedAnomalies, toggleAnomaly };
 }
@@ -113,7 +113,7 @@ export function useFilteredFeatures(
 export function useMode(anomalyGeoJson: any): [string, (mode: string) => void] {
   const [mode, setMode] = useState("drawing");
 
-  const setModeWithValidation = (newMode: string) => {
+  const setModeWithValidation = useCallback((newMode: string) => {
     if (
       newMode === "viewing" &&
       (!anomalyGeoJson ||
@@ -126,7 +126,7 @@ export function useMode(anomalyGeoJson: any): [string, (mode: string) => void] {
       return;
     }
     setMode(newMode);
-  };
+  }, [anomalyGeoJson]);
 
   useEffect(() => {
     if (
