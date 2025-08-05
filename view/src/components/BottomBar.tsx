@@ -15,7 +15,8 @@ const bottomBarStyle = {
 };
 
 export default function BottomBar() {
-  const { timestampValues, selectedTime, timestamps } = useAppContext();
+  const { timestampValues, selectedTime, timestamps, selectedAnomalies } =
+    useAppContext();
 
   if (timestampValues.length === 0) return null;
 
@@ -32,6 +33,7 @@ export default function BottomBar() {
           selectedTime={selectedTime}
           baseLaneHeight={10}
           padding={9}
+          selectedAnomalies={selectedAnomalies}
         />
       </div>
     </Box>
