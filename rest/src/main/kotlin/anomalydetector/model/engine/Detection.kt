@@ -33,9 +33,7 @@ fun findWeeklyOutliers(values: DoubleArray, threshold: Double): IntArray {
 
 fun calculateMeans(values: DoubleArray, period: Int): DoubleArray {
     require(values.isNotEmpty()) { "Values array must not be empty." }
-    require(period > 0) {
-        "Period must be greater than 0."
-    }
+    require(period > 0) { "Period must be greater than 0." }
 
     return DoubleArray(period) { index ->
         val filtered = values.withIndex().filter { it.index % period == index }.map { it.value }
@@ -46,9 +44,7 @@ fun calculateMeans(values: DoubleArray, period: Int): DoubleArray {
 
 fun calculateStds(values: DoubleArray, means: DoubleArray, period: Int): DoubleArray {
     require(values.isNotEmpty()) { "Values array must not be empty." }
-    require(period > 0) {
-        "Period must be greater than 0."
-    }
+    require(period > 0) { "Period must be greater than 0." }
 
     return DoubleArray(period) { index ->
         val mean = means[index]
