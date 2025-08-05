@@ -4,7 +4,7 @@ import {
   useContainerWidth,
   useAnomalyIds,
   useLeftPercent,
-} from "../hooks/useAnomalyDots";
+} from "../../hooks/useAnomalyDots";
 
 export interface AnomalyDotTimestamp {
   time: number;
