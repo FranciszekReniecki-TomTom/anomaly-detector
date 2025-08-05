@@ -17,6 +17,7 @@ export interface AnomalyDotsProps {
   selectedTime: number;
   baseLaneHeight: number;
   padding: number;
+  selectedAnomalies: Set<string>;
 }
 
 export default function AnomalyDots({
@@ -26,6 +27,7 @@ export default function AnomalyDots({
   selectedTime,
   baseLaneHeight,
   padding,
+  selectedAnomalies,
 }: AnomalyDotsProps) {
   const [containerRef, width] = useContainerWidth();
   const anomalyIds = useAnomalyIds(timestamps);
@@ -155,6 +157,51 @@ export default function AnomalyDots({
     return labels;
   };
 
+  const generateConnectingLines = () => {
+    const lines: React.ReactElement[] = [];
+
+    anomalyIds.forEach((anomalyId) => {
+      const anomalyTimestamps = timestamps
+        .filter((t) => t.anomaly_id === anomalyId)
+        .sort((a, b) => a.time - b.time);
+
+      if (anomalyTimestamps.length < 2) return;
+
+      const isSelected =
+        selectedAnomalies.has("all") || selectedAnomalies.has(anomalyId);
+      const lineColor = isSelected ? "#de1c12" : "#ccc";
+      const laneIndex = anomalyIds.indexOf(anomalyId);
+      const topPos = baseLaneHeight * laneIndex + baseLaneHeight / 2;
+
+      for (let i = 0; i < anomalyTimestamps.length - 1; i++) {
+        const currentTime = anomalyTimestamps[i].time;
+        const nextTime = anomalyTimestamps[i + 1].time;
+
+        const startPercent = getLeftPercent(currentTime);
+        const endPercent = getLeftPercent(nextTime);
+        const width = endPercent - startPercent;
+
+        lines.push(
+          <div
+            key={`line-${anomalyId}-${i}`}
+            style={{
+              position: "absolute",
+              left: `${startPercent}%`,
+              top: topPos - 0.5,
+              width: `${width}%`,
+              height: 1,
+              backgroundColor: lineColor,
+              pointerEvents: "none",
+              zIndex: 50,
+            }}
+          />
+        );
+      }
+    });
+
+    return lines;
+  };
+
   return (
     <div
       ref={containerRef}
@@ -164,6 +211,8 @@ export default function AnomalyDots({
       {generateLaneGridLines()}
 
       {generateDateLabels()}
+
+      {generateConnectingLines()}
 
       <div
         style={{
@@ -185,6 +234,10 @@ export default function AnomalyDots({
         const leftPercent = getLeftPercent(time);
         const topPos = baseLaneHeight * laneIndex + baseLaneHeight / 2;
 
+        const isSelected =
+          selectedAnomalies.has("all") || selectedAnomalies.has(anomaly_id);
+        const dotColor = isSelected ? "#de1c12" : "#ccc";
+
         return (
           <div
             key={i}
@@ -196,7 +249,7 @@ export default function AnomalyDots({
               width: 5,
               height: 5,
               borderRadius: "50%",
-              backgroundColor: "#de1c12",
+              backgroundColor: dotColor,
               cursor: "default",
               transform: "translate(-50%, -50%)",
               zIndex: 100,
