@@ -6,5 +6,5 @@ data class AnomalySliceHour(
     val country: String,
     val municipality: String,
     val streets: List<String>,
-    val time: LocalDateTime
+    val time: LocalDateTime,
 )

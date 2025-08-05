@@ -15,16 +15,15 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/anomaly")
 class AnomalyController(private val anomalyService: AnomalyService) {
-  @Operation(summary = "Detect anomalies in provided data and time range")
-  @PostMapping
-  fun detectAnomaly(@RequestBody request: AnomalyRequestDto): ResponseEntity<ReportDto> {
-    return ResponseEntity.ok(anomalyService.detectAnomaly(request))
-  }
+    @Operation(summary = "Detect anomalies in provided data and time range")
+    @PostMapping
+    fun detectAnomaly(@RequestBody request: AnomalyRequestDto): ResponseEntity<ReportDto> {
+        return ResponseEntity.ok(anomalyService.detectAnomaly(request))
+    }
 
-  @Operation(summary = "Labels given anomaly")
-  @PostMapping("/label")
-  fun labelAnomaly(@RequestBody request: AnomalyLabelRequestDto): ResponseEntity<LabelDto> {
-    return ResponseEntity.ok(anomalyService.labelAnomaly(request))
-  }
+    @Operation(summary = "Labels given anomaly")
+    @PostMapping("/label")
+    fun labelAnomaly(@RequestBody request: AnomalyLabelRequestDto): ResponseEntity<LabelDto> {
+        return ResponseEntity.ok(anomalyService.labelAnomaly(request))
+    }
 }
-

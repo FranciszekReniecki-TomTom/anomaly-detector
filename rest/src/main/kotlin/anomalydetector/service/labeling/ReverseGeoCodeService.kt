@@ -17,8 +17,14 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
 
     suspend fun reverseGeocode(lat: Double, lon: Double): ReverseGeoCodeResponse {
         val response: String = runBlocking {
-            webClient.get()
-                .uri("/search/2/reverseGeocode/{lat},{lon}.json?key={apiKey}&radius=100", lat, lon, apiKey)
+            webClient
+                .get()
+                .uri(
+                    "/search/2/reverseGeocode/{lat},{lon}.json?key={apiKey}&radius=100",
+                    lat,
+                    lon,
+                    apiKey,
+                )
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String::class.java)
@@ -59,15 +65,7 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
         return ReverseGeoCodeResponse(country, municipality, listOf(street))
     }
 
-    @Serializable
-    data class TomTomResponse(
-        val summary: Summary,
-        val addresses: List<JsonElement>
-    )
+    @Serializable data class TomTomResponse(val summary: Summary, val addresses: List<JsonElement>)
 
-    @Serializable
-    data class Summary(
-        val queryTime: Int,
-        val numResults: Int
-    )
+    @Serializable data class Summary(val queryTime: Int, val numResults: Int)
 }

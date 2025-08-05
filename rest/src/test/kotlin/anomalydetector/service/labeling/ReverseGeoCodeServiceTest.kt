@@ -13,9 +13,7 @@ class ReverseGeoCodeServiceTest {
         val lon = 19.455858
 
         // When
-        val response = runBlocking {
-            service.reverseGeocode(lat, lon)
-        }
+        val response = runBlocking { service.reverseGeocode(lat, lon) }
 
         println(response)
     }

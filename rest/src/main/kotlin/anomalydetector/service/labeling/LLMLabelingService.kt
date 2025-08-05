@@ -17,13 +17,15 @@ import org.springframework.web.reactive.function.client.WebClient
 @Service
 class LLMLabelingService(builder: WebClient.Builder) {
     private val apiKey: String = Dotenv.load()["GROQ_API_KEY"]
-    private val webClient = builder
-        .baseUrl("https://api.groq.com/openai/v1/chat/completions")
-        .defaultHeader("Authorization", "Bearer $apiKey")
-        .build()
+    private val webClient =
+        builder
+            .baseUrl("https://api.groq.com/openai/v1/chat/completions")
+            .defaultHeader("Authorization", "Bearer $apiKey")
+            .build()
 
     private val modelId = "moonshotai/kimi-k2-instruct"
-    private val systemPrompt = """
+    private val systemPrompt =
+        """
                         ### System
                         You are a traffic anomaly analyst. Given the following geolocation and time,
                         provide a concise description of the anomaly (eg. incident, event) 
@@ -47,41 +49,45 @@ class LLMLabelingService(builder: WebClient.Builder) {
                         affecting center of the city. Local news reported a major collision involving multiple vehicles, 
                         leading to road closures and delays. For more details, see [http://example.news.com]."
                     """
-    private val responseFormatObject = ResponseFormat(
-        type = "json_schema",
-        json_schema = ResponseFormat.JsonSchemaWrapper(
-            name = "LLMLabelingResponse",
-            schema = ResponseFormat.JsonSchema(
-                properties = mapOf("llmResponse" to ResponseFormat.JsonProperty(type = "string")),
-                required = listOf("llmResponse")
-            )
+    private val responseFormatObject =
+        ResponseFormat(
+            type = "json_schema",
+            json_schema =
+                ResponseFormat.JsonSchemaWrapper(
+                    name = "LLMLabelingResponse",
+                    schema =
+                        ResponseFormat.JsonSchema(
+                            properties =
+                                mapOf(
+                                    "llmResponse" to ResponseFormat.JsonProperty(type = "string")
+                                ),
+                            required = listOf("llmResponse"),
+                        ),
+                ),
         )
-    )
 
     suspend fun labelUsingLLM(anomalySliceHours: List<AnomalySliceHour>): LLMLabelResponse {
-        val userPrompt = anomalySliceHours.joinToString("\n") {
-            "[${it.country}, ${it.municipality}, [${it.streets.joinToString(", ")}], ${it.time}]"
-        }
+        val userPrompt =
+            anomalySliceHours.joinToString("\n") {
+                "[${it.country}, ${it.municipality}, [${it.streets.joinToString(", ")}], ${it.time}]"
+            }
 
         println(Json.encodeToString(responseFormatObject))
 
-        val llmRequest = LLMRequest(
-            model = modelId,
-            messages = listOf(
-                LLMRequest.Message(
-                    role = "system",
-                    content = systemPrompt
-                ),
-                LLMRequest.Message(
-                    role = "user",
-                    content = userPrompt
-                )
-            ),
-            response_format = responseFormatObject
-        )
+        val llmRequest =
+            LLMRequest(
+                model = modelId,
+                messages =
+                    listOf(
+                        LLMRequest.Message(role = "system", content = systemPrompt),
+                        LLMRequest.Message(role = "user", content = userPrompt),
+                    ),
+                response_format = responseFormatObject,
+            )
 
         val response: String = runBlocking {
-            webClient.post()
+            webClient
+                .post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(llmRequest)
                 .accept(MediaType.APPLICATION_JSON)
@@ -99,20 +105,21 @@ class LLMLabelingService(builder: WebClient.Builder) {
         val json = Json { ignoreUnknownKeys = true }
 
         val parsed: JsonElement = json.parseToJsonElement(response)
-        val content: String = parsed
-            .jsonObject["choices"]
-            ?.jsonArray?.firstOrNull()
-            ?.jsonObject["message"]
-            ?.jsonObject["content"]
-            ?.jsonPrimitive
-            ?.contentOrNull
-            ?: throw IllegalStateException("Response does not contain expected content")
+        val content: String =
+            parsed.jsonObject["choices"]
+                ?.jsonArray
+                ?.firstOrNull()
+                ?.jsonObject["message"]
+                ?.jsonObject["content"]
+                ?.jsonPrimitive
+                ?.contentOrNull
+                ?: throw IllegalStateException("Response does not contain expected content")
         println(content)
 
         val innerParsed = json.parseToJsonElement(content)
-        val llmResponse: String = innerParsed.jsonObject["llmResponse"]
-            ?.jsonPrimitive?.contentOrNull
-            ?: throw IllegalStateException("LLM response does not contain 'llmResponse' field")
+        val llmResponse: String =
+            innerParsed.jsonObject["llmResponse"]?.jsonPrimitive?.contentOrNull
+                ?: throw IllegalStateException("LLM response does not contain 'llmResponse' field")
         println(llmResponse)
 
         return LLMLabelResponse(llmResponse)
@@ -122,37 +129,23 @@ class LLMLabelingService(builder: WebClient.Builder) {
     data class LLMRequest(
         val model: String,
         val messages: List<Message>,
-        val response_format: ResponseFormat
+        val response_format: ResponseFormat,
     ) {
-        @Serializable
-        data class Message(
-            val role: String,
-            val content: String
-        )
+        @Serializable data class Message(val role: String, val content: String)
     }
 
     @Serializable
-    data class ResponseFormat(
-        val type: String,
-        val json_schema: JsonSchemaWrapper
-    ) {
-        @Serializable
-        data class JsonSchemaWrapper(
-            val name: String,
-            val schema: JsonSchema
-        )
+    data class ResponseFormat(val type: String, val json_schema: JsonSchemaWrapper) {
+        @Serializable data class JsonSchemaWrapper(val name: String, val schema: JsonSchema)
 
         @Serializable
         data class JsonSchema(
             val type: String = "object",
             val properties: Map<String, JsonProperty>,
             val required: List<String>,
-            val additionalProperties: Boolean = false
+            val additionalProperties: Boolean = false,
         )
 
-        @Serializable
-        data class JsonProperty(
-            val type: String
-        )
+        @Serializable data class JsonProperty(val type: String)
     }
 }
