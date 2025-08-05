@@ -11,6 +11,11 @@ const containerStyle = {
   width: "100vw",
   margin: 0,
   padding: 0,
+  position: "absolute" as const,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
 };
 
 function AppContent() {
