@@ -17,7 +17,7 @@ fun findClusters(
     dataPoints: Array<DoubleArray>,
     minN: Int = dataPoints.first().size * 2,
     radius: Double = 0.1,
-    noise: Boolean = true
+    noise: Boolean = true,
 ): List<List<Int>> {
     val df = DataFrame.of(dataPoints)
 

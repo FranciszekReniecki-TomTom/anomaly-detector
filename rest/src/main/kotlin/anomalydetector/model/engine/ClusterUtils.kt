@@ -1,6 +1,8 @@
 package anomalydetector.model.engine
 
 import anomalydetector.model.TrafficTileHour
+import kotlin.math.abs
+import kotlin.math.pow
 import smile.clustering.DBSCAN
 import smile.data.DataFrame
 import smile.data.vector.DoubleVector
@@ -8,8 +10,6 @@ import smile.feature.transform.RobustStandardizer
 import smile.neighbor.KDTree
 import smile.plot.swing.Canvas
 import smile.plot.swing.ScatterPlot
-import kotlin.math.abs
-import kotlin.math.pow
 
 internal fun drawAnomalies(anomalies: List<List<TrafficTileHour>>) {
     val points: Array<DoubleArray> =
@@ -113,7 +113,8 @@ fun simpleLinearRegression(x: DoubleArray, y: DoubleArray): Pair<Double, Double>
     val xMean = x.average()
     val yMean = y.average()
 
-    val slope = (0 until n).sumOf { (x[it] - xMean) * (y[it] - yMean) } /
+    val slope =
+        (0 until n).sumOf { (x[it] - xMean) * (y[it] - yMean) } /
             (0 until n).sumOf { (x[it] - xMean).pow(2) }
     val intercept = yMean - slope * xMean
 
