@@ -1,10 +1,10 @@
 import { Label, Slider, Box } from "tombac";
-import { useAppContext } from "../AppContext";
+import { useAppContext } from "../../AppContext";
 import {
   useContainerWidth,
   useSliderValue,
   useSnapToNearest,
-} from "../hooks/useTimeSlider";
+} from "../../hooks/useTimeSlider";
 
 export default function TimeSlider() {
   const { timestampValues, selectedTime, setSelectedTime } = useAppContext();

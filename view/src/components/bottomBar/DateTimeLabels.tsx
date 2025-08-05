@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Label, Text } from "tombac";
-import { useContainerWidth, useLeftPercent } from "../hooks/useAnomalyDots";
+import { useContainerWidth, useLeftPercent } from "../../hooks/useAnomalyDots";
 
 export interface DateTimeLabelsProps {
   minTime: number;

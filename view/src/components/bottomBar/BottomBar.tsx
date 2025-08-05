@@ -2,7 +2,7 @@ import { Box } from "tombac";
 import TimeSlider from "./TimeSlider";
 import AnomalyDots from "./AnomalyDots";
 import DateTimeLabels from "./DateTimeLabels";
-import { useAppContext } from "../AppContext";
+import { useAppContext } from "../../AppContext";
 
 const bottomBarStyle = {
   position: "absolute" as const,

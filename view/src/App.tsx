@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TombacApp, Box } from "tombac";
 import MapView from "./components/MapView";
-import BottomBar from "./components/BottomBar";
+import BottomBar from "./components/bottomBar/BottomBar";
 import Sidebar from "./components/Sidebar";
 import { AppProvider, useAppContext } from "./AppContext";
 
