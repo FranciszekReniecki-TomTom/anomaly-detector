@@ -45,115 +45,97 @@ export default function AnomalyDots({
 
   const generateTimeGridLines = () => {
     const gridLines: React.ReactElement[] = [];
-    const totalDuration = maxTime - minTime;
-    const timeStep = totalDuration / 10;
 
-    for (let i = 0; i <= 10; i++) {
-      const time = minTime + timeStep * i;
-      const leftPercent = getLeftPercent(time);
+    const startHour = new Date(minTime);
+    startHour.setMinutes(0, 0, 0);
+    const endHour = new Date(maxTime);
+    endHour.setMinutes(59, 59, 999);
 
-      gridLines.push(
-        <div
-          key={`vgrid-${i}`}
-          style={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            left: `${leftPercent}%`,
-            width: 1,
-            backgroundColor: "#e0e0e0",
-            pointerEvents: "none",
-            zIndex: 1,
-          }}
-        />
-      );
+    const currentHour = new Date(startHour);
+    let index = 0;
+
+    while (currentHour <= endHour) {
+      const hourTime = currentHour.getTime();
+      if (hourTime >= minTime && hourTime <= maxTime) {
+        const leftPercent = getLeftPercent(hourTime);
+
+        gridLines.push(
+          <div
+            key={`vgrid-${index}`}
+            style={{
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: `${leftPercent}%`,
+              width: 1,
+              backgroundColor: "#e0e0e0",
+              pointerEvents: "none",
+              zIndex: 1,
+            }}
+          />
+        );
+      }
+
+      currentHour.setHours(currentHour.getHours() + 1);
+      index++;
     }
-    return gridLines;
-  };
-
-  const generateLaneGridLines = () => {
-    const gridLines: React.ReactElement[] = [];
-
-    for (let i = 0; i < anomalyIds.length; i++) {
-      const topPos = baseLaneHeight * i;
-
-      gridLines.push(
-        <div
-          key={`hgrid-${i}`}
-          style={{
-            position: "absolute",
-            top: topPos,
-            left: 0,
-            right: 0,
-            height: 1,
-            backgroundColor: "#e0e0e0",
-            pointerEvents: "none",
-            zIndex: 1,
-          }}
-        />
-      );
-    }
-
-    gridLines.push(
-      <div
-        key="hgrid-bottom"
-        style={{
-          position: "absolute",
-          top: height,
-          left: 0,
-          right: 0,
-          height: 1,
-          backgroundColor: "#e0e0e0",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      />
-    );
 
     return gridLines;
   };
 
   const generateDateLabels = () => {
     const labels: React.ReactElement[] = [];
-    const totalDuration = maxTime - minTime;
-    const timeStep = totalDuration / 10;
 
-    for (let i = 0; i <= 10; i++) {
-      const time = minTime + timeStep * i;
-      const leftPercent = getLeftPercent(time);
-      const date = new Date(time);
+    const startHour = new Date(minTime);
+    startHour.setMinutes(0, 0, 0);
+    const endHour = new Date(maxTime);
+    endHour.setMinutes(59, 59, 999);
 
-      const dateLabel = date.toLocaleDateString([], {
-        month: "short",
-        day: "numeric",
-      });
-      const timeLabel = date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+    const currentHour = new Date(startHour);
+    let index = 0;
 
-      labels.push(
-        <div
-          key={`date-${i}`}
-          style={{
-            position: "absolute",
-            left: `${leftPercent}%`,
-            bottom: -35,
-            transform: "translateX(-50%)",
-            fontSize: 9,
-            color: "#666",
-            whiteSpace: "nowrap",
-            pointerEvents: "none",
-            zIndex: 2,
-            textAlign: "center",
-            lineHeight: "1.2",
-          }}
-        >
-          <div>{dateLabel}</div>
-          <div>{timeLabel}</div>
-        </div>
-      );
+    while (currentHour <= endHour) {
+      const hourTime = currentHour.getTime();
+      if (hourTime >= minTime && hourTime <= maxTime) {
+        const leftPercent = getLeftPercent(hourTime);
+        const date = new Date(hourTime);
+
+        const dateLabel = date.toLocaleDateString([], {
+          month: "short",
+          day: "numeric",
+        });
+        const timeLabel = date.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        labels.push(
+          <div
+            key={`date-${index}`}
+            style={{
+              position: "absolute",
+              left: `${leftPercent}%`,
+              bottom: -35,
+              transform: "translateX(-50%)",
+              fontSize: 9,
+              color: "#666",
+              whiteSpace: "nowrap",
+              pointerEvents: "none",
+              zIndex: 2,
+              textAlign: "center",
+              lineHeight: "1.2",
+            }}
+          >
+            <div>{dateLabel}</div>
+            <div>{timeLabel}</div>
+          </div>
+        );
+      }
+
+      currentHour.setHours(currentHour.getHours() + 1);
+      index++;
     }
+
     return labels;
   };
 
@@ -208,7 +190,6 @@ export default function AnomalyDots({
       style={{ width: "100%", position: "relative", height, paddingBottom: 40 }}
     >
       {generateTimeGridLines()}
-      {generateLaneGridLines()}
 
       {generateDateLabels()}
 
