@@ -29,7 +29,6 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
                 .bodyToMono(String::class.java)
                 .awaitSingle()
 
-
         return parseFromString(response)
     }
 
@@ -64,9 +63,7 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
         return ReverseGeoCodeResponse(country, municipality, listOf(street))
     }
 
-    @Serializable
-    data class TomTomResponse(val summary: Summary, val addresses: List<JsonElement>)
+    @Serializable data class TomTomResponse(val summary: Summary, val addresses: List<JsonElement>)
 
-    @Serializable
-    data class Summary(val queryTime: Int, val numResults: Int)
+    @Serializable data class Summary(val queryTime: Int, val numResults: Int)
 }
