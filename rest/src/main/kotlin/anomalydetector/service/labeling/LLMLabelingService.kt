@@ -1,12 +1,13 @@
 package anomalydetector.service.labeling
 
-import anomalydetector.service.labeling.ReverseGeoCodeService.TomTomResponse
 import io.github.cdimascio.dotenv.Dotenv
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.springframework.http.MediaType
@@ -14,8 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 @Service
-class LLMLabelingService(private val builder: WebClient.Builder) {
-
+class LLMLabelingService(builder: WebClient.Builder) {
     private val apiKey: String = Dotenv.load()["GROQ_API_KEY"]
     private val webClient = builder
         .baseUrl("https://api.groq.com/openai/v1/chat/completions")
@@ -80,24 +80,40 @@ class LLMLabelingService(private val builder: WebClient.Builder) {
             response_format = responseFormatObject
         )
 
-        val response: String = webClient.post()
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(llmRequest)
-            .accept(MediaType.APPLICATION_JSON)
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .awaitSingle()
+        val response: String = runBlocking {
+            webClient.post()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(llmRequest)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(String::class.java)
+                .awaitSingle()
+        }
 
         return parseResponse(response)
     }
 
     private fun parseResponse(response: String): LLMLabelResponse {
-        val json = Json { ignoreUnknownKeys = true }
-        val parsed = json.decodeFromString<LLMResponse>(response)
+        println("json response: ${Json.encodeToString(response)}")
 
-        val message = parsed.choices.firstOrNull()?.jsonObject
-        val llmResponse = message?.get("content")?.jsonObject?.jsonPrimitive
-            ?.contentOrNull ?: "No response from LLM"
+        val json = Json { ignoreUnknownKeys = true }
+
+        val parsed: JsonElement = json.parseToJsonElement(response)
+        val content: String = parsed
+            .jsonObject["choices"]
+            ?.jsonArray?.firstOrNull()
+            ?.jsonObject["message"]
+            ?.jsonObject["content"]
+            ?.jsonPrimitive
+            ?.contentOrNull
+            ?: throw IllegalStateException("Response does not contain expected content")
+        println(content)
+
+        val innerParsed = json.parseToJsonElement(content)
+        val llmResponse: String = innerParsed.jsonObject["llmResponse"]
+            ?.jsonPrimitive?.contentOrNull
+            ?: throw IllegalStateException("LLM response does not contain 'llmResponse' field")
+        println(llmResponse)
 
         return LLMLabelResponse(llmResponse)
     }
@@ -117,7 +133,7 @@ class LLMLabelingService(private val builder: WebClient.Builder) {
 
     @Serializable
     data class ResponseFormat(
-        val type: String = "json_schema",
+        val type: String,
         val json_schema: JsonSchemaWrapper
     ) {
         @Serializable
@@ -139,9 +155,4 @@ class LLMLabelingService(private val builder: WebClient.Builder) {
             val type: String
         )
     }
-
-    @Serializable
-    data class LLMResponse(
-        val choices: List<JsonElement>
-    )
 }
