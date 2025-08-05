@@ -2,6 +2,7 @@ package anomalydetector.service.labeling
 
 import io.github.cdimascio.dotenv.Dotenv
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -84,7 +85,7 @@ class LLMLabelingService(builder: WebClient.Builder) {
                 response_format = responseFormatObject,
             )
 
-        val response: String =
+        val response: String = runBlocking {
             webClient
                 .post()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -93,6 +94,7 @@ class LLMLabelingService(builder: WebClient.Builder) {
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .awaitSingle()
+        }
 
         return parseResponse(response)
     }

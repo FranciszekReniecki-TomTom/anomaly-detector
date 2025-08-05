@@ -3,6 +3,7 @@ package anomalydetector.service.labeling
 import anomalydetector.exceptions.AddressNotFoundException
 import io.github.cdimascio.dotenv.Dotenv
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import org.springframework.http.MediaType
@@ -16,7 +17,7 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
     private val webClient = builder.baseUrl("https://api.tomtom.com").build()
 
     suspend fun reverseGeocode(lat: Double, lon: Double): ReverseGeoCodeResponse {
-        val response: String =
+        val response: String = runBlocking {
             webClient
                 .get()
                 .uri(
@@ -29,6 +30,7 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .awaitSingle()
+        }
 
         return parseFromString(response)
     }
