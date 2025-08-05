@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { DrawingOption, MapModel, useDrawingTools } from "legoland-shared";
 
-export function useMapView(filteredFeatures: any[], initialRegions: any[] = []) {
+export function useMapView(
+  filteredFeatures: any[],
+  initialRegions: any[] = []
+) {
   const [mapModel, setMapModel] = useState<MapModel>("Orbis");
   const [drawingOption, setDrawingOption] = useState<DrawingOption>();
   const [regions, setRegions] = useState<any[]>(initialRegions);
@@ -31,8 +34,8 @@ export function useMapView(filteredFeatures: any[], initialRegions: any[] = []) 
     id: "regions",
     type: "fill",
     paint: {
-      "fill-color": "green",
-      "fill-outline-color": "green",
+      "fill-color": "#00aaff",
+      "fill-outline-color": "#2274aa",
       "fill-opacity": 0.4,
     },
   };
