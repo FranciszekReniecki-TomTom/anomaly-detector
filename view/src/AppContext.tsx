@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useState } from "react";
 import {
   useAnomalyData,
   useTimestamps,
@@ -21,6 +21,10 @@ interface AppContextType {
   setSelectedTime: (t: number) => void;
   mode: string;
   setMode: (mode: string) => void;
+  selectedPolygon: any;
+  setSelectedPolygon: (polygon: any) => void;
+  drawnRegions: any[];
+  setDrawnRegions: (regions: any[]) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -44,6 +48,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [mode, setMode] = useMode(anomalyGeoJson);
 
+  const [selectedPolygon, setSelectedPolygon] = useState<any>(null);
+  const [drawnRegions, setDrawnRegions] = useState<any[]>([]);
+
   return (
     <AppContext.Provider
       value={{
@@ -58,6 +65,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSelectedTime,
         mode,
         setMode,
+        selectedPolygon,
+        setSelectedPolygon,
+        drawnRegions,
+        setDrawnRegions,
       }}
     >
       {children}

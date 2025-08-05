@@ -8,20 +8,18 @@ import {
 } from "legoland-shared";
 import { Label } from "tombac";
 import { useMapView } from "../hooks/useMapView";
+import { useAppContext } from "../AppContext";
 
 export interface MapViewProps {
-  filteredFeatures: any[];
   drawingEnabled: boolean;
   onPolygonSelect?: (feature: any) => void;
-  drawnRegions?: any[];
 }
 
 export default function MapView({
-  filteredFeatures,
   drawingEnabled,
   onPolygonSelect,
-  drawnRegions = [],
 }: MapViewProps) {
+  const { filteredFeatures, drawnRegions } = useAppContext();
   const {
     mapModel,
     setMapModel,

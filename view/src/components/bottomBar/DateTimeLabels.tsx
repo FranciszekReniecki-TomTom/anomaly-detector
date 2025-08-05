@@ -1,19 +1,18 @@
 import React from "react";
 import { Box, Label, Text } from "tombac";
 import { useContainerWidth, useLeftPercent } from "../../hooks/useAnomalyDots";
+import { useAppContext } from "../../AppContext";
 
 export interface DateTimeLabelsProps {
-  minTime: number;
-  maxTime: number;
   padding: number;
 }
 
-export default function DateTimeLabels({
-  minTime,
-  maxTime,
-  padding,
-}: DateTimeLabelsProps) {
+export default function DateTimeLabels({ padding }: DateTimeLabelsProps) {
   const [containerRef, width] = useContainerWidth();
+  const { timestampValues } = useAppContext();
+
+  const minTime = timestampValues[0];
+  const maxTime = timestampValues[timestampValues.length - 1];
   const getLeftPercentRaw = useLeftPercent(minTime, maxTime);
 
   const getLeftPercent = (time: number) =>
