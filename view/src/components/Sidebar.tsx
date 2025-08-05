@@ -70,8 +70,23 @@ function Sidebar({ selectedPolygon }: SidebarProps) {
   return (
     <aside style={sidebarStyle}>
       {mode === "drawing" && (
-        <Box style={{ padding: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          <Box style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+        <Box
+          style={{
+            padding: 16,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 16,
+          }}
+        >
+          <Box
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
             <Label>Start Date</Label>
             <DatePicker
               value={startDay}
@@ -81,7 +96,14 @@ function Sidebar({ selectedPolygon }: SidebarProps) {
               maxDate={subtractMonths(endDay, 0)}
             />
           </Box>
-          <Box style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <Box
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
             <Label>End Date</Label>
             <DatePicker
               value={endDay}
