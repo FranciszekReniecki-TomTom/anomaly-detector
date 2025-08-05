@@ -2,7 +2,6 @@ package anomalydetector.service.labeling
 
 import io.github.cdimascio.dotenv.Dotenv
 import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -85,7 +84,7 @@ class LLMLabelingService(builder: WebClient.Builder) {
                 response_format = responseFormatObject,
             )
 
-        val response: String = runBlocking {
+        val response: String =
             webClient
                 .post()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -94,7 +93,7 @@ class LLMLabelingService(builder: WebClient.Builder) {
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .awaitSingle()
-        }
+
 
         return parseResponse(response)
     }
@@ -131,12 +130,14 @@ class LLMLabelingService(builder: WebClient.Builder) {
         val messages: List<Message>,
         val response_format: ResponseFormat,
     ) {
-        @Serializable data class Message(val role: String, val content: String)
+        @Serializable
+        data class Message(val role: String, val content: String)
     }
 
     @Serializable
     data class ResponseFormat(val type: String, val json_schema: JsonSchemaWrapper) {
-        @Serializable data class JsonSchemaWrapper(val name: String, val schema: JsonSchema)
+        @Serializable
+        data class JsonSchemaWrapper(val name: String, val schema: JsonSchema)
 
         @Serializable
         data class JsonSchema(
@@ -146,6 +147,7 @@ class LLMLabelingService(builder: WebClient.Builder) {
             val additionalProperties: Boolean = false,
         )
 
-        @Serializable data class JsonProperty(val type: String)
+        @Serializable
+        data class JsonProperty(val type: String)
     }
 }
