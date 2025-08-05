@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button, DatePicker, Label, Box } from "tombac";
 import AnomalyList from "./AnomalyList";
 import { useAppContext } from "../AppContext";
@@ -43,7 +43,7 @@ function Sidebar({}: SidebarProps) {
     if (startDay > minStart) setStartDay(minStart);
   }, [endDay]);
 
-  const handleGenerateReport = async () => {
+  const handleGenerateReport = useCallback(async () => {
     if (!selectedPolygon) {
       alert("Please select a polygon to generate the report.");
       return;
@@ -59,7 +59,7 @@ function Sidebar({}: SidebarProps) {
     } catch (error: any) {
       alert("Failed to generate report: " + error.message);
     }
-  };
+  }, [selectedPolygon, startDay, endDay, setMode]);
 
   if (mode !== "viewing" && mode !== "drawing") {
     return null;

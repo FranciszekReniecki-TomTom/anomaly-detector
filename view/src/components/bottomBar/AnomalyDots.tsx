@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Box, Text } from "tombac";
-import { useContainerWidth, useLeftPercent } from "../../hooks/useAnomalyDots";
+import {
+  useContainerWidth,
+  useLeftPercent,
+} from "../../hooks/useAnomalyDots";
 import { useAppContext } from "../../AppContext";
 
 export interface AnomalyDotTimestamp {
@@ -13,7 +16,7 @@ export interface AnomalyDotsProps {
   padding: number;
 }
 
-export default function AnomalyDots({
+function AnomalyDots({
   baseLaneHeight,
   padding,
 }: AnomalyDotsProps) {
@@ -32,17 +35,17 @@ export default function AnomalyDots({
 
   const height = anomalyIds.length * baseLaneHeight;
 
-  const getLeftPercent = (time: number) =>
-    getLeftPercentRaw(time) * (1 - (padding * 2) / width) +
-    (padding / width) * 100;
+  const getLeftPercent = useMemo(() => 
+    (time: number) =>
+      getLeftPercentRaw(time) * (1 - (padding * 2) / width) +
+      (padding / width) * 100,
+    [getLeftPercentRaw, padding, width]
+  );
 
-  if (!width || timestamps.length === 0) {
-    return <Box ref={containerRef} style={{ width: "100%" }} />;
-  }
-
-  const generateTimeGridLines = () => {
-    const gridLines: React.ReactElement[] = [];
-
+  const gridLines = useMemo(() => {
+    if (!width || timestamps.length === 0) return [];
+    
+    const lines: React.ReactElement[] = [];
     const startHour = new Date(minTime);
     startHour.setMinutes(0, 0, 0);
     const endHour = new Date(maxTime);
@@ -56,7 +59,7 @@ export default function AnomalyDots({
       if (hourTime >= minTime && hourTime <= maxTime) {
         const leftPercent = getLeftPercent(hourTime);
 
-        gridLines.push(
+        lines.push(
           <Box
             key={`vgrid-${index}`}
             style={{
@@ -72,15 +75,13 @@ export default function AnomalyDots({
           />
         );
       }
-
       currentHour.setHours(currentHour.getHours() + 1);
       index++;
     }
+    return lines;
+  }, [width, timestamps.length, minTime, maxTime, getLeftPercent]);
 
-    return gridLines;
-  };
-
-  const generateAnomalyLabels = () => {
+  const anomalyLabels = useMemo(() => {
     const labels: React.ReactElement[] = [];
 
     anomalyIds.forEach((anomalyId, index) => {
@@ -114,9 +115,9 @@ export default function AnomalyDots({
     });
 
     return labels;
-  };
+  }, [anomalyIds, baseLaneHeight, selectedAnomalies]);
 
-  const generateConnectingLines = () => {
+  const connectingLines = useMemo(() => {
     const lines: React.ReactElement[] = [];
 
     anomalyIds.forEach((anomalyId) => {
@@ -159,18 +160,22 @@ export default function AnomalyDots({
     });
 
     return lines;
-  };
+  }, [anomalyIds, timestamps, selectedAnomalies, baseLaneHeight, getLeftPercent]);
+
+  if (!width || timestamps.length === 0) {
+    return <Box ref={containerRef} style={{ width: "100%" }} />;
+  }
 
   return (
     <Box
       ref={containerRef}
       style={{ width: "100%", position: "relative", height, paddingBottom: 10 }}
     >
-      {generateTimeGridLines()}
+      {gridLines}
 
-      {generateAnomalyLabels()}
+      {anomalyLabels}
 
-      {generateConnectingLines()}
+      {connectingLines}
 
       <Box
         style={{
@@ -218,3 +223,5 @@ export default function AnomalyDots({
     </Box>
   );
 }
+
+export default React.memo(AnomalyDots);

@@ -1,3 +1,4 @@
+import React from "react";
 import {
   DrawingOption,
   DrawingTools,
@@ -15,7 +16,7 @@ export interface MapViewProps {
   onPolygonSelect?: (feature: any) => void;
 }
 
-export default function MapView({
+function MapView({
   drawingEnabled,
   onPolygonSelect,
 }: MapViewProps) {
@@ -97,3 +98,5 @@ export default function MapView({
     </GlMap>
   );
 }
+
+export default React.memo(MapView);
