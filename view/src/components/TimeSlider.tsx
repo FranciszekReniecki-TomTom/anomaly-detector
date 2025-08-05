@@ -21,14 +21,13 @@ export default function TimeSlider() {
 
   const formatTimestamp = (ts: number) => new Date(ts).toLocaleString();
 
-  const padding = 9;
-
   const snappedSelectedTime = snapToNearest(selectedTime);
 
   const getThumbLeftPercent = (time: number) => {
     if (!containerWidth) return 0;
     const totalDuration = maxTime - minTime;
     const rawPercent = ((time - minTime) / totalDuration) * 100;
+    const padding = 9;
     return (
       rawPercent * (1 - (padding * 2) / containerWidth) +
       (padding / containerWidth) * 100

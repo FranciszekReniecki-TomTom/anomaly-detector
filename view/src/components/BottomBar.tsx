@@ -1,6 +1,7 @@
 import { Box } from "tombac";
 import TimeSlider from "./TimeSlider";
 import AnomalyDots from "./AnomalyDots";
+import DateTimeLabels from "./DateTimeLabels";
 import { useAppContext } from "../AppContext";
 
 const bottomBarStyle = {
@@ -22,15 +23,23 @@ export default function BottomBar() {
 
   return (
     <Box style={bottomBarStyle}>
-      <div style={{ overflowY: "scroll", height: "60px", paddingLeft: "80px" }}>
+      <div
+        style={{
+          overflowY: "hidden",
+          height: "60px",
+          paddingLeft: "80px",
+          paddingRight: "40px",
+        }}
+      >
         <TimeSlider />
       </div>
       <div
         style={{
-          height: "180px",
+          height: "160px",
           overflowY: "auto",
           marginTop: 8,
           paddingLeft: "80px",
+          paddingRight: "40px",
         }}
       >
         <AnomalyDots
@@ -41,6 +50,13 @@ export default function BottomBar() {
           baseLaneHeight={10}
           padding={9}
           selectedAnomalies={selectedAnomalies}
+        />
+      </div>
+      <div style={{ paddingLeft: "80px", paddingRight: "40px" }}>
+        <DateTimeLabels
+          minTime={timestampValues[0]}
+          maxTime={timestampValues[timestampValues.length - 1]}
+          padding={9}
         />
       </div>
     </Box>
