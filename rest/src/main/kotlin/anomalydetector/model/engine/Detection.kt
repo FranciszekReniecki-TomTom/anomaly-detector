@@ -1,8 +1,6 @@
 package anomalydetector.model.engine
 
-import kotlin.Double.Companion.NaN
 import kotlin.math.abs
-import kotlin.math.min
 import kotlin.math.sqrt
 
 /** Week period constant representing the number of hours in a week. */
@@ -37,9 +35,11 @@ fun calculateMeans(values: DoubleArray, period: Int): DoubleArray {
     require(period > 0) { "Period must be greater than 0." }
 
     return DoubleArray(period) { index ->
-        val filtered = values.withIndex()
-            .filter { it.index % period == index && !it.value.isNaN() }
-            .map { it.value }
+        val filtered =
+            values
+                .withIndex()
+                .filter { it.index % period == index && !it.value.isNaN() }
+                .map { it.value }
 
         filtered.average()
     }
@@ -54,7 +54,8 @@ fun calculateStds(values: DoubleArray, means: DoubleArray, period: Int): DoubleA
         val sumOfSquares =
             values
                 .mapIndexed { i, value ->
-                    if (i % period == index && !value.isNaN()) (value - mean) * (value - mean) else 0.0
+                    if (i % period == index && !value.isNaN()) (value - mean) * (value - mean)
+                    else 0.0
                 }
                 .sum()
         sqrt(sumOfSquares / values.withIndex().count { (i, _) -> i % period == index })
