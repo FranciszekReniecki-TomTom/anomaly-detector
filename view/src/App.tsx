@@ -18,8 +18,6 @@ function AppContent() {
 
   const [selectedPolygon, setSelectedPolygon] = useState<any>(null);
 
-  if (!anomalyGeoJson) return <div>Loading anomalies...</div>;
-
   return (
     <TombacApp
       defineCssVariables
