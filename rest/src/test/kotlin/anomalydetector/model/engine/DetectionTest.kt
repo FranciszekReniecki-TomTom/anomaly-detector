@@ -1,7 +1,7 @@
 package anomalydetector.model.engine
 
-import org.jetbrains.kotlinx.serialization.compiler.backend.jvm.DOUBLE
 import java.util.stream.Stream
+import kotlin.Double.Companion.NaN
 import kotlin.test.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
@@ -9,7 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.of
 import org.junit.jupiter.params.provider.MethodSource
-import kotlin.Double.Companion.NaN
 
 class DetectionTest {
     companion object {
@@ -129,10 +128,15 @@ class DetectionTest {
 
     @Test
     fun `test findWeeklyOutliers with NaN in data`() {
-        val values = doubleArrayOf(3.0) + DoubleArray(167) { NaN } +
-                doubleArrayOf(3.0) + DoubleArray(167) { NaN } +
-                doubleArrayOf(3.0) + DoubleArray(167) { NaN } +
-                doubleArrayOf(1.0) + DoubleArray(167) { NaN }
+        val values =
+            doubleArrayOf(3.0) +
+                DoubleArray(167) { NaN } +
+                doubleArrayOf(3.0) +
+                DoubleArray(167) { NaN } +
+                doubleArrayOf(3.0) +
+                DoubleArray(167) { NaN } +
+                doubleArrayOf(1.0) +
+                DoubleArray(167) { NaN }
         val threshold = 1.0
         val expectedOutliers = intArrayOf(168 + 168 + 168 + 0)
 
