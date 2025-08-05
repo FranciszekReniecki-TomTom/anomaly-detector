@@ -139,6 +139,43 @@ export default function AnomalyDots({
     return labels;
   };
 
+  const generateAnomalyLabels = () => {
+    const labels: React.ReactElement[] = [];
+
+    anomalyIds.forEach((anomalyId, index) => {
+      const laneIndex = index;
+      const topPos = baseLaneHeight * laneIndex + baseLaneHeight / 2;
+
+      const isSelected =
+        selectedAnomalies.has("all") || selectedAnomalies.has(anomalyId);
+      const labelColor = isSelected ? "#de1c12" : "#666";
+
+      labels.push(
+        <div
+          key={`label-${anomalyId}`}
+          style={{
+            position: "absolute",
+            left: -5,
+            top: topPos,
+            transform: "translate(-100%, -50%)",
+            fontSize: 11,
+            fontWeight: isSelected ? "600" : "400",
+            color: labelColor,
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            zIndex: 10,
+            textAlign: "right",
+            paddingRight: 8,
+          }}
+        >
+          {anomalyId}
+        </div>
+      );
+    });
+
+    return labels;
+  };
+
   const generateConnectingLines = () => {
     const lines: React.ReactElement[] = [];
 
@@ -192,6 +229,8 @@ export default function AnomalyDots({
       {generateTimeGridLines()}
 
       {generateDateLabels()}
+
+      {generateAnomalyLabels()}
 
       {generateConnectingLines()}
 
