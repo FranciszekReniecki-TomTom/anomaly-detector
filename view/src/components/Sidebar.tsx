@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, DatePicker, Label } from "tombac";
+import { Button, DatePicker, Label, Box } from "tombac";
 import AnomalyList from "./AnomalyList";
 import { useAppContext } from "../AppContext";
 import { fetchAnomalyData } from "../api/api";
@@ -8,8 +8,9 @@ import { CSSProperties } from "react";
 const sidebarStyle: CSSProperties = {
   width: 280,
   borderRight: "1px solid #ccc",
-  padding: 16,
-  overflowY: "auto",
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
 };
 
 function addMonths(date: Date, months: number) {
@@ -69,7 +70,7 @@ function Sidebar({ selectedPolygon }: SidebarProps) {
   return (
     <aside style={sidebarStyle}>
       {mode === "drawing" && (
-        <>
+        <Box style={{ padding: 16 }}>
           <DatePicker
             value={startDay}
             onChange={(date) => {
@@ -87,14 +88,18 @@ function Sidebar({ selectedPolygon }: SidebarProps) {
           <Button onClick={handleGenerateReport} style={{ marginTop: 16 }}>
             <Label>Generate Report</Label>
           </Button>
-        </>
+        </Box>
       )}
       {mode === "viewing" && (
         <>
-          <AnomalyList />
-          <Button onClick={() => setMode("drawing")} style={{ marginTop: 16 }}>
-            <Label>Back to Drawing</Label>
-          </Button>
+          <Box style={{ padding: 16, borderBottom: "1px solid #eee" }}>
+            <Button onClick={() => setMode("drawing")}>
+              <Label>Back to Drawing</Label>
+            </Button>
+          </Box>
+          <Box style={{ flex: 1, overflow: "auto", padding: 16 }}>
+            <AnomalyList />
+          </Box>
         </>
       )}
     </aside>
