@@ -1,4 +1,5 @@
 import React from "react";
+import { Box, Text } from "tombac";
 import {
   useContainerWidth,
   useAnomalyIds,
@@ -40,7 +41,7 @@ export default function AnomalyDots({
     (padding / width) * 100;
 
   if (!width || timestamps.length === 0) {
-    return <div ref={containerRef} style={{ width: "100%" }} />;
+    return <Box ref={containerRef} style={{ width: "100%" }} />;
   }
 
   const generateTimeGridLines = () => {
@@ -60,7 +61,7 @@ export default function AnomalyDots({
         const leftPercent = getLeftPercent(hourTime);
 
         gridLines.push(
-          <div
+          <Box
             key={`vgrid-${index}`}
             style={{
               position: "absolute",
@@ -95,14 +96,13 @@ export default function AnomalyDots({
       const labelColor = isSelected ? "#de1c12" : "#666";
 
       labels.push(
-        <div
+        <Box
           key={`label-${anomalyId}`}
           style={{
             position: "absolute",
             left: -5,
             top: topPos,
             transform: "translate(-100%, -50%)",
-            fontSize: 11,
             fontWeight: isSelected ? "600" : "400",
             color: labelColor,
             whiteSpace: "nowrap",
@@ -112,8 +112,8 @@ export default function AnomalyDots({
             paddingRight: 8,
           }}
         >
-          {anomalyId}
-        </div>
+          <Text style={{ fontSize: 9 }}>{anomalyId}</Text>
+        </Box>
       );
     });
 
@@ -145,7 +145,7 @@ export default function AnomalyDots({
         const width = endPercent - startPercent;
 
         lines.push(
-          <div
+          <Box
             key={`line-${anomalyId}-${i}`}
             style={{
               position: "absolute",
@@ -166,7 +166,7 @@ export default function AnomalyDots({
   };
 
   return (
-    <div
+    <Box
       ref={containerRef}
       style={{ width: "100%", position: "relative", height, paddingBottom: 10 }}
     >
@@ -176,7 +176,7 @@ export default function AnomalyDots({
 
       {generateConnectingLines()}
 
-      <div
+      <Box
         style={{
           position: "absolute",
           top: 0,
@@ -201,7 +201,7 @@ export default function AnomalyDots({
         const dotColor = isSelected ? "#de1c12" : "#ccc";
 
         return (
-          <div
+          <Box
             key={i}
             title={`${anomaly_id} - ${new Date(time).toLocaleString()}`}
             style={{
@@ -219,6 +219,6 @@ export default function AnomalyDots({
           />
         );
       })}
-    </div>
+    </Box>
   );
 }

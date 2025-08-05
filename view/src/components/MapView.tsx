@@ -6,6 +6,7 @@ import {
   MapMenuToggle,
   PolygonSelector,
 } from "legoland-shared";
+import { Label } from "tombac";
 import { useMapView } from "../hooks/useMapView";
 
 export interface MapViewProps {

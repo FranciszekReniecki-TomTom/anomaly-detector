@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TombacApp } from "tombac";
+import { TombacApp, Box } from "tombac";
 import MapView from "./components/MapView";
 import BottomBar from "./components/BottomBar";
 import Sidebar from "./components/Sidebar";
@@ -28,18 +28,18 @@ function AppContent() {
       defineCssVariables
       theme={{ baseUnit: "px", settings: { modalZIndex: 20 } }}
     >
-      <div style={containerStyle}>
+      <Box style={containerStyle}>
         <Sidebar selectedPolygon={selectedPolygon} />
 
-        <main style={{ flex: 1, position: "relative" }}>
+        <Box as="main" style={{ flex: 1, position: "relative" }}>
           <MapView
             filteredFeatures={filteredFeatures}
             drawingEnabled={mode === "drawing"}
             onPolygonSelect={setSelectedPolygon}
           />
           {mode === "viewing" && <BottomBar />}
-        </main>
-      </div>
+        </Box>
+      </Box>
     </TombacApp>
   );
 }
