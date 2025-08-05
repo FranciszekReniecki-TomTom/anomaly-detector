@@ -112,20 +112,32 @@ export function useFilteredFeatures(
 
 export function useMode(anomalyGeoJson: any): [string, (mode: string) => void] {
   const [mode, setMode] = useState("drawing");
-  
+
   const setModeWithValidation = (newMode: string) => {
-    if (newMode === "viewing" && (!anomalyGeoJson || !anomalyGeoJson.features || anomalyGeoJson.features.length === 0)) {
-      console.log("Cannot switch to viewing mode: no data available", { anomalyGeoJson });
+    if (
+      newMode === "viewing" &&
+      (!anomalyGeoJson ||
+        !anomalyGeoJson.features ||
+        anomalyGeoJson.features.length === 0)
+    ) {
+      console.log("Cannot switch to viewing mode: no data available", {
+        anomalyGeoJson,
+      });
       return;
     }
     setMode(newMode);
   };
-  
+
   useEffect(() => {
-    if (mode === "viewing" && (!anomalyGeoJson || !anomalyGeoJson.features || anomalyGeoJson.features.length === 0)) {
+    if (
+      mode === "viewing" &&
+      (!anomalyGeoJson ||
+        !anomalyGeoJson.features ||
+        anomalyGeoJson.features.length === 0)
+    ) {
       setMode("drawing");
     }
   }, [anomalyGeoJson, mode]);
-  
+
   return [mode, setModeWithValidation];
 }
