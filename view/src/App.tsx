@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { TombacApp, Box } from "tombac";
 import MapView from "./components/MapView";
 import BottomBar from "./components/bottomBar/BottomBar";
@@ -19,10 +18,7 @@ const containerStyle = {
 };
 
 function AppContent() {
-  const { mode, anomalyGeoJson, filteredFeatures } = useAppContext();
-
-  const [selectedPolygon, setSelectedPolygon] = useState<any>(null);
-  const [drawnRegions, setDrawnRegions] = useState<any[]>([]);
+  const { mode, setSelectedPolygon, setDrawnRegions } = useAppContext();
 
   const handlePolygonSelect = (polygon: any) => {
     setSelectedPolygon(polygon);
@@ -35,14 +31,12 @@ function AppContent() {
       theme={{ baseUnit: "px", settings: { modalZIndex: 20 } }}
     >
       <Box style={containerStyle}>
-        <Sidebar selectedPolygon={selectedPolygon} />
+        <Sidebar />
 
         <Box as="main" style={{ flex: 1, position: "relative" }}>
           <MapView
-            filteredFeatures={filteredFeatures}
             drawingEnabled={mode === "drawing"}
             onPolygonSelect={handlePolygonSelect}
-            drawnRegions={drawnRegions}
           />
           {mode === "viewing" && <BottomBar />}
         </Box>

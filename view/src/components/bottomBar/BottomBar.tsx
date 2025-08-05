@@ -16,8 +16,7 @@ const bottomBarStyle = {
 };
 
 export default function BottomBar() {
-  const { timestampValues, selectedTime, timestamps, selectedAnomalies } =
-    useAppContext();
+  const { timestampValues } = useAppContext();
 
   if (timestampValues.length === 0) return null;
 
@@ -42,22 +41,10 @@ export default function BottomBar() {
           paddingRight: "40px",
         }}
       >
-        <AnomalyDots
-          timestamps={timestamps}
-          minTime={timestampValues[0]}
-          maxTime={timestampValues[timestampValues.length - 1]}
-          selectedTime={selectedTime}
-          baseLaneHeight={10}
-          padding={9}
-          selectedAnomalies={selectedAnomalies}
-        />
+        <AnomalyDots baseLaneHeight={10} padding={9} />
       </Box>
       <Box style={{ paddingLeft: "80px", paddingRight: "40px" }}>
-        <DateTimeLabels
-          minTime={timestampValues[0]}
-          maxTime={timestampValues[timestampValues.length - 1]}
-          padding={9}
-        />
+        <DateTimeLabels padding={9} />
       </Box>
     </Box>
   );
