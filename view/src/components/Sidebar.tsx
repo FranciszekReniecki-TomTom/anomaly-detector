@@ -25,12 +25,10 @@ function subtractMonths(date: Date, months: number) {
   return d;
 }
 
-interface SidebarProps {
-  selectedPolygon: any;
-}
+interface SidebarProps {}
 
-function Sidebar({ selectedPolygon }: SidebarProps) {
-  const { mode, setMode } = useAppContext();
+function Sidebar({}: SidebarProps) {
+  const { mode, setMode, selectedPolygon } = useAppContext();
 
   const [startDay, setStartDay] = useState<Date>(new Date("2025-01-01T00:00"));
   const [endDay, setEndDay] = useState<Date>(new Date("2025-02-01T00:00"));
