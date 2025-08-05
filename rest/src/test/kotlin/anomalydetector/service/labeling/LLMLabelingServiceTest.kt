@@ -14,7 +14,7 @@ class LLMLabelingServiceTest {
                 "Poland",
                 "Zdunska Wola",
                 listOf("Zapolice", "Paprotnia"),
-                LocalDateTime.parse("2021-06-14T14:00:00")
+                LocalDateTime.parse("2020-06-14T14:00:00")
             ),
         )
 
