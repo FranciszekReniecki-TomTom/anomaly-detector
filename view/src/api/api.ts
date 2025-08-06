@@ -12,7 +12,7 @@ export async function fetchAnomalyData({
   dataType,
 }: FetchAnomalyDataParams): Promise<any> {
   // Return anomalies.json for now
-  const response = await fetch("/.env/anomalies.json");
+  const response = await fetch("/mock-data/anomalies.json");
   if (!response.ok) {
     throw new Error(`Error fetching anomaly data: ${response.statusText}`);
   }
