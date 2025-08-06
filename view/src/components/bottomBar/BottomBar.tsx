@@ -26,9 +26,9 @@ export default function BottomBar() {
       <Box
         style={{
           overflowY: "hidden",
-          height: "60px",
+          height: "50px",
           paddingLeft: "80px",
-          paddingRight: "40px",
+          paddingRight: "55px",
         }}
       >
         <TimeSlider />

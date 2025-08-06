@@ -39,9 +39,27 @@ function AnomalyDots({ baseLaneHeight, padding }: AnomalyDotsProps) {
   const gridLines = useMemo(() => {
     if (!width || timestamps.length === 0) return [];
 
+    const calculateOptimalInterval = () => {
+      const totalHours = (maxTime - minTime) / (1000 * 60 * 60);
+      const availableWidth = width - padding * 2;
+      const minLineSpacing = 40;
+      const maxLines = Math.floor(availableWidth / minLineSpacing);
+
+      const rawInterval = totalHours / maxLines;
+
+      return Math.ceil(rawInterval);
+    };
+
     const lines: React.ReactElement[] = [];
+    const hourInterval = calculateOptimalInterval();
+
     const startHour = new Date(minTime);
     startHour.setMinutes(0, 0, 0);
+    const startHourOfDay = startHour.getHours();
+    const alignedStartHour =
+      Math.floor(startHourOfDay / hourInterval) * hourInterval;
+    startHour.setHours(alignedStartHour);
+
     const endHour = new Date(maxTime);
     endHour.setMinutes(59, 59, 999);
 
@@ -69,11 +87,11 @@ function AnomalyDots({ baseLaneHeight, padding }: AnomalyDotsProps) {
           />
         );
       }
-      currentHour.setHours(currentHour.getHours() + 1);
+      currentHour.setHours(currentHour.getHours() + hourInterval);
       index++;
     }
     return lines;
-  }, [width, timestamps.length, minTime, maxTime, getLeftPercent]);
+  }, [width, timestamps.length, minTime, maxTime, getLeftPercent, padding]);
 
   const anomalyLabels = useMemo(() => {
     const labels: React.ReactElement[] = [];

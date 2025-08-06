@@ -23,11 +23,28 @@ function DateTimeLabels({ padding }: DateTimeLabelsProps) {
     return <Box ref={containerRef} style={{ width: "100%" }} />;
   }
 
+  const calculateOptimalInterval = () => {
+    const totalHours = (maxTime - minTime) / (1000 * 60 * 60);
+    const availableWidth = width - padding * 2;
+    const minLabelWidth = 40;
+    const maxLabels = Math.floor(availableWidth / minLabelWidth);
+
+    const rawInterval = totalHours / maxLabels;
+
+    return Math.ceil(rawInterval);
+  };
+
   const generateDateLabels = () => {
     const labels: React.ReactElement[] = [];
+    const hourInterval = calculateOptimalInterval();
 
     const startHour = new Date(minTime);
     startHour.setMinutes(0, 0, 0);
+    const startHourOfDay = startHour.getHours();
+    const alignedStartHour =
+      Math.floor(startHourOfDay / hourInterval) * hourInterval;
+    startHour.setHours(alignedStartHour);
+
     const endHour = new Date(maxTime);
     endHour.setMinutes(59, 59, 999);
 
@@ -74,7 +91,7 @@ function DateTimeLabels({ padding }: DateTimeLabelsProps) {
         );
       }
 
-      currentHour.setHours(currentHour.getHours() + 1);
+      currentHour.setHours(currentHour.getHours() + hourInterval);
       index++;
     }
 
