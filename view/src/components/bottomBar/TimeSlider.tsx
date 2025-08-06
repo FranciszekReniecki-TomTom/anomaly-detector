@@ -44,9 +44,9 @@ export default function TimeSlider() {
 
   return (
     <>
-      <Label style={{ display: "block", marginBottom: 18 }}>Select time:</Label>
+   
 
-      <Box ref={containerRef} style={{ position: "relative", width: "100%" }}>
+      <Box ref={containerRef} style={{ position: "relative", width: "100%", marginTop:30 }}>
         <Box
           style={{
             position: "absolute",
