@@ -1,6 +1,5 @@
 package anomalydetector.model.engine
 
-import anomalydetector.model.TrafficTileHour
 import kotlin.math.abs
 import kotlin.math.pow
 import smile.clustering.DBSCAN
@@ -11,20 +10,20 @@ import smile.neighbor.KDTree
 import smile.plot.swing.Canvas
 import smile.plot.swing.ScatterPlot
 
-internal fun drawAnomalies(anomalies: List<List<TrafficTileHour>>) {
-    val points: Array<DoubleArray> =
-        anomalies
-            .withIndex()
-            .map { (i, tthList) ->
-                tthList
-                    .map { it.geoTime() + i.toDouble() }
-                    .filter { it[3] != Int.MAX_VALUE.toDouble() }
-            }
-            .flatten()
-            .toTypedArray()
-
-    draw3DScatter(points)
-}
+// internal fun drawAnomalies(anomalies: List<List<TrafficTileHour>>) {
+//    val points: Array<DoubleArray> =
+//        anomalies
+//            .withIndex()
+//            .map { (i, tthList) ->
+//                tthList
+//                    .map { it.geoTime() + i.toDouble() }
+//                    .filter { it[3] != Int.MAX_VALUE.toDouble() }
+//            }
+//            .flatten()
+//            .toTypedArray()
+//
+//    draw3DScatter(points)
+// }
 
 internal fun draw3DScatter(points: Array<DoubleArray>) {
     val df =
