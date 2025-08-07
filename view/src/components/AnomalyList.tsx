@@ -20,18 +20,24 @@ function AnomalyList() {
           $border="1u solid --neutral"
           $padding="10px"
           key={id}
-          style={{ display: "flex", alignItems: "center", marginBottom: 4 }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: 4,
+            cursor: "pointer",
+          }}
           onClick={() => setSelectedAnomalyForModal(id)}
-          
         >
-          <Box>
+          <Box onClick={(e) => e.stopPropagation()}>
             <Checkbox
               checked={selectedAnomalies.has(id)}
               onChange={() => toggleAnomaly(id)}
               style={{ marginRight: 8 }}
             />
           </Box>
-          <Label>{id}</Label>
+          <Box>
+            <Label>{id}</Label>
+          </Box>
         </Box>
       ))}
 
