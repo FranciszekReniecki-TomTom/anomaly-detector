@@ -47,7 +47,7 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
   return (
     <Modal isOpen={true}>
       <Box style={{ padding: 16 }}>
-        <Heading style={{ marginBottom: 16 }}>
+        <Heading level={3} style={{ marginBottom: 16 }}>
           Anomaly Details: {selectedAnomalyDetails.anomalyId}
         </Heading>
         <Text style={{ marginBottom: 12 }}>
