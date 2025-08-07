@@ -30,7 +30,6 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
                 .bodyToMono(String::class.java)
                 .awaitSingle()
 
-
         return parseFromString(response)
     }
 
@@ -39,20 +38,18 @@ class ReverseGeoCodeService(builder: WebClient.Builder) {
         val parsed = json.decodeFromString<TomTomResponse>(response)
 
         val firstAddress = parsed.addresses.firstOrNull()?.jsonObject
-        val addressObj = firstAddress?.get("address")?.jsonObject
-            ?: throw AddressNotFoundException("Address not found in response")
+        val addressObj =
+            firstAddress?.get("address")?.jsonObject
+                ?: throw AddressNotFoundException("Address not found in response")
 
         val municipality = addressObj["municipality"]?.jsonPrimitive?.contentOrNull ?: "Unknown"
         val country = addressObj["country"]?.jsonPrimitive?.contentOrNull ?: "Unknown"
         val street = addressObj["street"]?.jsonPrimitive?.contentOrNull ?: "Unknown"
 
-
         return ReverseGeoCodeResponse(country, municipality, listOf(street))
     }
 
-    @Serializable
-    data class TomTomResponse(val summary: Summary, val addresses: List<JsonElement>)
+    @Serializable data class TomTomResponse(val summary: Summary, val addresses: List<JsonElement>)
 
-    @Serializable
-    data class Summary(val queryTime: Int, val numResults: Int)
+    @Serializable data class Summary(val queryTime: Int, val numResults: Int)
 }

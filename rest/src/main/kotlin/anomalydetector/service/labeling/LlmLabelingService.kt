@@ -94,7 +94,6 @@ class LlmLabelingService(builder: WebClient.Builder) {
                 .bodyToMono(String::class.java)
                 .awaitSingle()
 
-
         return parseResponse(response)
     }
 
@@ -130,14 +129,12 @@ class LlmLabelingService(builder: WebClient.Builder) {
         val messages: List<Message>,
         val response_format: ResponseFormat,
     ) {
-        @Serializable
-        data class Message(val role: String, val content: String)
+        @Serializable data class Message(val role: String, val content: String)
     }
 
     @Serializable
     data class ResponseFormat(val type: String, val json_schema: JsonSchemaWrapper) {
-        @Serializable
-        data class JsonSchemaWrapper(val name: String, val schema: JsonSchema)
+        @Serializable data class JsonSchemaWrapper(val name: String, val schema: JsonSchema)
 
         @Serializable
         data class JsonSchema(
@@ -147,7 +144,6 @@ class LlmLabelingService(builder: WebClient.Builder) {
             val additionalProperties: Boolean = false,
         )
 
-        @Serializable
-        data class JsonProperty(val type: String)
+        @Serializable data class JsonProperty(val type: String)
     }
 }
