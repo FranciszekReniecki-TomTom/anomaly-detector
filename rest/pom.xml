@@ -14,7 +14,7 @@
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
         <kotlin.version>2.2.0</kotlin.version>
         <kotlinx.version>1.10.2</kotlinx.version>
-        <kotlinx.serialization.version>1.5.1</kotlinx.serialization.version>
+        <kotlinx.serialization.version>1.9.0</kotlinx.serialization.version>
         <org.junit.jupiter>5.10.0</org.junit.jupiter>
         <org.springdoc>2.8.9</org.springdoc>
         <jackson.module.kotlin.version>2.19.1</jackson.module.kotlin.version>
@@ -136,14 +136,9 @@
             <version>${kotlinx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-maven-serialization</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-maven-allopen</artifactId>
-            <version>${kotlin.version}</version>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-core-jvm</artifactId>
+            <version>${kotlinx.serialization.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
