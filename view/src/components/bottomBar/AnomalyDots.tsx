@@ -116,7 +116,7 @@ function AnomalyDots({ baseLaneHeight, padding }: AnomalyDotsProps) {
             color: labelColor,
             whiteSpace: "nowrap",
             pointerEvents: "none",
-            zIndex: 10,
+            zIndex: 2,
             textAlign: "right",
             paddingRight: 8,
           }}
@@ -164,7 +164,7 @@ function AnomalyDots({ baseLaneHeight, padding }: AnomalyDotsProps) {
               height: 1,
               backgroundColor: lineColor,
               pointerEvents: "none",
-              zIndex: 50,
+              zIndex: 3,
             }}
           />
         );
@@ -206,7 +206,7 @@ function AnomalyDots({ baseLaneHeight, padding }: AnomalyDotsProps) {
           pointerEvents: "none",
           borderRadius: 1,
           boxShadow: "0 0 4px 2px hsla(200, 100%, 68%, 0.6)",
-          zIndex: 9999,
+          zIndex: 10,
         }}
       />
 
@@ -233,7 +233,7 @@ function AnomalyDots({ baseLaneHeight, padding }: AnomalyDotsProps) {
               backgroundColor: dotColor,
               cursor: "default",
               transform: "translate(-50%, -50%)",
-              zIndex: 100,
+              zIndex: 4,
             }}
           />
         );
