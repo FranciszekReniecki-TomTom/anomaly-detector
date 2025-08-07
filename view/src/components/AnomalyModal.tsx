@@ -80,21 +80,22 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
     >
       <Box $padding="24px" $width="500px">
         <Label
-          style={{ marginBottom: 16, fontSize: "18px", fontWeight: "bold" }}
+          $marginBottom="16px"
+          style={{ fontSize: "18px", fontWeight: "bold" }}
         >
           Anomaly Details: {selectedAnomalyDetails.anomalyId}
         </Label>
-        <Text style={{ marginBottom: 12 }}>
+        <Text $marginBottom="12px">
           <strong>Anomaly ID:</strong> {selectedAnomalyDetails.anomalyId}
         </Text>
-        <Text style={{ marginBottom: 12 }}>
+        <Text $marginBottom="12px">
           <strong>Report ID:</strong> {selectedAnomalyDetails.reportId}
         </Text>
-        <Text style={{ marginBottom: 12 }}>
+        <Text $marginBottom="12px">
           <strong>Number of features:</strong>{" "}
           {selectedAnomalyDetails.featureCount}
         </Text>
-        <Text style={{ marginBottom: 12 }}>
+        <Text $marginBottom="12px">
           <strong>Time range:</strong>
           <br />
           From:{" "}
@@ -102,20 +103,22 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
           <br />
           To: {new Date(selectedAnomalyDetails.lastTimestamp).toLocaleString()}
         </Text>
-        <Text style={{ marginBottom: 12 }}>
+        <Text $marginBottom="12px">
           <strong>All timestamps:</strong>
           <Box
-            style={{
-              maxHeight: 200,
-              overflowY: "auto",
-              border: "1px solid #ccc",
-              padding: 8,
-              marginTop: 4,
-            }}
+            $maxHeight="200px"
+            $overflowY="auto"
+            $border="1px solid #ccc"
+            $padding="8px"
+            $marginTop="4px"
           >
             {selectedAnomalyDetails.timestamps.map(
               (timestamp: string, index: number) => (
-                <Text key={index} style={{ fontSize: "12px", marginBottom: 2 }}>
+                <Text
+                  key={index}
+                  $marginBottom="2px"
+                  style={{ fontSize: "12px" }}
+                >
                   {new Date(timestamp).toLocaleString()}
                 </Text>
               )
@@ -129,17 +132,15 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
 
         {anomalyInfo && (
           <Box
-            style={{
-              marginTop: 20,
-              padding: 12,
-              border: "1px solid #ddd",
-              borderRadius: 4,
-              backgroundColor: "#f9f9f9",
-              maxHeight: 180,
-              overflowY: "auto",
-            }}
+            $marginTop="20px"
+            $padding="12px"
+            $border="1px solid #ddd"
+            $borderRadius="4px"
+            $backgroundColor="#f9f9f9"
+            $maxHeight="180px"
+            $overflowY="auto"
           >
-            <Label style={{ marginBottom: 8, fontWeight: "bold" }}>
+            <Label $marginBottom="8px" style={{ fontWeight: "bold" }}>
               Analysis Results
             </Label>
             <Text style={{ whiteSpace: "pre-line" }}>{anomalyInfo}</Text>

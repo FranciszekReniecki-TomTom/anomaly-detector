@@ -20,7 +20,7 @@ function DateTimeLabels({ padding }: DateTimeLabelsProps) {
     (padding / width) * 100;
 
   if (!width) {
-    return <Box ref={containerRef} style={{ width: "100%" }} />;
+    return <Box ref={containerRef} $width="100%" />;
   }
 
   const calculateOptimalInterval = () => {
