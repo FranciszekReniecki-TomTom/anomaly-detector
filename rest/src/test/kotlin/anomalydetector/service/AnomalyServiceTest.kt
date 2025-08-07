@@ -4,22 +4,24 @@ import anomalydetector.dto.AnomalyLabelRequestDto
 import anomalydetector.service.labeling.GeoTime
 import anomalydetector.service.labeling.LlmLabelingService
 import anomalydetector.service.labeling.ReverseGeoCodeService
-import kotlinx.serialization.json.Json
-import org.springframework.web.reactive.function.client.WebClient
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.serialization.json.Json
+import org.springframework.web.reactive.function.client.WebClient
 
 class AnomalyServiceTest {
 
     @Test
     fun `given geojson retrieves geoTime`() {
-        val service = AnomalyService(
-            reverseGeoCodeService = ReverseGeoCodeService(WebClient.builder()),
-            llmLabelingService = LlmLabelingService(WebClient.builder())
-        )
+        val service =
+            AnomalyService(
+                reverseGeoCodeService = ReverseGeoCodeService(WebClient.builder()),
+                llmLabelingService = LlmLabelingService(WebClient.builder()),
+            )
 
-        val geojson = """
+        val geojson =
+            """
         {    
           "type": "FeatureCollection",
           "features": [
@@ -52,9 +54,6 @@ class AnomalyServiceTest {
 
         val geoTimePoints: List<GeoTime> = service.retrieveGeoTimePoints(requestDto)
 
-
-        assertEquals(
-            LocalDateTime.of(2025, 1, 1, 0, 0),
-            geoTimePoints.first().time)
+        assertEquals(LocalDateTime.of(2025, 1, 1, 0, 0), geoTimePoints.first().time)
     }
 }

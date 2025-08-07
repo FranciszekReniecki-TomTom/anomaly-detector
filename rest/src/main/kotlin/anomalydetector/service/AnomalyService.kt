@@ -10,13 +10,13 @@ import anomalydetector.service.labeling.LlmLabelingService
 import anomalydetector.service.labeling.ReverseGeoCodeService
 import anomalydetector.service.trafficdata.getData
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
+import java.time.LocalDateTime
+import kotlin.collections.toTypedArray
 import kotlinx.coroutines.runBlocking
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
-import java.time.LocalDateTime
 import org.springframework.stereotype.Service
-import kotlin.collections.toTypedArray
 
 @Service
 class AnomalyService(
@@ -39,39 +39,45 @@ class AnomalyService(
     fun labelAnomaly(request: AnomalyLabelRequestDto): LabelDto {
         val points: List<GeoTime> = retrieveGeoTimePoints(request)
 
-        val anomalySliceHours: List<AnomalySliceHour> = points.map { geoTime ->
-            runBlocking {
-                val (country, municipality, streets) = reverseGeoCodeService.reverseGeocode(geoTime.lat, geoTime.lon)
-                AnomalySliceHour(
-                    country = country,
-                    municipality = municipality,
-                    streets = streets,
-                    time = geoTime.time
-                )
-            }
-        }.toList()
+        val anomalySliceHours: List<AnomalySliceHour> =
+            points
+                .map { geoTime ->
+                    runBlocking {
+                        val (country, municipality, streets) =
+                            reverseGeoCodeService.reverseGeocode(geoTime.lat, geoTime.lon)
+                        AnomalySliceHour(
+                            country = country,
+                            municipality = municipality,
+                            streets = streets,
+                            time = geoTime.time,
+                        )
+                    }
+                }
+                .toList()
 
         val llmResponse = runBlocking { llmLabelingService.labelUsingLLM(anomalySliceHours) }
 
         return LabelDto(llmResponse.response)
     }
 
-    internal fun retrieveGeoTimePoints(request: AnomalyLabelRequestDto): List<GeoTime> = request.features.map { feature ->
-        val polygon = feature.geometry.coordinates.first().toPolygon()
-        val centroid = polygon.centroid
-        val lat = centroid.y
-        val lon = centroid.x
+    internal fun retrieveGeoTimePoints(request: AnomalyLabelRequestDto): List<GeoTime> =
+        request.features.map { feature ->
+            val polygon = feature.geometry.coordinates.first().toPolygon()
+            val centroid = polygon.centroid
+            val lat = centroid.y
+            val lon = centroid.x
 
-        println("Processing feature with centroid at ($lat, $lon)")
+            println("Processing feature with centroid at ($lat, $lon)")
 
-        val timestamp = feature.properties["timestamp"]
-            ?: throw IllegalArgumentException("Feature must contain a 'timestamp' property")
-        val datetime = LocalDateTime.parse(timestamp.removeSuffix("Z"))
+            val timestamp =
+                feature.properties["timestamp"]
+                    ?: throw IllegalArgumentException("Feature must contain a 'timestamp' property")
+            val datetime = LocalDateTime.parse(timestamp.removeSuffix("Z"))
 
-        println("Parsed timestamp: $datetime")
+            println("Parsed timestamp: $datetime")
 
-        GeoTime(lat, lon, datetime)
-    }
+            GeoTime(lat, lon, datetime)
+        }
 }
 
 private fun List<List<Double>>.toPolygon(
@@ -84,10 +90,10 @@ private fun List<List<Double>>.toPolygon(
     geometryFactory.createPolygon(
         geometryFactory.createLinearRing(
             (if (coordinates.first() != coordinates.last()) {
-                coordinates + listOf(coordinates.first())
-            } else {
-                coordinates
-            })
+                    coordinates + listOf(coordinates.first())
+                } else {
+                    coordinates
+                })
                 .map { (lat, lon) -> Coordinate(lon, lat) }
                 .toTypedArray<Coordinate>()
         ),
