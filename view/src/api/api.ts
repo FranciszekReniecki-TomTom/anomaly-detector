@@ -5,6 +5,11 @@ export interface FetchAnomalyDataParams {
   dataType: string;
 }
 
+export interface FetchAnomalyInfoParams {
+  anomalyId: string;
+  features: any[];
+}
+
 export async function fetchAnomalyData({
   startDay,
   endDay,
@@ -31,4 +36,25 @@ export async function fetchAnomalyData({
   //   }
   //   const data = await response.json();
   //   return data;
+}
+
+export async function fetchAnomalyInfo({
+  anomalyId,
+  features,
+}: FetchAnomalyInfoParams): Promise<string> {
+  try {
+    // mock the response with a delayed Promise
+    const mockApiResponse = await new Promise<string>((resolve) => {
+      setTimeout(() => {
+        resolve(
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        );
+      }, 1500);
+    });
+
+    return mockApiResponse;
+  } catch (error) {
+    console.error("Error fetching anomaly info:", error);
+    return "Failed to retrieve anomaly information. Please try again later.";
+  }
 }
