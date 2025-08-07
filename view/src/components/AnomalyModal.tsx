@@ -1,6 +1,7 @@
-import React from "react";
-import { Modal, Button, Box, Label, Text, Heading } from "tombac";
+import React, { useState } from "react";
+import { Modal, Button, Box, Label, Text } from "tombac";
 import { useAppContext } from "../AppContext";
+import { fetchAnomalyInfo } from "../api/api";
 
 interface AnomalyModalProps {
   selectedAnomalyId: string | null;
@@ -9,6 +10,8 @@ interface AnomalyModalProps {
 
 function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
   const { anomalyGeoJson } = useAppContext();
+  const [anomalyInfo, setAnomalyInfo] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getAnomalyDetails = (anomalyId: string) => {
     if (!anomalyGeoJson?.features) return null;
@@ -44,17 +47,48 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
     return null;
   }
 
+  const handleFindInformation = async () => {
+    if (!selectedAnomalyDetails) return;
+
+    setIsLoading(true);
+    try {
+      const anomalyFeatures = anomalyGeoJson.features.filter(
+        (feature: any) => feature.properties.anomaly_id === selectedAnomalyId
+      );
+
+      const info = await fetchAnomalyInfo({
+        anomalyId: selectedAnomalyId,
+        features: anomalyFeatures,
+      });
+
+      setAnomalyInfo(info);
+    } catch (error) {
+      console.error("Error fetching anomaly info:", error);
+      setAnomalyInfo(
+        "Failed to retrieve anomaly information. Please try again later."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Modal isOpen={true}>
       <Box style={{ padding: 16 }}>
-        <Heading level={3} style={{ marginBottom: 16 }}>
+        <Label
+          style={{ marginBottom: 16, fontSize: "18px", fontWeight: "bold" }}
+        >
           Anomaly Details: {selectedAnomalyDetails.anomalyId}
-        </Heading>
+        </Label>
         <Text style={{ marginBottom: 12 }}>
           <strong>Anomaly ID:</strong> {selectedAnomalyDetails.anomalyId}
         </Text>
         <Text style={{ marginBottom: 12 }}>
           <strong>Report ID:</strong> {selectedAnomalyDetails.reportId}
+        </Text>
+        <Text style={{ marginBottom: 12 }}>
+          <strong>Number of features:</strong>{" "}
+          {selectedAnomalyDetails.featureCount}
         </Text>
         <Text style={{ marginBottom: 12 }}>
           <strong>Time range:</strong>
@@ -84,7 +118,30 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
             )}
           </Box>
         </Text>
-        <Button onClick={onClose}>Close</Button>
+
+        <Box style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+          <Button onClick={handleFindInformation} disabled={isLoading}>
+            {isLoading ? "Loading..." : "Find Information"}
+          </Button>
+          <Button onClick={onClose}>Close</Button>
+        </Box>
+
+        {anomalyInfo && (
+          <Box
+            style={{
+              marginTop: 20,
+              padding: 12,
+              border: "1px solid #ddd",
+              borderRadius: 4,
+              backgroundColor: "#f9f9f9",
+            }}
+          >
+            <Label style={{ marginBottom: 8, fontWeight: "bold" }}>
+              Analysis Results
+            </Label>
+            <Text style={{ whiteSpace: "pre-line" }}>{anomalyInfo}</Text>
+          </Box>
+        )}
       </Box>
     </Modal>
   );
