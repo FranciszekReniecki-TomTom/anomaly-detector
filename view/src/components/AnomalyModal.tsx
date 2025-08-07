@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button, Box } from "tombac";
+import { Modal, Button, Box, Label, Text, Heading } from "tombac";
 import { useAppContext } from "../AppContext";
 
 interface AnomalyModalProps {
@@ -47,28 +47,24 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
   return (
     <Modal isOpen={true}>
       <Box style={{ padding: 16 }}>
-        <Box style={{ marginBottom: 16, fontSize: "18px", fontWeight: "bold" }}>
+        <Heading style={{ marginBottom: 16 }}>
           Anomaly Details: {selectedAnomalyDetails.anomalyId}
-        </Box>
-        <Box style={{ marginBottom: 12 }}>
+        </Heading>
+        <Text style={{ marginBottom: 12 }}>
           <strong>Anomaly ID:</strong> {selectedAnomalyDetails.anomalyId}
-        </Box>
-        <Box style={{ marginBottom: 12 }}>
+        </Text>
+        <Text style={{ marginBottom: 12 }}>
           <strong>Report ID:</strong> {selectedAnomalyDetails.reportId}
-        </Box>
-        <Box style={{ marginBottom: 12 }}>
-          <strong>Number of features:</strong>{" "}
-          {selectedAnomalyDetails.featureCount}
-        </Box>
-        <Box style={{ marginBottom: 12 }}>
+        </Text>
+        <Text style={{ marginBottom: 12 }}>
           <strong>Time range:</strong>
           <br />
           From:{" "}
           {new Date(selectedAnomalyDetails.firstTimestamp).toLocaleString()}
           <br />
           To: {new Date(selectedAnomalyDetails.lastTimestamp).toLocaleString()}
-        </Box>
-        <Box style={{ marginBottom: 12 }}>
+        </Text>
+        <Text style={{ marginBottom: 12 }}>
           <strong>All timestamps:</strong>
           <Box
             style={{
@@ -81,13 +77,13 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
           >
             {selectedAnomalyDetails.timestamps.map(
               (timestamp: string, index: number) => (
-                <div key={index} style={{ fontSize: "12px", marginBottom: 2 }}>
+                <Text key={index} style={{ fontSize: "12px", marginBottom: 2 }}>
                   {new Date(timestamp).toLocaleString()}
-                </div>
+                </Text>
               )
             )}
           </Box>
-        </Box>
+        </Text>
         <Button onClick={onClose}>Close</Button>
       </Box>
     </Modal>
