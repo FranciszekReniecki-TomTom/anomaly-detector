@@ -83,6 +83,7 @@ private suspend fun getDay(
             .aggregateRoads()
 
     val groupped = aggregateRoads.groupBy { it.id }
+    println("Number of tiles in groupped: ${groupped.size}")
     //    val poly: List<Geometry> = groupped.keys.map { it -> tileToGeometry(it) }
     //    val factory = GeometryFactory().createGeometryCollection(poly.toTypedArray())
     return aggregateRoads
