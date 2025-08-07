@@ -73,8 +73,12 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
   };
 
   return (
-    <Modal isOpen={true}>
-      <Box style={{ padding: 16 }}>
+    <Modal
+      isOpen={true}
+      onRequestClose={onClose}
+      shouldCloseOnOverlayClick={true}
+    >
+      <Box $padding="24px" $width="500px">
         <Label
           style={{ marginBottom: 16, fontSize: "18px", fontWeight: "bold" }}
         >
@@ -119,12 +123,9 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
           </Box>
         </Text>
 
-        <Box style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-          <Button onClick={handleFindInformation} disabled={isLoading}>
-            {isLoading ? "Loading..." : "Find Information"}
-          </Button>
-          <Button onClick={onClose}>Close</Button>
-        </Box>
+        <Button onClick={handleFindInformation} disabled={isLoading}>
+          {isLoading ? "Loading..." : "Find Information"}
+        </Button>
 
         {anomalyInfo && (
           <Box
@@ -134,6 +135,8 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
               border: "1px solid #ddd",
               borderRadius: 4,
               backgroundColor: "#f9f9f9",
+              maxHeight: 180,
+              overflowY: "auto",
             }}
           >
             <Label style={{ marginBottom: 8, fontWeight: "bold" }}>
