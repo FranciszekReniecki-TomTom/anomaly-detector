@@ -5,6 +5,9 @@ import anomalydetector.dto.AnomalyRequestDto
 import anomalydetector.dto.LabelDto
 import anomalydetector.dto.ReportDto
 import anomalydetector.service.AnomalyService
+import anomalydetector.dto.LabelDto
+import anomalydetector.service.AnomalyService
+import anomalydetector.service.FeatureCollection
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
