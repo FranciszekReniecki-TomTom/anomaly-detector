@@ -17,29 +17,21 @@ function AnomalyList() {
     <div>
       {anomalyIds.map((id: string) => (
         <Box
+          $border="1u solid --neutral"
+          $padding="10px"
           key={id}
           style={{ display: "flex", alignItems: "center", marginBottom: 4 }}
+          onClick={() => setSelectedAnomalyForModal(id)}
+          
         >
-          <Label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flex: 1,
-              cursor: "pointer",
-            }}
-          >
+          <Box>
             <Checkbox
               checked={selectedAnomalies.has(id)}
               onChange={() => toggleAnomaly(id)}
               style={{ marginRight: 8 }}
             />
-            <span
-              onClick={() => setSelectedAnomalyForModal(id)}
-              style={{ textDecoration: "underline", cursor: "pointer" }}
-            >
-              {id}
-            </span>
-          </Label>
+          </Box>
+          <Label>{id}</Label>
         </Box>
       ))}
 
