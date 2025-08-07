@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 @Service
-class LLMLabelingService(builder: WebClient.Builder) {
+class LlmLabelingService(builder: WebClient.Builder) {
     private val apiKey: String = Dotenv.load()["GROQ_API_KEY"]
     private val webClient =
         builder
@@ -65,7 +65,7 @@ class LLMLabelingService(builder: WebClient.Builder) {
                 ),
         )
 
-    suspend fun labelUsingLLM(anomalySliceHours: List<AnomalySliceHour>): LLMLabelResponse {
+    suspend fun labelUsingLLM(anomalySliceHours: List<AnomalySliceHour>): LlmLabelResponse {
         val userPrompt =
             anomalySliceHours.joinToString("\n") {
                 "[${it.country}, ${it.municipality}, [${it.streets.joinToString(", ")}], ${it.time}]"
@@ -98,7 +98,7 @@ class LLMLabelingService(builder: WebClient.Builder) {
         return parseResponse(response)
     }
 
-    private fun parseResponse(response: String): LLMLabelResponse {
+    private fun parseResponse(response: String): LlmLabelResponse {
         println("json response: ${Json.encodeToString(response)}")
 
         val json = Json { ignoreUnknownKeys = true }
@@ -121,7 +121,7 @@ class LLMLabelingService(builder: WebClient.Builder) {
                 ?: throw IllegalStateException("LLM response does not contain 'llmResponse' field")
         println(llmResponse)
 
-        return LLMLabelResponse(llmResponse)
+        return LlmLabelResponse(llmResponse)
     }
 
     @Serializable

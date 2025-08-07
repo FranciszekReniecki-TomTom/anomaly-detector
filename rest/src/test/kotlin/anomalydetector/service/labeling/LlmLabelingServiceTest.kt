@@ -5,10 +5,10 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 
-class LLMLabelingServiceTest {
+class LlmLabelingServiceTest {
     @Test
     fun `llmLabeling should return valid response`() {
-        val service = LLMLabelingService(WebClient.builder())
+        val service = LlmLabelingService(WebClient.builder())
         val anomalySliceHours =
             listOf(
                 AnomalySliceHour(
