@@ -15,8 +15,8 @@ const topBarStyle = {
 function TopBar() {
   return (
     <Box style={topBarStyle}>
-      <Box style={{ width: 200, height: 40, padding: 20 }}>
-        <TomTomLogo scale={1}/>
+      <Box $width="200px" $height="40px" $padding="20px">
+        <TomTomLogo scale={1} />
       </Box>
       <Box />
       <Text>Anomaly Detection</Text>
