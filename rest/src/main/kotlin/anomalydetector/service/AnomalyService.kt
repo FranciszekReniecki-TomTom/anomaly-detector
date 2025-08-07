@@ -54,8 +54,8 @@ class AnomalyService(
         }.toList()
 
 
-        val llmResponse = llmLabelingService.labelUsingLLM(anomalySliceHours)
+        val llmResponse = runBlocking { llmLabelingService.labelUsingLLM(anomalySliceHours) }
 
-        return LabelDto("dupa")
+        return LabelDto(llmResponse.response)
     }
 }
