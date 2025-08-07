@@ -43,16 +43,25 @@ export async function fetchAnomalyInfo({
   features,
 }: FetchAnomalyInfoParams): Promise<string> {
   try {
-    // mock the response with a delayed Promise
-    const mockApiResponse = await new Promise<string>((resolve) => {
-      setTimeout(() => {
-        resolve(
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-        );
-      }, 1500);
+    const featureCollection = {
+      type: "FeatureCollection",
+      features: features,
+    };
+
+    const response = await fetch("http://localhost:8080/anomaly/label", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(featureCollection),
     });
 
-    return mockApiResponse;
+    if (!response.ok) {
+      throw new Error(`Error fetching anomaly info: ${response.statusText}`);
+    }
+
+    const data = await response.text();
+    return data;
   } catch (error) {
     console.error("Error fetching anomaly info:", error);
     return "Failed to retrieve anomaly information. Please try again later.";
