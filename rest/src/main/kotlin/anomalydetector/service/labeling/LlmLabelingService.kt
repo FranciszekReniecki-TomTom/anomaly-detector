@@ -48,10 +48,10 @@ class LlmLabelingService(builder: WebClient.Builder) {
                         affecting center of the city. Local news reported a major collision involving multiple vehicles, 
                         leading to road closures and delays. For more details, see [http://example.news.com]."
                     """
-    private val responseFormatObject =
+    private val responseFormatObject: ResponseFormat =
         ResponseFormat(
             type = "json_schema",
-            json_schema =
+            jsonSchema =
                 ResponseFormat.JsonSchemaWrapper(
                     name = "LLMLabelingResponse",
                     schema =
@@ -71,7 +71,7 @@ class LlmLabelingService(builder: WebClient.Builder) {
                 "[${it.country}, ${it.municipality}, [${it.streets.joinToString(", ")}], ${it.time}]"
             }
 
-        println(Json.encodeToString(responseFormatObject))
+        //        println(Json.encodeToString(responseFormatObject))
 
         val llmRequest =
             LLMRequest(
@@ -81,7 +81,7 @@ class LlmLabelingService(builder: WebClient.Builder) {
                         LLMRequest.Message(role = "system", content = systemPrompt),
                         LLMRequest.Message(role = "user", content = userPrompt),
                     ),
-                response_format = responseFormatObject,
+                responseFormat = responseFormatObject,
             )
 
         val response: String =
@@ -98,7 +98,7 @@ class LlmLabelingService(builder: WebClient.Builder) {
     }
 
     private fun parseResponse(response: String): LlmLabelResponse {
-        println("json response: ${Json.encodeToString(response)}")
+        //        println("json response: ${Json.encodeToString(response)}")
 
         val json = Json { ignoreUnknownKeys = true }
 
@@ -127,13 +127,13 @@ class LlmLabelingService(builder: WebClient.Builder) {
     data class LLMRequest(
         val model: String,
         val messages: List<Message>,
-        val response_format: ResponseFormat,
+        val responseFormat: ResponseFormat,
     ) {
         @Serializable data class Message(val role: String, val content: String)
     }
 
     @Serializable
-    data class ResponseFormat(val type: String, val json_schema: JsonSchemaWrapper) {
+    data class ResponseFormat(val type: String, val jsonSchema: JsonSchemaWrapper) {
         @Serializable data class JsonSchemaWrapper(val name: String, val schema: JsonSchema)
 
         @Serializable
