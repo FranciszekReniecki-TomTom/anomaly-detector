@@ -69,21 +69,17 @@ function Sidebar({}: SidebarProps) {
     <aside style={sidebarStyle}>
       {mode === "drawing" && (
         <Box
-          style={{
-            padding: 16,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 16,
-          }}
+          $padding="16px"
+          $display="flex"
+          $flexDirection="column"
+          $alignItems="center"
+          $gap="16px"
         >
           <Box
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 8,
-            }}
+            $display="flex"
+            $flexDirection="column"
+            $alignItems="center"
+            $gap="8px"
           >
             <Label>Start Date</Label>
             <DatePicker
@@ -95,12 +91,10 @@ function Sidebar({}: SidebarProps) {
             />
           </Box>
           <Box
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 8,
-            }}
+            $display="flex"
+            $flexDirection="column"
+            $alignItems="center"
+            $gap="8px"
           >
             <Label>End Date</Label>
             <DatePicker
@@ -118,12 +112,12 @@ function Sidebar({}: SidebarProps) {
       )}
       {mode === "viewing" && (
         <>
-          <Box style={{ padding: 16, borderBottom: "1px solid #eee" }}>
+          <Box $padding="16px" $borderBottom="1px solid #eee">
             <Button onClick={() => setMode("drawing")}>
               <Label>Back to Drawing</Label>
             </Button>
           </Box>
-          <Box style={{ flex: 1, overflow: "auto", padding: 16 }}>
+          <Box $flex="1" $overflow="auto" $padding="16px">
             <AnomalyList />
           </Box>
         </>

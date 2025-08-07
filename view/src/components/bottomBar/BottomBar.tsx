@@ -24,27 +24,23 @@ export default function BottomBar() {
   return (
     <Box style={bottomBarStyle}>
       <Box
-        style={{
-          overflowY: "hidden",
-          height: "50px",
-          paddingLeft: "80px",
-          paddingRight: "55px",
-        }}
+        $overflowY="hidden"
+        $height="50px"
+        $paddingLeft="80px"
+        $paddingRight="55px"
       >
         <TimeSlider />
       </Box>
       <Box
-        style={{
-          height: "160px",
-          overflowY: "auto",
-          marginTop: 8,
-          paddingLeft: "80px",
-          paddingRight: "40px",
-        }}
+        $height="160px"
+        $overflowY="auto"
+        $marginTop="8px"
+        $paddingLeft="80px"
+        $paddingRight="40px"
       >
         <AnomalyDots baseLaneHeight={10} padding={9} />
       </Box>
-      <Box style={{ paddingLeft: "80px", paddingRight: "40px" }}>
+      <Box $paddingLeft="80px" $paddingRight="40px">
         <DateTimeLabels padding={9} />
       </Box>
     </Box>
