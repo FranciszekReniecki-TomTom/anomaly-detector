@@ -6,7 +6,7 @@ import anomalydetector.dto.LabelDto
 import anomalydetector.dto.ReportDto
 import anomalydetector.service.labeling.AnomalySliceHour
 import anomalydetector.service.labeling.GeoTime
-import anomalydetector.service.labeling.LLMLabelingService
+import anomalydetector.service.labeling.LlmLabelingService
 import anomalydetector.service.labeling.ReverseGeoCodeService
 import anomalydetector.service.trafficdata.getData
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 @Service
 class AnomalyService(
     private val reverseGeoCodeService: ReverseGeoCodeService,
-    private val llmLabelingService: LLMLabelingService,
+    private val llmLabelingService: LlmLabelingService,
 ) {
     fun detectAnomaly(anomalyRequestDto: AnomalyRequestDto): ReportDto {
         val trafficData =
