@@ -1,6 +1,5 @@
 package anomalydetector.service.labeling
 
-import io.github.cdimascio.dotenv.Dotenv
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -14,8 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 @Service
-class LlmLabelingService(builder: WebClient.Builder) {
-    private val apiKey: String = Dotenv.load()["GROQ_API_KEY"]
+class LlmLabelingService(private val apiKey: String, builder: WebClient.Builder) {
     private val webClient =
         builder
             .baseUrl("https://api.groq.com/openai/v1/chat/completions")
@@ -48,7 +46,7 @@ class LlmLabelingService(builder: WebClient.Builder) {
                         affecting center of the city. Local news reported a major collision involving multiple vehicles, 
                         leading to road closures and delays. For more details, see [http://example.news.com]."
                     """
-    private val responseFormatObject: ResponseFormat =
+    private val responseFormatObject =
         ResponseFormat(
             type = "json_schema",
             json_schema =
