@@ -17,16 +17,16 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
     if (!anomalyGeoJson?.features) return null;
 
     const anomalyFeatures = anomalyGeoJson.features.filter(
-      (feature: any) => feature.properties.anomaly_id === anomalyId
+      (feature: any) => feature.properties.classId.toString() === anomalyId
     );
 
     if (anomalyFeatures.length === 0) return null;
 
     const firstFeature = anomalyFeatures[0];
-    const reportId = firstFeature.properties.report_id;
+    const reportId = "N/A"; // JSON doesn't contain report_id
 
     const timestamps = anomalyFeatures
-      .map((f: any) => f.properties.timestamp)
+      .map((f: any) => f.properties.time)
       .sort();
 
     return {
@@ -53,7 +53,8 @@ function AnomalyModal({ selectedAnomalyId, onClose }: AnomalyModalProps) {
     setIsLoading(true);
     try {
       const anomalyFeatures = anomalyGeoJson.features.filter(
-        (feature: any) => feature.properties.anomaly_id === selectedAnomalyId
+        (feature: any) =>
+          feature.properties.classId.toString() === selectedAnomalyId
       );
 
       const info = await fetchAnomalyInfo({

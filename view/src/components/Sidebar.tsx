@@ -28,7 +28,7 @@ function subtractMonths(date: Date, months: number) {
 interface SidebarProps {}
 
 function Sidebar({}: SidebarProps) {
-  const { mode, setMode, selectedPolygon } = useAppContext();
+  const { mode, setMode, selectedPolygon, updateAnomalyData } = useAppContext();
 
   const [startDay, setStartDay] = useState<Date>(new Date("2025-01-01T00:00"));
   const [endDay, setEndDay] = useState<Date>(new Date("2025-02-01T00:00"));
@@ -49,17 +49,20 @@ function Sidebar({}: SidebarProps) {
       return;
     }
     try {
-      await fetchAnomalyData({
+      const reportData = await fetchAnomalyData({
         startDay: startDay.toISOString().slice(0, 19),
         endDay: endDay.toISOString().slice(0, 19),
         coordinates: selectedPolygon.geometry.coordinates[0],
         dataType: "TOTAL_DISTANCE_M",
       });
+
+      // Update the app with the new anomaly data
+      updateAnomalyData(reportData);
       setMode("viewing");
     } catch (error: any) {
       alert("Failed to generate report: " + error.message);
     }
-  }, [selectedPolygon, startDay, endDay, setMode]);
+  }, [selectedPolygon, startDay, endDay, setMode, updateAnomalyData]);
 
   if (mode !== "viewing" && mode !== "drawing") {
     return null;
