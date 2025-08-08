@@ -60,12 +60,12 @@ class AnomalyService(
                 .takeWhile { !it.isAfter(endTime) }
                 .toList()
 
-        val expectedSize = (allHours.size * minCoverage).toInt()
+        val minimalNumberOfDataPoints: Int = (allHours.size * minCoverage).toInt()
 
         val tileIdToFullTrafficData: Map<Long, List<TrafficTileHour?>> =
             data
                 .groupBy { it.mortonTileId }
-                .filter { (_, tileData) -> tileData.size >= expectedSize }
+                .filter { (_, tileData) -> tileData.size >= minimalNumberOfDataPoints }
                 .mapValues { (_, tileData) ->
                     val byHour: Map<LocalDateTime, TrafficTileHour> =
                         tileData.associateBy { it.trafficMeasurementDateTime }
@@ -81,9 +81,8 @@ class AnomalyService(
                             .map { tile: TrafficTileHour? ->
                                 val trafficOrNull: Traffic? = tile?.traffic
                                 when (dataType) {
-                                    DataType.TOTAL_DISTANCE_M -> trafficOrNull?.speedKmH
-                                    DataType.FREE_FLOW_SPEED_KHM ->
-                                        trafficOrNull?.totalDistanceM?.toDouble()
+                                    DataType.TOTAL_DISTANCE_M -> trafficOrNull?.totalDistanceM?.toDouble()
+                                    DataType.FREE_FLOW_SPEED_KHM -> trafficOrNull?.totalDistanceM?.toDouble()
                                     DataType.SPEED_KHM -> trafficOrNull?.speedKmH
                                 } ?: Double.NaN
                             }
@@ -114,6 +113,11 @@ class AnomalyService(
 
         // List of keys in the same order as the clustering input
         val tileHourKeys: List<Pair<Long, Long>> = tileHourToLonLatHour.keys.toList()
+
+        if (tileHourToLonLatHour.isEmpty()) {
+            println("No outliers found for the given time range and coordinates.")
+            return FeatureCollection(features = emptyList())
+        }
 
         // [[Int]]
         val clusters: List<List<Int>> =
