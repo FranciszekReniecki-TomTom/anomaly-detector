@@ -2,9 +2,9 @@ spring:
   config:
     import: classpath:secrets.yml
   datasource:
-    url: jdbc:postgresql://db:5432/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/${secrets.db-name}
+    username: ${secrets.db-user}
+    password: ${secrets.db-password}
   jpa:
     hibernate:
       ddl-auto: none
@@ -12,4 +12,6 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
-        dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
+  flyway:
+    enabled: false
