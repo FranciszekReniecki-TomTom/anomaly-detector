@@ -16,26 +16,30 @@ export async function fetchAnomalyData({
   coordinates,
   dataType,
 }: FetchAnomalyDataParams): Promise<any> {
-  // Return anomalies.json for now
-  const response = await fetch("/mock-data/anomalies.json");
-  if (!response.ok) {
-    throw new Error(`Error fetching anomaly data: ${response.statusText}`);
-  }
-  const data = await response.json();
-  return data;
+  try {
+    const response = await fetch("http://localhost:8080/anomaly", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        startDay,
+        endDay,
+        polygon: coordinates,
+        dataType,
+      }),
+    });
 
-  //   const response = await fetch("/your-api-endpoint", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({ startDay, endDay, coordinates, dataType }),
-  //   });
-  //   if (!response.ok) {
-  //     throw new Error(`Error fetching anomaly data: ${response.statusText}`);
-  //   }
-  //   const data = await response.json();
-  //   return data;
+    if (!response.ok) {
+      throw new Error(`Error fetching anomaly data: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching anomaly data:", error);
+    throw error;
+  }
 }
 
 export async function fetchAnomalyInfo({

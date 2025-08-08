@@ -3,28 +3,28 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 export function useAnomalyData(): any {
   const [anomalyGeoJson, setAnomalyGeoJson] = useState<any>(null);
 
-  useEffect(() => {
-    fetch("/.env/anomalies.json")
-      .then((res) => res.json())
-      .then(setAnomalyGeoJson)
-      .catch(console.error);
+  // Don't fetch any initial data - wait for user to generate report
+
+  // Function to update anomaly data when report is generated
+  const updateAnomalyData = useCallback((newData: any) => {
+    setAnomalyGeoJson(newData);
   }, []);
 
-  return anomalyGeoJson;
+  return { anomalyGeoJson, updateAnomalyData };
 }
 
 export interface AnomalyGeoJson {
   features: Array<{
     properties: {
-      timestamp: string;
-      anomaly_id: string;
+      time: string;
+      classId: number;
     };
   }>;
 }
 
 export interface Timestamp {
   time: number;
-  anomaly_id: string;
+  classId: string;
 }
 
 export function useTimestamps(anomalyGeoJson: AnomalyGeoJson | null) {
@@ -32,8 +32,8 @@ export function useTimestamps(anomalyGeoJson: AnomalyGeoJson | null) {
     if (!anomalyGeoJson) return [];
     return anomalyGeoJson.features
       .map((f) => ({
-        time: new Date(f.properties.timestamp).getTime(),
-        anomaly_id: f.properties.anomaly_id,
+        time: new Date(f.properties.time).getTime(),
+        classId: f.properties.classId.toString(),
       }))
       .sort((a, b) => a.time - b.time);
   }, [anomalyGeoJson]);
@@ -62,7 +62,9 @@ export function useAnomalyIds(anomalyGeoJson: AnomalyGeoJson | null): string[] {
   return useMemo(() => {
     if (!anomalyGeoJson) return [];
     return [
-      ...new Set(anomalyGeoJson.features.map((f) => f.properties.anomaly_id)),
+      ...new Set(
+        anomalyGeoJson.features.map((f) => f.properties.classId.toString())
+      ),
     ];
   }, [anomalyGeoJson]);
 }
@@ -93,21 +95,29 @@ export function useSelectedAnomalies() {
   return { selectedAnomalies, toggleAnomaly };
 }
 
-export function useFilteredFeatures(
+export function useFilteredAnomalyData(
   anomalyGeoJson: AnomalyGeoJson | null,
   selectedTime: number,
   selectedAnomalies: Set<string>
 ) {
-  return useMemo(() => {
-    if (!anomalyGeoJson) return [];
+  const filteredFeatures = useMemo(() => {
+    if (!anomalyGeoJson || !selectedTime) return [];
+
     return anomalyGeoJson.features.filter((f) => {
-      const ts = new Date(f.properties.timestamp).getTime();
-      const matchesAnomaly =
+      const ts = new Date(f.properties.time).getTime();
+      const timeDiff = Math.abs(ts - selectedTime);
+      const isTimeMatch = timeDiff <= 3600000; // 1 hour
+      const isAnomalySelected =
         selectedAnomalies.has("all") ||
-        selectedAnomalies.has(f.properties.anomaly_id);
-      return ts === selectedTime && matchesAnomaly;
+        selectedAnomalies.has(f.properties.classId.toString());
+      return isTimeMatch && isAnomalySelected;
     });
-  }, [selectedTime, selectedAnomalies, anomalyGeoJson]);
+  }, [anomalyGeoJson, selectedTime, selectedAnomalies]);
+
+  return {
+    type: "FeatureCollection",
+    features: filteredFeatures,
+  };
 }
 
 export function useMode(anomalyGeoJson: any): [string, (mode: string) => void] {

@@ -11,7 +11,7 @@ import {
   useSelectedTime,
   useAnomalyIds,
   useSelectedAnomalies,
-  useFilteredFeatures,
+  useFilteredAnomalyData,
   useMode,
 } from "./hooks/useApp";
 
@@ -20,6 +20,7 @@ interface AppContextType {
   toggleAnomaly: (id: string) => void;
   anomalyIds: string[];
   anomalyGeoJson: any;
+  updateAnomalyData: (data: any) => void;
   filteredFeatures: any[];
   timestamps: any[];
   timestampValues: number[];
@@ -36,7 +37,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const anomalyGeoJson = useAnomalyData();
+  const { anomalyGeoJson, updateAnomalyData } = useAnomalyData();
 
   const { timestamps, timestampValues } = useTimestamps(anomalyGeoJson);
 
@@ -46,11 +47,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const { selectedAnomalies, toggleAnomaly } = useSelectedAnomalies();
 
-  const filteredFeatures = useFilteredFeatures(
+  const filteredAnomalyData = useFilteredAnomalyData(
     anomalyGeoJson,
     selectedTime,
     selectedAnomalies
   );
+
+  const filteredFeatures = filteredAnomalyData.features;
 
   const [mode, setMode] = useMode(anomalyGeoJson);
 
@@ -72,6 +75,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toggleAnomaly,
         anomalyIds,
         anomalyGeoJson,
+        updateAnomalyData,
         filteredFeatures,
         timestamps,
         timestampValues,
