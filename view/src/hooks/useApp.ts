@@ -2,10 +2,6 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 
 export function useAnomalyData(): any {
   const [anomalyGeoJson, setAnomalyGeoJson] = useState<any>(null);
-
-  // Don't fetch any initial data - wait for user to generate report
-
-  // Function to update anomaly data when report is generated
   const updateAnomalyData = useCallback((newData: any) => {
     setAnomalyGeoJson(newData);
   }, []);
@@ -120,8 +116,11 @@ export function useFilteredAnomalyData(
   };
 }
 
-export function useMode(anomalyGeoJson: any): [string, (mode: string) => void] {
+export function useMode(anomalyGeoJson: any): [string, (mode: string) => void, boolean, () => void] {
   const [mode, setMode] = useState("drawing");
+  const [showNoDataModal, setShowNoDataModal] = useState(false);
+
+  const closeModal = () => setShowNoDataModal(false);
 
   const setModeWithValidation = useCallback(
     (newMode: string) => {
@@ -134,6 +133,7 @@ export function useMode(anomalyGeoJson: any): [string, (mode: string) => void] {
         console.log("Cannot switch to viewing mode: no data available", {
           anomalyGeoJson,
         });
+        setShowNoDataModal(true);
         return;
       }
       setMode(newMode);
@@ -152,5 +152,5 @@ export function useMode(anomalyGeoJson: any): [string, (mode: string) => void] {
     }
   }, [anomalyGeoJson, mode]);
 
-  return [mode, setModeWithValidation];
+  return [mode, setModeWithValidation, showNoDataModal, closeModal];
 }
