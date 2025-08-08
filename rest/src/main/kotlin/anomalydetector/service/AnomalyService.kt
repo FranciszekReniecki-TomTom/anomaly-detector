@@ -28,7 +28,7 @@ import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import org.springframework.stereotype.Service
 
-private const val DIMENSTION_SCALE_CONSTANT = 40.0 // meters per hour
+private const val DIMENSION_SCALE_CONSTANT = 40.0 // meters per hour
 const val MIN_COVERAGE: Double = 0.85
 
 data class FeatureCollection(
@@ -193,7 +193,7 @@ class AnomalyService(
 
         val xMeters = deltaLat * 111000.0
         val yMeters = deltaLon * 111000.0 * cos(referenceLatitude * PI / 180.0)
-        val zMeters = deltaTimeHours * DIMENSTION_SCALE_CONSTANT
+        val zMeters = deltaTimeHours * DIMENSION_SCALE_CONSTANT
 
         return doubleArrayOf(xMeters, yMeters, zMeters)
     }
