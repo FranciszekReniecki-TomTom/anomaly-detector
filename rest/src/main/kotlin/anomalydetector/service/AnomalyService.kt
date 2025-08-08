@@ -81,8 +81,10 @@ class AnomalyService(
                             .map { tile: TrafficTileHour? ->
                                 val trafficOrNull: Traffic? = tile?.traffic
                                 when (dataType) {
-                                    DataType.TOTAL_DISTANCE_M -> trafficOrNull?.totalDistanceM?.toDouble()
-                                    DataType.FREE_FLOW_SPEED_KHM -> trafficOrNull?.totalDistanceM?.toDouble()
+                                    DataType.TOTAL_DISTANCE_M ->
+                                        trafficOrNull?.totalDistanceM?.toDouble()
+                                    DataType.FREE_FLOW_SPEED_KHM ->
+                                        trafficOrNull?.totalDistanceM?.toDouble()
                                     DataType.SPEED_KHM -> trafficOrNull?.speedKmH
                                 } ?: Double.NaN
                             }
