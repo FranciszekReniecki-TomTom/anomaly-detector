@@ -2,11 +2,31 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 
 export function useAnomalyData(): any {
   const [anomalyGeoJson, setAnomalyGeoJson] = useState<any>(null);
+  const [processedData, setProcessedData] = useState<any>(null);
+  
   const updateAnomalyData = useCallback((newData: any) => {
     setAnomalyGeoJson(newData);
+    
+    // Pre-process data for better performance
+    if (newData?.features) {
+      const processed = {
+        ...newData,
+        features: newData.features.map((feature: any) => ({
+          ...feature,
+          properties: {
+            ...feature.properties,
+            timeMs: new Date(feature.properties.time).getTime(), // Pre-calculate timestamp
+            classIdStr: feature.properties.classId.toString() // Pre-calculate string version
+          }
+        }))
+      };
+      setProcessedData(processed);
+    } else {
+      setProcessedData(null);
+    }
   }, []);
 
-  return { anomalyGeoJson, updateAnomalyData };
+  return { anomalyGeoJson: processedData || anomalyGeoJson, updateAnomalyData };
 }
 
 export interface AnomalyGeoJson {
@@ -14,6 +34,8 @@ export interface AnomalyGeoJson {
     properties: {
       time: string;
       classId: number;
+      timeMs?: number; // Pre-calculated timestamp
+      classIdStr?: string; // Pre-calculated string version
     };
   }>;
 }
@@ -28,8 +50,8 @@ export function useTimestamps(anomalyGeoJson: AnomalyGeoJson | null) {
     if (!anomalyGeoJson) return [];
     return anomalyGeoJson.features
       .map((f) => ({
-        time: new Date(f.properties.time).getTime(),
-        classId: f.properties.classId.toString(),
+        time: f.properties.timeMs || new Date(f.properties.time).getTime(), // Use pre-calculated if available
+        classId: f.properties.classIdStr || f.properties.classId.toString(),
       }))
       .sort((a, b) => a.time - b.time);
   }, [anomalyGeoJson]);
@@ -99,14 +121,21 @@ export function useFilteredAnomalyData(
   const filteredFeatures = useMemo(() => {
     if (!anomalyGeoJson || !selectedTime) return [];
 
+    const showAll = selectedAnomalies.has("all");
+    
     return anomalyGeoJson.features.filter((f) => {
-      const ts = new Date(f.properties.time).getTime();
+      // Use pre-calculated timestamp if available
+      const ts = f.properties.timeMs || new Date(f.properties.time).getTime();
       const timeDiff = Math.abs(ts - selectedTime);
       const isTimeMatch = timeDiff <= 3600000; // 1 hour
-      const isAnomalySelected =
-        selectedAnomalies.has("all") ||
-        selectedAnomalies.has(f.properties.classId.toString());
-      return isTimeMatch && isAnomalySelected;
+      
+      if (!isTimeMatch) return false;
+      
+      if (showAll) return true;
+      
+      // Use pre-calculated string if available
+      const classIdStr = f.properties.classIdStr || f.properties.classId.toString();
+      return selectedAnomalies.has(classIdStr);
     });
   }, [anomalyGeoJson, selectedTime, selectedAnomalies]);
 

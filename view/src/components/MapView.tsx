@@ -7,7 +7,7 @@ import {
   MapMenuToggle,
   PolygonSelector,
 } from "legoland-shared";
-import { Label } from "tombac";
+import { Label, Box } from "tombac";
 import { useMapView } from "../hooks/useMapView";
 import { useAppContext } from "../AppContext";
 
@@ -27,6 +27,8 @@ function MapView({ drawingEnabled, onPolygonSelect }: MapViewProps) {
     handleSelect,
     anomalyLayer,
     regionLayer,
+    tilesReady,
+    geojsonData,
   } = useMapView(filteredFeatures, drawnRegions);
 
   function handlePolygonSelect(features: any[]) {
@@ -45,17 +47,33 @@ function MapView({ drawingEnabled, onPolygonSelect }: MapViewProps) {
       hideNavigationControls={false}
       controlLocation="top-right"
       mapOverlayElements={
-        drawingEnabled && (
-          <DrawingTools
-            $position="absolute"
-            $left="0"
-            $top="0"
-            $margin="15px"
-            enabledDrawingOptions={[DrawingOption.POLYGON]}
-            drawingOption={drawingOption}
-            onDrawingOptionChange={setDrawingOption}
-          />
-        )
+        <>
+          {drawingEnabled && (
+            <DrawingTools
+              $position="absolute"
+              $left="0"
+              $top="0"
+              $margin="15px"
+              enabledDrawingOptions={[DrawingOption.POLYGON]}
+              drawingOption={drawingOption}
+              onDrawingOptionChange={setDrawingOption}
+            />
+          )}
+          {!drawingEnabled && filteredFeatures.length > 0 && !tilesReady && (
+            <Box
+              $position="absolute"
+              $top="50%"
+              $left="50%"
+              $transform="translate(-50%, -50%)"
+              $background="rgba(255, 255, 255, 0.9)"
+              $padding="16px"
+              $borderRadius="8px"
+              $boxShadow="0 2px 8px rgba(0,0,0,0.1)"
+            >
+              <Label>Optimizing map data...</Label>
+            </Box>
+          )}
+        </>
       }
       mapControlsProps={{
         shouldCloseOnInteractOutside: () => true,
@@ -79,9 +97,16 @@ function MapView({ drawingEnabled, onPolygonSelect }: MapViewProps) {
         ],
       }}
     >
-      {!drawingEnabled && (
+      {!drawingEnabled && tilesReady && (
         <Layers
           sourceId="anomalies"
+          layers={[anomalyLayer]}
+          data={geojsonData}
+        />
+      )}
+      {!drawingEnabled && !tilesReady && filteredFeatures.length > 0 && (
+        <Layers
+          sourceId="anomalies-fallback"
           layers={[anomalyLayer]}
           data={{ type: "FeatureCollection", features: filteredFeatures }}
         />
