@@ -16,7 +16,16 @@ function NoDataModal({ isOpen, onClose }: NoDataModalProps) {
       shouldCloseOnOverlayClick={true}
     >
       <Box $padding="24px" $width="400px" style={{ textAlign: "center" }}>
-        <Label>No Anomalies Detected</Label>
+        <Label
+          style={{
+            marginBottom: 16,
+            fontSize: "18px",
+            fontWeight: "bold",
+          }}
+        >
+          <Box />
+          No Anomalies Detected
+        </Label>
 
         <Button onClick={onClose} variant="primary">
           Got it

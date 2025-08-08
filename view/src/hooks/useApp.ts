@@ -116,7 +116,9 @@ export function useFilteredAnomalyData(
   };
 }
 
-export function useMode(anomalyGeoJson: any): [string, (mode: string) => void, boolean, () => void] {
+export function useMode(
+  anomalyGeoJson: any
+): [string, (mode: string) => void, boolean, () => void] {
   const [mode, setMode] = useState("drawing");
   const [showNoDataModal, setShowNoDataModal] = useState(false);
 
