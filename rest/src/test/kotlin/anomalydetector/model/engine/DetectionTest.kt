@@ -64,14 +64,6 @@ class DetectionTest {
         assertThrows<IllegalArgumentException> { calculateMeans(doubleArrayOf(), 1) }
     }
 
-    //    @Test
-    //    fun `when period is greater than values size throws exception`() {
-    //        val values = doubleArrayOf(1.0, 2.0, 3.0)
-    //        val period = 4
-    //
-    //        assertThrows<IllegalArgumentException> { calculateMeans(values, period) }
-    //    }
-
     @ParameterizedTest
     @MethodSource("stdTestCases")
     fun `test calculateStds`(

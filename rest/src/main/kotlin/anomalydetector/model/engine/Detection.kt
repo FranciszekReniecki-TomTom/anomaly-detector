@@ -18,16 +18,16 @@ fun findWeeklyOutliers(values: DoubleArray, threshold: Double): IntArray {
     val means = calculateMeans(values, period)
     val stds = calculateStds(values, means, period)
 
-    return values
-        .withIndex()
-        .filter { (index, value) ->
-            val hourIndex = index % period
-            val mean = means[hourIndex]
-            val std = stds[hourIndex]
-            std > 0.0 && abs(value - mean) / std > threshold
+    val outliers = mutableListOf<Int>()
+    for (i in values.indices) {
+        val hourIndex = i % period
+        val mean = means[hourIndex]
+        val std = stds[hourIndex]
+        if (std > 0.0 && abs(values[i] - mean) / std > threshold) {
+            outliers.add(i)
         }
-        .map { it.index }
-        .toIntArray()
+    }
+    return outliers.toIntArray()
 }
 
 fun calculateMeans(values: DoubleArray, period: Int): DoubleArray {
@@ -35,13 +35,18 @@ fun calculateMeans(values: DoubleArray, period: Int): DoubleArray {
     require(period > 0) { "Period must be greater than 0." }
 
     return DoubleArray(period) { index ->
-        val filtered =
-            values
-                .withIndex()
-                .filter { it.index % period == index && !it.value.isNaN() }
-                .map { it.value }
-
-        filtered.average()
+        var sum = 0.0
+        var count = 0
+        for (i in values.indices) {
+            if (i % period == index) {
+                val v = values[i]
+                if (!v.isNaN()) {
+                    sum += v
+                    count++
+                }
+            }
+        }
+        if (count > 0) sum / count else Double.NaN
     }
 }
 
@@ -50,14 +55,22 @@ fun calculateStds(values: DoubleArray, means: DoubleArray, period: Int): DoubleA
     require(period > 0) { "Period must be greater than 0." }
 
     return DoubleArray(period) { index ->
-        val mean = means[index]
-        val sumOfSquares =
-            values
-                .mapIndexed { i, value ->
-                    if (i % period == index && !value.isNaN()) (value - mean) * (value - mean)
-                    else 0.0
+        var sumOfSquares = 0.0
+        for (i in values.indices) {
+            if (i % period == index) {
+                val v = values[i]
+                if (!v.isNaN()) {
+                    sumOfSquares += (v - means[index]) * (v - means[index])
                 }
-                .sum()
-        sqrt(sumOfSquares / values.withIndex().count { (i, _) -> i % period == index })
+            }
+        }
+
+        var count = 0
+        for (i in values.indices) {
+            val idx = i % period
+            if (idx == index && !values[i].isNaN()) count++
+        }
+
+        sqrt(sumOfSquares / count).takeIf { count > 0 } ?: 0.0
     }
 }
