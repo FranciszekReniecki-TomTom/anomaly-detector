@@ -43,16 +43,25 @@ function Sidebar({}: SidebarProps) {
     if (startDay > minStart) setStartDay(minStart);
   }, [endDay]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleGenerateReport = useCallback(async () => {
     if (!selectedPolygon) {
       alert("Please select a polygon to generate the report.");
       return;
     }
+    
+    setIsLoading(true);
     try {
+      // Swap coordinates from [lon, lat] to [lat, lon] format expected by backend
+      const swappedCoordinates = selectedPolygon.geometry.coordinates[0].map(
+        ([lon, lat]: [number, number]) => [lat, lon]
+      );
+
       const reportData = await fetchAnomalyData({
         startDay: startDay.toISOString().slice(0, 19),
         endDay: endDay.toISOString().slice(0, 19),
-        coordinates: selectedPolygon.geometry.coordinates[0],
+        coordinates: swappedCoordinates,
         dataType: "TOTAL_DISTANCE_M",
       });
 
@@ -61,6 +70,8 @@ function Sidebar({}: SidebarProps) {
       setMode("viewing");
     } catch (error: any) {
       alert("Failed to generate report: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   }, [selectedPolygon, startDay, endDay, setMode, updateAnomalyData]);
 
@@ -108,8 +119,8 @@ function Sidebar({}: SidebarProps) {
               minDate={addMonths(startDay, 1)}
             />
           </Box>
-          <Button onClick={handleGenerateReport}>
-            <Label>Generate Report</Label>
+          <Button onClick={handleGenerateReport} disabled={isLoading}>
+            <Label>{isLoading ? "Generating..." : "Generate Report"}</Label>
           </Button>
         </Box>
       )}

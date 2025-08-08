@@ -10,12 +10,34 @@ export interface FetchAnomalyInfoParams {
   features: any[];
 }
 
+// Simple cache for API responses
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+function getCacheKey(params: FetchAnomalyDataParams): string {
+  return JSON.stringify({
+    startDay: params.startDay,
+    endDay: params.endDay,
+    coordinates: params.coordinates,
+    dataType: params.dataType,
+  });
+}
+
 export async function fetchAnomalyData({
   startDay,
   endDay,
   coordinates,
   dataType,
 }: FetchAnomalyDataParams): Promise<any> {
+  const cacheKey = getCacheKey({ startDay, endDay, coordinates, dataType });
+  const cached = cache.get(cacheKey);
+  
+  // Check if we have valid cached data
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    console.log("Returning cached data");
+    return cached.data;
+  }
+
   try {
     const response = await fetch("http://localhost:8080/anomaly", {
       method: "POST",
@@ -35,6 +57,10 @@ export async function fetchAnomalyData({
     }
 
     const data = await response.json();
+    
+    // Cache the response
+    cache.set(cacheKey, { data, timestamp: Date.now() });
+    
     return data;
   } catch (error) {
     console.error("Error fetching anomaly data:", error);
