@@ -90,6 +90,29 @@ class AnomalyService(
                                     DataType.FREE_FLOW_SPEED_KHM ->
                                         trafficOrNull?.totalDistanceM?.toDouble()
                                     DataType.SPEED_KHM -> trafficOrNull?.speedKmH
+                                    DataType.CONGESTION -> {
+                                        val freeFlowSpeed: Double =
+                                            trafficOrNull?.freeFlowSpeedKmH ?: Double.NaN
+                                        val actualSpeed: Double =
+                                            trafficOrNull?.speedKmH ?: Double.NaN
+
+                                        if (
+                                            freeFlowSpeed.isNaN() ||
+                                                actualSpeed.isNaN() ||
+                                                freeFlowSpeed <= 0
+                                        ) {
+                                            Double.NaN
+                                        }
+
+                                        val congestion =
+                                            if (actualSpeed >= freeFlowSpeed) {
+                                                0.0
+                                            } else {
+                                                ((freeFlowSpeed - actualSpeed) / freeFlowSpeed) *
+                                                    100.0
+                                            }
+                                        congestion
+                                    }
                                 } ?: Double.NaN
                             }
                             .toDoubleArray()
