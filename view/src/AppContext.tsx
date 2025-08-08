@@ -28,6 +28,8 @@ interface AppContextType {
   setSelectedTime: (t: number) => void;
   mode: string;
   setMode: (mode: string) => void;
+  showNoDataModal: boolean;
+  closeNoDataModal: () => void;
   selectedPolygon: any;
   setSelectedPolygon: (polygon: any) => void;
   drawnRegions: any[];
@@ -55,7 +57,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const filteredFeatures = filteredAnomalyData.features;
 
-  const [mode, setMode] = useMode(anomalyGeoJson);
+  const [mode, setMode, showNoDataModal, closeNoDataModal] = useMode(anomalyGeoJson);
 
   const [selectedPolygon, setSelectedPolygon] = useState<any>(null);
   const [drawnRegions, setDrawnRegions] = useState<any[]>([]);
@@ -83,6 +85,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSelectedTime,
         mode,
         setMode,
+        showNoDataModal,
+        closeNoDataModal,
         selectedPolygon,
         setSelectedPolygon: handleSetSelectedPolygon,
         drawnRegions,

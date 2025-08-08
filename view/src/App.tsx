@@ -4,11 +4,11 @@ import MapView from "./components/MapView";
 import BottomBar from "./components/bottomBar/BottomBar";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
+import NoDataModal from "./components/NoDataModal";
 import { AppProvider, useAppContext } from "./AppContext";
 
-
 function AppContent() {
-  const { mode, setSelectedPolygon, setDrawnRegions } = useAppContext();
+  const { mode, setSelectedPolygon, setDrawnRegions, showNoDataModal, closeNoDataModal } = useAppContext();
 
   const handlePolygonSelect = useCallback(
     (polygon: any) => {
@@ -18,25 +18,31 @@ function AppContent() {
     [setSelectedPolygon, setDrawnRegions]
   );
 
-  const containerStyle = useMemo(() => ({
-    display: "flex",
-    flexDirection: "column" as const,
-    height: "100vh",
-    width: "100vw",
-    margin: 0,
-    padding: 0,
-    position: "absolute" as const,
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  }), []);
+  const containerStyle = useMemo(
+    () => ({
+      display: "flex",
+      flexDirection: "column" as const,
+      height: "100vh",
+      width: "100vw",
+      margin: 0,
+      padding: 0,
+      position: "absolute" as const,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    }),
+    []
+  );
 
-  const contentStyle = useMemo(() => ({
-    display: "flex",
-    flex: 1,
-    overflow: "hidden" as const,
-  }), []);
+  const contentStyle = useMemo(
+    () => ({
+      display: "flex",
+      flex: 1,
+      overflow: "hidden" as const,
+    }),
+    []
+  );
 
   const mainStyle = useMemo(
     () => ({
@@ -53,7 +59,7 @@ function AppContent() {
     >
       <Box style={containerStyle}>
         <TopBar />
-        
+
         <Box style={contentStyle}>
           <Sidebar />
 
@@ -65,6 +71,8 @@ function AppContent() {
             {mode === "viewing" && <BottomBar />}
           </Box>
         </Box>
+        
+        <NoDataModal isOpen={showNoDataModal} onClose={closeNoDataModal} />
       </Box>
     </TombacApp>
   );
