@@ -10,7 +10,6 @@ import com.tomtom.tti.nida.morton.mortonTiles
 import com.tomtom.tti.nida.storage.ProcessingTile
 import com.tomtom.tti.nida.storage.processingTileFromCode
 import com.tomtom.tti.nida.storage.processingTiles
-import io.github.cdimascio.dotenv.Dotenv
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -23,70 +22,69 @@ import org.locationtech.jts.io.WKTReader
 
 val level: MortonTileLevel<*> = MortonTileLevel.M19
 
-private val storage =
-    AreaAnalyticsStorage(
-        account = Dotenv.load()["AREA_ANALYTICS_ACCOUNT_NAME"],
-        key = Dotenv.load()["AREA_ANALYTICS_KEY"],
-    )
+data class AASecrets(val account: String, val key: String)
 
-fun getData(
-    startDay: LocalDateTime,
-    endDay: LocalDateTime,
-    geometry: Geometry,
-): List<TrafficTileHour> = runBlocking {
-    val flatMap =
-        generateSequence(startDay) { it.plusDays(1) }
-            .take(ChronoUnit.DAYS.between(startDay.toLocalDate(), endDay.toLocalDate()).toInt())
-            .map { day: LocalDateTime ->
-                val processingTiles: Set<ProcessingTile> = geometry.processingTiles()
-                async(Dispatchers.Default) {
-                    val deferredList =
-                        processingTiles.map { tile ->
-                            async(Dispatchers.Default) {
-                                getDay(day.toLocalDate(), tile.code, level, geometry = geometry)
+class AreaAnalyticsDataService(aaSecrets: AASecrets) {
+    private val storage = AreaAnalyticsStorage(aaSecrets.account, aaSecrets.key)
+
+    fun getData(
+        startDay: LocalDateTime,
+        endDay: LocalDateTime,
+        geometry: Geometry,
+    ): List<TrafficTileHour> = runBlocking {
+        val flatMap =
+            generateSequence(startDay) { it.plusDays(1) }
+                .take(ChronoUnit.DAYS.between(startDay.toLocalDate(), endDay.toLocalDate()).toInt())
+                .map { day: LocalDateTime ->
+                    val processingTiles: Set<ProcessingTile> = geometry.processingTiles()
+                    async(Dispatchers.Default) {
+                        val deferredList =
+                            processingTiles.map { tile ->
+                                async(Dispatchers.Default) {
+                                    getDay(day.toLocalDate(), tile.code, level, geometry = geometry)
+                                }
                             }
-                        }
 
-                    day to deferredList.awaitAll().flatten()
+                        day to deferredList.awaitAll().flatten()
+                    }
                 }
-            }
-            .toList()
-            .awaitAll()
-            .flatMap { (date: LocalDateTime, trafficList: List<AggregatedTraffic>) ->
-                trafficList.map { traffic: AggregatedTraffic ->
-                    TrafficTileHour(
-                        date.plusHours(traffic.hour.toLong()),
-                        traffic.id,
-                        traffic.traffic,
-                    )
+                .toList()
+                .awaitAll()
+                .flatMap { (date: LocalDateTime, trafficList: List<AggregatedTraffic>) ->
+                    trafficList.map { traffic: AggregatedTraffic ->
+                        TrafficTileHour(
+                            date.plusHours(traffic.hour.toLong()),
+                            traffic.id,
+                            traffic.traffic,
+                        )
+                    }
                 }
-            }
-    flatMap
+        flatMap
+    }
+
+    private suspend fun getDay(
+        day: LocalDate,
+        tile: Long = 3597,
+        level: MortonTileLevel<*>,
+        geometry: Geometry,
+    ): List<AggregatedTraffic> {
+
+        val tileCodes: List<Long> = geometry.mortonTiles(level).map { it.code }
+
+        val aggregateRoads =
+            storage.traffic
+                .read(day, processingTileFromCode(tile), level, geometry)
+                .awaitAll()
+                .flatten()
+                .flatMap { it.m20Traffic }
+                .filter { it: M20Traffic -> it.id in tileCodes }
+                .aggregateRoads()
+
+        val groupped = aggregateRoads.groupBy { it.id }
+        println("DayTime ${day}, unique tiles: ${groupped.size}")
+        return aggregateRoads
+    }
 }
-
-private suspend fun getDay(
-    day: LocalDate,
-    tile: Long = 3597,
-    level: MortonTileLevel<*>,
-    geometry: Geometry,
-): List<AggregatedTraffic> {
-
-    val tileCodes: List<Long> = geometry.mortonTiles(level).map { it.code }
-
-    val aggregateRoads =
-        storage.traffic
-            .read(day, processingTileFromCode(tile), level, geometry)
-            .awaitAll()
-            .flatten()
-            .flatMap { it.m20Traffic }
-            .filter { it: M20Traffic -> it.id in tileCodes }
-            .aggregateRoads()
-
-    val groupped = aggregateRoads.groupBy { it.id }
-    println("DayTime ${day}, unique tiles: ${groupped.size}")
-    return aggregateRoads
-}
-
 private fun tileToGeometry(m19code: Long): Geometry {
     val reader: WKTReader = WKTReader()
     val mortonTile = MortonTileLevel.M19.getTile(m19code)

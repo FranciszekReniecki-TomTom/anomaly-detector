@@ -10,7 +10,8 @@ import anomalydetector.service.labeling.AnomalySliceHour
 import anomalydetector.service.labeling.GeoTime
 import anomalydetector.service.labeling.LlmLabelingService
 import anomalydetector.service.labeling.ReverseGeoCodeService
-import anomalydetector.service.trafficdata.getData
+import anomalydetector.service.trafficdata.AASecrets
+import anomalydetector.service.trafficdata.AreaAnalyticsDataService
 import com.tomtom.tti.area.analytics.model.traffic.Traffic
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
 import com.tomtom.tti.nida.morton.geometry
@@ -41,6 +42,7 @@ data class GeoJsonPolygon(val type: String = "Polygon", val coordinates: List<Li
 
 @Service
 class AnomalyService(
+    private val aaSecrets: AASecrets,
     private val reverseGeoCodeService: ReverseGeoCodeService,
     private val llmLabelingService: LlmLabelingService,
 ) {
@@ -53,7 +55,7 @@ class AnomalyService(
         minCoverage: Double = 0.75,
     ): FeatureCollection {
 
-        val data = getData(startTime, endTime, coordinates.toPolygon())
+        val data = AreaAnalyticsDataService(aaSecrets).getData(startTime, endTime, coordinates.toPolygon())
 
         val allHours: List<LocalDateTime> =
             generateSequence(startTime) { it.plusHours(1) }
@@ -130,8 +132,6 @@ class AnomalyService(
                 )
                 .dropLast(1)
 
-        // TODO: implement report creation
-
         val hourToClusters: Map<LocalDateTime, Map<Int, Polygon>> =
             clusters
                 .withIndex()
@@ -198,27 +198,6 @@ class AnomalyService(
             GeoTime(lat, lon, datetime)
         }
 }
-
-// private fun List<List<Double>>.toPolygon(
-//    geometryFactory: GeometryFactory = GeometryFactory()
-// ): Polygon = let { coordinates ->
-//    require(coordinates.all { it.size == 2 }) {
-//        "Each coordinate must have exactly two elements [lat, lon]"
-//    }
-//    require(coordinates.isNotEmpty()) { "Coordinate list must not be empty" }
-//    geometryFactory.createPolygon(
-//        geometryFactory.createLinearRing(
-//            (if (coordinates.first() != coordinates.last()) {
-//                coordinates + listOf(coordinates.first())
-//            } else {
-//                coordinates
-//            })
-//                .map { (lat, lon) -> JtsCoordinate(lon, lat) }
-//                .toTypedArray<JtsCoordinate>()
-//        ),
-//        null,
-//    )
-// }
 
 private fun List<List<Double>>.toPolygon(
     geometryFactory: GeometryFactory = GeometryFactory()

@@ -1,7 +1,6 @@
 package anomalydetector.service.labeling
 
 import anomalydetector.exceptions.AddressNotFoundException
-import io.github.cdimascio.dotenv.Dotenv
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
@@ -10,9 +9,8 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 @Service
-class ReverseGeoCodeService(builder: WebClient.Builder) {
+class ReverseGeoCodeService(private val apiKey: String, builder: WebClient.Builder) {
 
-    private val apiKey: String = Dotenv.load()["TT_API_KEY"]
     private val webClient = builder.baseUrl("https://api.tomtom.com").build()
 
     suspend fun reverseGeocode(lat: Double, lon: Double): ReverseGeoCodeResponse {
