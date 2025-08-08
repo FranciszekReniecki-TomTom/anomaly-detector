@@ -321,3 +321,4 @@ sketch
 .env
 
 tmp
+/rest/src/main/resources/secrets.yml
