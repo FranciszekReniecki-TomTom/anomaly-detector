@@ -15,17 +15,21 @@ import anomalydetector.service.trafficdata.AreaAnalyticsDataService
 import com.tomtom.tti.area.analytics.model.traffic.Traffic
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
 import com.tomtom.tti.nida.morton.geometry
-import java.time.Instant
+import java.time.Duration
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.collections.toDoubleArray
 import kotlin.collections.toTypedArray
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlinx.coroutines.runBlocking
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import org.springframework.stereotype.Service
+
+private const val DIMENSTION_SCALE_CONSTANT = 40.0 // meters per hour
+const val MIN_COVERAGE: Double = 0.85
 
 data class FeatureCollection(
     val type: String = "FeatureCollection",
@@ -52,7 +56,6 @@ class AnomalyService(
         endTime: LocalDateTime,
         coordinates: List<List<Double>>,
         dataType: DataType,
-        minCoverage: Double = 0.75,
     ): FeatureCollection {
 
         val data = runBlocking {
@@ -64,20 +67,24 @@ class AnomalyService(
                 .takeWhile { !it.isAfter(endTime) }
                 .toList()
 
-        val minimalNumberOfDataPoints: Int = (allHours.size * minCoverage).toInt()
+        val minimalNumberOfDataPoints: Int = (allHours.size * MIN_COVERAGE).toInt()
+
+        val filtered = data
+            .groupBy { it.mortonTileId }
+            .filter { (_, tileData) ->
+                tileData.size >= minimalNumberOfDataPoints
+            }
 
         val tileIdToFullTrafficData: Map<Long, List<TrafficTileHour?>> =
-            data
-                .groupBy { it.mortonTileId }
-                .filter { (_, tileData) -> tileData.size >= minimalNumberOfDataPoints }
+            filtered
                 .mapValues { (_, tileData) ->
                     val byHour: Map<LocalDateTime, TrafficTileHour> =
                         tileData.associateBy { it.trafficMeasurementDateTime }
                     allHours.map { hour -> byHour[hour] }
                 }
 
-        // [tileId, hour] -> [number]
-        val geoDataToOutlierHoursToNumber: Map<Pair<Long, Long>, Double> =
+        // [tileId, LocalDateTime] -> [number]
+        val geoDataToOutlierHoursToNumber: Map<Pair<Long, LocalDateTime>, Double> =
             tileIdToFullTrafficData
                 .flatMap { (tileId: Long, listForTile: List<TrafficTileHour?>) ->
                     val values: DoubleArray =
@@ -124,52 +131,45 @@ class AnomalyService(
                         .withIndex()
                         .filter { (index, _) -> index in outlierIndexes }
                         .map { (index, value) ->
-                            val hourSinceEpoch =
-                                listForTile[index]!!
-                                    .trafficMeasurementDateTime
-                                    .toEpochSecond(ZoneOffset.UTC) / 3600L
-                            (tileId to hourSinceEpoch) to value
+                            (tileId to listForTile[index]!!.trafficMeasurementDateTime) to value
                         }
                 }
                 .toMap()
 
-        // [tileId, hour] -> [lon, lat, hour]
-        val tileHourToLonLatHour: Map<Pair<Long, Long>, List<Double>> =
-            geoDataToOutlierHoursToNumber.keys.associate { (tileId, hourSinceEpoch) ->
+        // [tileId, localDateTime] -> [lon, lat, time]
+        val tileHourToRawPoint:
+            Map<Pair<Long, LocalDateTime>, Triple<Double, Double, LocalDateTime>> =
+            geoDataToOutlierHoursToNumber.keys.associate { (tileId, time) ->
                 val tile = MortonTileLevel.M19.getTile(tileId)
-                (tileId to hourSinceEpoch) to listOf(tile.lon, tile.lat, hourSinceEpoch.toDouble())
+                (tileId to time) to Triple(tile.lon, tile.lat, time)
             }
 
-        // List of keys in the same order as the clustering input
-        val tileHourKeys: List<Pair<Long, Long>> = tileHourToLonLatHour.keys.toList()
-
-        if (tileHourToLonLatHour.isEmpty()) {
+        if (tileHourToRawPoint.isEmpty()) {
             println("No outliers found for the given time range and coordinates.")
             return FeatureCollection(features = emptyList())
         }
 
-        // [[Int]]
-        val clusters: List<List<Int>> =
-            findClusters(
-                    tileHourToLonLatHour.values
-                        .map { doubleArrayOf(it[0], it[1], it[2]) }
-                        .toTypedArray<DoubleArray>()
-                )
-                .dropLast(1)
+        val dataPoints =
+            tileHourToRawPoint
+                .mapValues { (_, rawPoint: Triple<Double, Double, LocalDateTime>) ->
+                    toScaledPoint(
+                        rawPoint = rawPoint,
+                        referenceRawPoint = tileHourToRawPoint.values.first(),
+                    )
+                }
+                .values
+                .toTypedArray()
+
+        val clusters: List<List<Int>> = findClusters(dataPoints)
 
         val hourToClusters: Map<LocalDateTime, Map<Int, Polygon>> =
             clusters
                 .withIndex()
                 .flatMap { (clusterId, indexesInCluster) ->
                     indexesInCluster.map { idx ->
-                        val (tileId, hourSinceEpoch) = tileHourKeys[idx]
-                        val hour =
-                            LocalDateTime.ofInstant(
-                                Instant.ofEpochSecond(hourSinceEpoch * 3600L),
-                                ZoneOffset.UTC,
-                            )
+                        val (tileId, time) = tileHourToRawPoint.keys.toList()[idx]
                         val polygon = MortonTileLevel.M19.getTile(tileId).geometry() as Polygon
-                        Triple(hour, clusterId, polygon)
+                        Triple(time, clusterId, polygon)
                     }
                 }
                 .groupBy { it.first } // group by hour (LocalDateTime)
@@ -178,6 +178,24 @@ class AnomalyService(
                 }
 
         return buildFeatureCollection(hourToClusters)
+    }
+
+    fun toScaledPoint(
+        rawPoint: Triple<Double, Double, LocalDateTime>,
+        referenceRawPoint: Triple<Double, Double, LocalDateTime>,
+    ): DoubleArray {
+        val (referenceLongitude, referenceLatitude, referenceTime) = referenceRawPoint
+
+        val (longitude, latitude, time) = rawPoint
+        val deltaLat = latitude - referenceLatitude
+        val deltaLon = longitude - referenceLongitude
+        val deltaTimeHours = Duration.between(referenceTime, time).toHours().toDouble()
+
+        val xMeters = deltaLat * 111000.0
+        val yMeters = deltaLon * 111000.0 * cos(referenceLatitude * PI / 180.0)
+        val zMeters = deltaTimeHours * DIMENSTION_SCALE_CONSTANT
+
+        return doubleArrayOf(xMeters, yMeters, zMeters)
     }
 
     fun labelAnomaly(request: AnomalyLabelRequestDto): LabelDto {
