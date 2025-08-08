@@ -1,8 +1,10 @@
 package anomalydetector.model.engine
 
 import anomalydetector.model.TrafficTileHour
-import anomalydetector.service.trafficdata.getData
+import anomalydetector.service.trafficdata.AASecrets
+import anomalydetector.service.trafficdata.AreaAnalyticsDataService
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
+import io.github.cdimascio.dotenv.Dotenv
 import java.time.LocalDate
 import org.junit.jupiter.api.Test
 import org.locationtech.jts.geom.Coordinate
@@ -27,7 +29,18 @@ class EnginePlots {
 
     @Test
     fun `test drawAnomalies`() {
-        val data = getData(LocalDate.of(2024, 1, 1), 31, 3597L, MortonTileLevel.M19, lodzCenter)
+        val account = Dotenv.load()["AREA_ANALYTICS_ACCOUNT_NAME"]
+        val key = Dotenv.load()["AREA_ANALYTICS_KEY"]
+        val areaAnalyticsDataService = AreaAnalyticsDataService(AASecrets(account, key))
+
+        val data =
+            areaAnalyticsDataService.getData(
+                LocalDate.of(2024, 1, 1),
+                31,
+                3597L,
+                MortonTileLevel.M19,
+                lodzCenter,
+            )
 
         println("Data size: ${data.size}")
 

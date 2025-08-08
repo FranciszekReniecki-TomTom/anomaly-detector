@@ -1,6 +1,7 @@
 package anomalydetector.service.trafficdata
 
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
+import io.github.cdimascio.dotenv.Dotenv
 import java.time.LocalDate
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -23,7 +24,18 @@ class AreaAnalyticsDataServiceTest {
 
     @Test
     fun `get data for 1 day`() {
-        val data = getData(LocalDate.of(2024, 1, 1), 1, 3597, MortonTileLevel.M16, lodzCenter)
+        val account = Dotenv.load()["AREA_ANALYTICS_ACCOUNT_NAME"]
+        val key = Dotenv.load()["AREA_ANALYTICS_KEY"]
+        val areaAnalyticsDataService = AreaAnalyticsDataService(AASecrets(account, key))
+
+        val data =
+            areaAnalyticsDataService.getData(
+                LocalDate.of(2024, 1, 1),
+                1,
+                3597,
+                MortonTileLevel.M16,
+                lodzCenter,
+            )
 
         assertTrue(data.isNotEmpty(), "Data should not be empty")
 
