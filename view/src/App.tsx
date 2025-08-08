@@ -8,7 +8,13 @@ import NoDataModal from "./components/NoDataModal";
 import { AppProvider, useAppContext } from "./AppContext";
 
 function AppContent() {
-  const { mode, setSelectedPolygon, setDrawnRegions, showNoDataModal, closeNoDataModal } = useAppContext();
+  const {
+    mode,
+    setSelectedPolygon,
+    setDrawnRegions,
+    showNoDataModal,
+    closeNoDataModal,
+  } = useAppContext();
 
   const handlePolygonSelect = useCallback(
     (polygon: any) => {
@@ -71,7 +77,7 @@ function AppContent() {
             {mode === "viewing" && <BottomBar />}
           </Box>
         </Box>
-        
+
         <NoDataModal isOpen={showNoDataModal} onClose={closeNoDataModal} />
       </Box>
     </TombacApp>

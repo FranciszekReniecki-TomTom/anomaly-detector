@@ -57,7 +57,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const filteredFeatures = filteredAnomalyData.features;
 
-  const [mode, setMode, showNoDataModal, closeNoDataModal] = useMode(anomalyGeoJson);
+  const [mode, setMode, showNoDataModal, closeNoDataModal] =
+    useMode(anomalyGeoJson);
 
   const [selectedPolygon, setSelectedPolygon] = useState<any>(null);
   const [drawnRegions, setDrawnRegions] = useState<any[]>([]);
