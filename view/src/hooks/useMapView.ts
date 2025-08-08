@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { DrawingOption, MapModel, useDrawingTools } from "legoland-shared";
+import { useVectorTiles } from "./useVectorTiles";
 
 export function useMapView(
   filteredFeatures: any[],
@@ -9,6 +10,19 @@ export function useMapView(
   const [drawingOption, setDrawingOption] = useState<DrawingOption>();
   const [regions, setRegions] = useState<any[]>(initialRegions);
   const [selectedPolygon, setSelectedRegion] = useState<any>(null);
+
+  // Create GeoJSON data for vector tiles
+  const geojsonData = useMemo(() => ({
+    type: "FeatureCollection",
+    features: filteredFeatures || []
+  }), [filteredFeatures]);
+
+  // Use vector tiles for performance optimization
+  const { tileIndex, isReady: tilesReady } = useVectorTiles(geojsonData, {
+    maxZoom: 16,
+    tolerance: 2,
+    buffer: 128
+  });
 
   useEffect(() => {
     setRegions(initialRegions);
@@ -24,11 +38,25 @@ export function useMapView(
     setSelectedRegion(polygon);
   }
 
-  const anomalyLayer = {
+  const anomalyLayer = useMemo(() => ({
     id: "anomalies",
     type: "fill",
-    paint: { "fill-color": "#cc0000", "fill-opacity": 0.4 },
-  };
+    paint: { 
+      "fill-color": [
+        "case",
+        ["has", "classId"],
+        [
+          "case",
+          ["==", ["get", "classId"], 0], "#ff4444",
+          ["==", ["get", "classId"], 1], "#44ff44", 
+          ["==", ["get", "classId"], 2], "#4444ff",
+          "#cc0000"
+        ],
+        "#cc0000"
+      ],
+      "fill-opacity": 0.6 
+    },
+  }), []);
 
   const regionLayer = {
     id: "regions",
@@ -51,5 +79,8 @@ export function useMapView(
     anomalyLayer,
     regionLayer,
     selectedPolygon,
+    tileIndex,
+    tilesReady,
+    geojsonData,
   };
 }
