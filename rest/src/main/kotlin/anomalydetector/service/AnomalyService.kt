@@ -55,7 +55,9 @@ class AnomalyService(
         minCoverage: Double = 0.75,
     ): FeatureCollection {
 
-        val data = AreaAnalyticsDataService(aaSecrets).getData(startTime, endTime, coordinates.toPolygon())
+        val data = runBlocking {
+            AreaAnalyticsDataService(aaSecrets).getData(startTime, endTime, coordinates.toPolygon())
+        }
 
         val allHours: List<LocalDateTime> =
             generateSequence(startTime) { it.plusHours(1) }
@@ -203,7 +205,7 @@ private fun List<List<Double>>.toPolygon(
     geometryFactory: GeometryFactory = GeometryFactory()
 ): Polygon = let { coordinates ->
     require(coordinates.all { it.size == 2 }) {
-        "Each coordinate must have exactly two elements [lat, lon]"
+        "Each coordinate must have exactly two elements [lon, lat]"
     }
     require(coordinates.isNotEmpty()) { "Coordinate list must not be empty" }
     geometryFactory.createPolygon(
@@ -213,7 +215,7 @@ private fun List<List<Double>>.toPolygon(
                 } else {
                     coordinates
                 })
-                .map { (lat, lon) -> Coordinate(lon, lat) }
+                .map { (lon, lat) -> Coordinate(lon, lat) }
                 .toTypedArray<Coordinate>()
         ),
         null,
