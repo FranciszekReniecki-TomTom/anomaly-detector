@@ -33,8 +33,6 @@ fun findWeeklyOutliers(values: DoubleArray, threshold: Double): IntArray {
 fun calculateMeans(values: DoubleArray, period: Int): DoubleArray {
     require(values.isNotEmpty()) { "Values array must not be empty." }
     require(period > 0) { "Period must be greater than 0." }
-    if (period > values.size)
-        throw IllegalArgumentException("Period must not be greater than values size.")
 
     return DoubleArray(period) { index ->
         val filtered =
