@@ -20,7 +20,7 @@ class AnomalyController(private val anomalyService: AnomalyService) {
     fun detectAnomaly(@RequestBody request: AnomalyRequestDto): ResponseEntity<FeatureCollection> {
         val (startTime, endTime, coordinates, dataType) = request
         return ResponseEntity.ok(
-            anomalyService.getFeatureCollection(startTime, endTime, coordinates, dataType)
+            anomalyService.findAnomalies(startTime, endTime, coordinates, dataType)
         )
     }
 
