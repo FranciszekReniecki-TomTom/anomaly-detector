@@ -8,7 +8,8 @@ import anomalydetector.service.labeling.AnomalySliceHour
 import anomalydetector.service.labeling.GeoTime
 import anomalydetector.service.labeling.LlmLabelingService
 import anomalydetector.service.labeling.ReverseGeoCodeService
-import anomalydetector.service.trafficdata.getData
+import anomalydetector.service.trafficdata.AASecrets
+import anomalydetector.service.trafficdata.AreaAnalyticsDataService
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
 import java.time.LocalDateTime
 import kotlin.collections.toTypedArray
@@ -20,12 +21,16 @@ import org.springframework.stereotype.Service
 
 @Service
 class AnomalyService(
+    aaSecrets: AASecrets,
     private val reverseGeoCodeService: ReverseGeoCodeService,
     private val llmLabelingService: LlmLabelingService,
 ) {
+    private val areaAnalyticsDataService: AreaAnalyticsDataService =
+        AreaAnalyticsDataService(secrets = AASecrets(aaSecrets.account, aaSecrets.key))
+
     fun detectAnomaly(anomalyRequestDto: AnomalyRequestDto): ReportDto {
         val trafficData =
-            getData(
+            areaAnalyticsDataService.getData(
                 startDay = anomalyRequestDto.startDay,
                 days = anomalyRequestDto.days,
                 tile = anomalyRequestDto.tile,
