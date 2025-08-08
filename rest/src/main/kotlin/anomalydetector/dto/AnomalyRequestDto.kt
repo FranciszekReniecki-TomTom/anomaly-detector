@@ -9,6 +9,7 @@ enum class DataType {
     TOTAL_DISTANCE_M,
     SPEED_KHM,
     FREE_FLOW_SPEED_KHM,
+    CONGESTION,
 }
 
 data class AnomalyRequestDto(
