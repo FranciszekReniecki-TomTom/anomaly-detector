@@ -5,7 +5,7 @@ import { useAppContext } from "../../AppContext";
 
 export interface AnomalyDotTimestamp {
   time: number;
-  anomaly_id: string;
+  classId: string;
 }
 
 export interface AnomalyDotsProps {
@@ -134,7 +134,7 @@ function AnomalyDots({ baseLaneHeight, padding }: AnomalyDotsProps) {
 
     anomalyIds.forEach((anomalyId) => {
       const anomalyTimestamps = timestamps
-        .filter((t) => t.anomaly_id === anomalyId)
+        .filter((t) => t.classId === anomalyId)
         .sort((a, b) => a.time - b.time);
 
       if (anomalyTimestamps.length < 2) return;
@@ -210,19 +210,19 @@ function AnomalyDots({ baseLaneHeight, padding }: AnomalyDotsProps) {
         }}
       />
 
-      {timestamps.map(({ time, anomaly_id }, i) => {
-        const laneIndex = anomalyIds.indexOf(anomaly_id);
+      {timestamps.map(({ time, classId }, i) => {
+        const laneIndex = anomalyIds.indexOf(classId);
         const leftPercent = getLeftPercent(time);
         const topPos = baseLaneHeight * laneIndex + baseLaneHeight / 2;
 
         const isSelected =
-          selectedAnomalies.has("all") || selectedAnomalies.has(anomaly_id);
+          selectedAnomalies.has("all") || selectedAnomalies.has(classId);
         const dotColor = isSelected ? "#de1c12" : "#ccc";
 
         return (
           <Box
             key={i}
-            title={`${anomaly_id} - ${new Date(time).toLocaleString()}`}
+            title={`${classId} - ${new Date(time).toLocaleString()}`}
             style={{
               position: "absolute",
               left: `${leftPercent}%`,
