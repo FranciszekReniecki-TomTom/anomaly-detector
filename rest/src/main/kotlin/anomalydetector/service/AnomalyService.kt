@@ -13,6 +13,7 @@ import anomalydetector.service.labeling.ReverseGeoCodeService
 import anomalydetector.service.trafficdata.AASecrets
 import anomalydetector.service.trafficdata.AreaAnalyticsDataService
 import com.tomtom.tti.nida.morton.geom.MortonTileLevel
+import com.tomtom.tti.nida.morton.geometry
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -25,10 +26,12 @@ import org.locationtech.jts.geom.Polygon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import kotlin.math.cos
 
 private val log: Logger = LoggerFactory.getLogger(AnomalyService::class.java)
 
-private const val DIMENSION_SCALE_CONSTANT = 40.0 // meters per hour
+private const val DIMENSION_SCALE_CONSTANT = 40.0
+private const val MAGIC_CONST = 111000.0
 const val MIN_COVERAGE: Double = 0.85
 
 data class FeatureCollection(
@@ -75,10 +78,17 @@ class AnomalyService(
             }
         log.info("Filtered valid tiles: ${validTilesById.size} tiles")
 
+        val times: List<LocalDateTime> = generateSequence(startTime) { it.plusHours(1) }
+            .takeWhile { it <= endTime }
+            .toList()
         val outlierTiles: List<TrafficTileHour> = validTilesById
             .map { (_, tileData) ->
-                val values: DoubleArray = extractValues(tileData, dataType, startTime, endTime)
-                findWeeklyOutliers(values, 2.0).map { tileData[it] }
+                val timeToTile = tileData.associateBy { it.trafficMeasurementDateTime }
+                val complete: List<TrafficTileHour?> = times.map { timeToTile[it] }
+                val values: DoubleArray = extractValues(complete, dataType)
+                findWeeklyOutliers(values, 2.5).map {
+                    complete[it] ?: throw IllegalStateException("Outlier index not found in complete data")
+                }
             }
             .flatten()
             .toList()
@@ -92,10 +102,22 @@ class AnomalyService(
             }
             .toTypedArray()
 
-        val clusters: List<List<TrafficTileHour>> = findClusters(outlierGeoPoints)
-            .map { cluster ->
-                cluster.map { outlierTiles[it] }
+        val outlierGeoPointsNormalized = outlierGeoPoints
+            .map {
+                normalizeGeoPoint(it, outlierGeoPoints.first())
             }
+            .toTypedArray()
+
+        val clusters: List<List<TrafficTileHour>> =
+            findClusters(
+                outlierGeoPointsNormalized,
+                minN = 3,
+                radius = DIMENSION_SCALE_CONSTANT,
+                noise = false
+            )
+                .map { cluster ->
+                    cluster.map { outlierTiles[it] }
+                }
         log.info("Clusters found: ${clusters.size} clusters")
 
         val timeToPolygon = clusters
@@ -104,25 +126,24 @@ class AnomalyService(
                 clusterTiles
                     .groupBy { it.trafficMeasurementDateTime }
                     .map { (time, tiles) ->
-                        val polygon: Polygon = tiles.map {
-                            val geom = MortonTileLevel.M19.getTile(it.mortonTileId)
-                            listOf(geom.lon, geom.lat)
-                        }.toPolygon()
-                        Pair(index, time) to polygon
-                    }
+                        tiles.map {
+                            val polygon: Polygon = MortonTileLevel.M19.getTile(it.mortonTileId).geometry() as Polygon
+                            Triple(index, time, polygon)
+                        }
+                    }.flatten()
             }
             .flatten()
-            .toMap()
+            .toList()
 
         return FeatureCollection(
-            features = timeToPolygon.map { (key, polygon) ->
+            features = timeToPolygon.map { (index, time, polygon) ->
                 GeoJsonFeature(
                     geometry = GeoJsonPolygon(
                         coordinates = listOf(polygon.coordinates.map { listOf(it.x, it.y) })
                     ),
                     properties = mapOf(
-                        "classId" to key.first,
-                        "time" to key.second.format(
+                        "classId" to index,
+                        "time" to time.format(
                             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
                         )
                     )
@@ -132,26 +153,27 @@ class AnomalyService(
     }
 
     private fun extractValues(
-        tileData: List<TrafficTileHour>,
-        dataType: DataType,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime
-    ): DoubleArray {
-        val times: List<LocalDateTime> = generateSequence(startTime) { it.plusDays(1) }
-            .takeWhile { it <= endTime }
-            .toList()
-        val timeToTile: Map<LocalDateTime, TrafficTileHour> = tileData.associateBy { it.trafficMeasurementDateTime }
-
-        return times.map { time ->
-            timeToTile[time]?.let { tile ->
-                when (dataType) {
-                    DataType.SPEED_KHM -> tile.traffic.speedKmH
-                    DataType.TOTAL_DISTANCE_M -> tile.traffic.totalDistanceM.toDouble()
-                    DataType.FREE_FLOW_SPEED_KHM -> tile.traffic.freeFlowSpeedKmH
-                    DataType.CONGESTION -> tile.congestion()
-                }
-            } ?: Double.NaN
+        tileData: List<TrafficTileHour?>,
+        dataType: DataType
+    ): DoubleArray = tileData
+        .map {
+            if (it == null) Double.NaN
+            else when (dataType) {
+                DataType.SPEED_KHM -> it.traffic.speedKmH
+                DataType.TOTAL_DISTANCE_M -> it.traffic.totalDistanceM.toDouble()
+                DataType.FREE_FLOW_SPEED_KHM -> it.traffic.freeFlowSpeedKmH
+                DataType.CONGESTION -> it.congestion()
+            }
         }.toDoubleArray()
+
+    private fun normalizeGeoPoint(point: DoubleArray, reference: DoubleArray): DoubleArray {
+        val (lon, lat, hour) = point
+        val (refLon, refLat, _) = reference
+        return doubleArrayOf(
+            (lon - refLon) * MAGIC_CONST,
+            (lat - refLat) * MAGIC_CONST * cos(refLon * Math.PI / 180),
+            hour * DIMENSION_SCALE_CONSTANT
+        )
     }
 
     fun labelAnomaly(request: AnomalyLabelRequestDto): LabelDto {
@@ -218,7 +240,3 @@ private fun List<List<Double>>.toPolygon(
         null,
     )
 }
-
-private fun TrafficTileHour.congestion(): Double =
-    ((traffic.freeFlowSpeedKmH - traffic.speedKmH) / traffic.freeFlowSpeedKmH)
-        .takeIf { traffic.freeFlowSpeedKmH > 0 } ?: 0.0
