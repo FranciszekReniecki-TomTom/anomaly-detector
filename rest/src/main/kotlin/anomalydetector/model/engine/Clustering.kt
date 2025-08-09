@@ -6,7 +6,6 @@ import smile.feature.transform.RobustStandardizer
 import smile.math.distance.EuclideanDistance
 import smile.neighbor.KDTree
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.sqrt
 
 /**
@@ -14,13 +13,12 @@ import kotlin.math.sqrt
  *
  * @param dataPoints Array of data points, representing dimensions.
  * @param minN Minimum number of points in a cluster.
- * @param radius Radius for the DBSCAN clustering algorithm.
+ * @param noise If true, cluster marked as noise is returned as well.
  * @return List of clusters, where each cluster is a list of indices of outliers.
  */
 fun findClusters(
     dataPoints: Array<DoubleArray>,
-    minN: Int = dataPoints.first().size,
-    radius: Double,
+    minN: Int,
     noise: Boolean = true,
 ): List<List<Int>> {
     val df = DataFrame.of(dataPoints)
@@ -29,7 +27,6 @@ fun findClusters(
 
     val kDistances = computeKDistances(normalized, minN)
     val optimalRadius = findKneePoint(kDistances)
-    println("Optimal radius: $optimalRadius")
 
     val clusters = DBSCAN.fit(normalized, EuclideanDistance(), minN, optimalRadius)
 
@@ -67,11 +64,10 @@ fun findKneePoint(y: DoubleArray): Double {
     val dx = xMax - xMin
     val dy = yMax - yMin
 
-    if (dx == 0.0 || dy == 0.0) return y.first() // brak zróżnicowania
+    if (dx == 0.0 || dy == 0.0) return y.first()
 
-    // Wektor od pierwszego do ostatniego punktu
-    val lineVecX = 1.0 // po normalizacji x
-    val lineVecY = 1.0 // po normalizacji y
+    val lineVecX = 1.0
+    val lineVecY = 1.0
 
     var maxDist = 0.0
     var kneeIndex = 0
@@ -80,7 +76,6 @@ fun findKneePoint(y: DoubleArray): Double {
         val xNorm = (x[i] - xMin) / dx
         val yNorm = (y[i] - yMin) / dy
 
-        // odległość punktu od linii (0,0) → (1,1)
         val area = abs(xNorm * lineVecY - yNorm * lineVecX)
         val dist = area / sqrt(lineVecX * lineVecX + lineVecY * lineVecY)
 
