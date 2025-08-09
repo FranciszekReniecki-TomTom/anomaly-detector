@@ -71,10 +71,11 @@ class AnomalyService(
         }
         log.info("Data retrieved: ${data.size} records")
 
+        val totalHours = Duration.between(startTime, endTime).toHours()
         val validTilesById: Map<Long, List<TrafficTileHour>> = data
             .groupBy { it.mortonTileId }
             .filter {
-                it.value.size >= MIN_COVERAGE * Duration.between(startTime, endTime).toHours()
+                it.value.size >= MIN_COVERAGE * totalHours
             }
         log.info("Filtered valid tiles: ${validTilesById.size} tiles")
 
@@ -108,13 +109,7 @@ class AnomalyService(
             }
             .toTypedArray()
 
-        val clusters: List<List<TrafficTileHour>> =
-            findClusters(
-                outlierGeoPointsNormalized,
-                minN = 3,
-                radius = DIMENSION_SCALE_CONSTANT,
-                noise = false
-            )
+        val clusters: List<List<TrafficTileHour>> = findClusters(outlierGeoPointsNormalized, 3, false)
                 .map { cluster ->
                     cluster.map { outlierTiles[it] }
                 }
@@ -171,7 +166,7 @@ class AnomalyService(
         val (refLon, refLat, _) = reference
         return doubleArrayOf(
             (lon - refLon) * MAGIC_CONST,
-            (lat - refLat) * MAGIC_CONST * cos(refLon * Math.PI / 180),
+            (lat - refLat) * MAGIC_CONST * cos(refLat * Math.PI / 180),
             hour * DIMENSION_SCALE_CONSTANT
         )
     }
