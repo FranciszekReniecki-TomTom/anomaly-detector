@@ -14,4 +14,8 @@ data class TrafficTileHour(
     val trafficMeasurementDateTime: LocalDateTime,
     val mortonTileId: Long,
     val traffic: Traffic,
-)
+) {
+    fun congestion(): Double =
+        ((traffic.freeFlowSpeedKmH - traffic.speedKmH) / traffic.freeFlowSpeedKmH)
+            .takeIf { traffic.freeFlowSpeedKmH > 0 } ?: 0.0
+}
